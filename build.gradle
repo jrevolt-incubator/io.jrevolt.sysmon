@@ -1,12 +1,76 @@
-apply plugin: 'java'
-
-sourceCompatibility = 1.5
-version = '1.0'
-
-repositories {
-    mavenCentral()
+buildscript {
+	ext {
+		springVersion = "4.1.0.BUILD-SNAPSHOT"
+//		springBootVersion = "1.0.2.RELEASE"
+		springBootVersion = "1.1.0.BUILD-SNAPSHOT"
+	}
+	repositories {
+		mavenLocal()
+		maven { url "$nexusUrl/content/groups/public/";
+			credentials { username="$nexusUser"; password="$nexusPassword"; }
+		}
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+ext {
+	branch = "$git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
+	branchShort = branch.replaceFirst(".*/", "")
+	commit = "$git rev-parse HEAD".execute().in.text.trim()
+	commitShort = commit.length() > 7 ? commit.substring(0, 7) : commit
+	tag = branch.matches("master") ? 'git describe --tags --exact-match'.execute().in.text.trim() : null
+	gitDescribe = "$git describe --tags --always --long".execute().in.text.trim()
+	snapshotVersion = "${branchShort}-SNAPSHOT"
+	releaseVersion = tag ? "${tag}-${commitShort}" : null
 }
+
+subprojects {
+
+	apply plugin: 'java'
+	apply plugin: 'maven'
+
+	group = "org.jrevolt.sysmon"
+	version = "${releaseVersion ?: snapshotVersion}"
+
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+// WARNING: Gradle 1.11 uses ASM that does not yet support bytecode produced with -parameters. Tests will fail
+	[compileJava, compileTestJava]*.options*.compilerArgs = ['-parameters']
+
+	buildDir = "${rootProject.projectDir}/.build/${project.name}"
+	sourceSets {
+		main { [java, resources]*.srcDir 'src/main'; }
+		test { [java, resources]*.srcDir 'src/test'; }
+	}
+
+	dependencies {
+//		compile("org.apache.commons:commons-lang3:3.1")
+//		compile("commons-io:commons-io:2.4")
+//		compile("org.glassfish.jersey.core:jersey-client:2.8-SNAPSHOT")
+		testCompile("junit:junit:4.11")
+	}
+
+	repositories {
+		mavenLocal()
+		maven { url "$nexusUrl/content/groups/public/";
+			credentials { username="$nexusUser"; password="$nexusPassword"; }
+		}
+		mavenCentral()
+	}
+
+	uploadArchives {
+		repositories {
+			mavenDeployer {
+				repository(url: "$nexusUrl/content/repositories/snapshots") {
+					authentication(userName: "$nexusUser", password: "$nexusPassword")
+				}
+			}
+		}
+	}
+}
+
+

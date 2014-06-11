@@ -16,5 +16,5 @@ hs_err_pid*
 
 # GRADLE
 /.gradle
-/build
+/.build
 /gradle.properties

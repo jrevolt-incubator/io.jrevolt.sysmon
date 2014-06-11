@@ -1,2 +1,10 @@
 rootProject.name = 'org.jrevolt.sysmon'
 
+include 'common'
+include 'server'
+include 'agent'
+
+rootProject.children.each { it.name = "$rootProject.name.$it.name" }
+
+
+

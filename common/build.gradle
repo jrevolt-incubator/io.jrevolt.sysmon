@@ -1,0 +1,13 @@
+
+dependencies{
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
+	compile("org.springframework:spring-jms:${springVersion}")
+//	compile("org.apache.activemq:activemq-broker:5.9.1")
+	compile("org.apache.activemq:activemq-http:5.9.1")
+	compile("org.apache.activemq:activemq-client:5.9.1")
+	compile("org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1")
+	compile("com.fasterxml.jackson.core:jackson-databind:2.4.0")
+	compile("com.thoughtworks.xstream:xstream:1.4.7")
+}
+

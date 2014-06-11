@@ -1,0 +1,10 @@
+apply plugin: 'spring-boot'
+
+springBoot {
+	mainClass = "org.jrevolt.sysmon.client.ClientMain"
+	layout = "MAVEN"
+}
+
+dependencies {
+	compile project(":org.jrevolt.sysmon.common")
+}

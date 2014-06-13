@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +22,7 @@ import java.lang.reflect.Proxy;
  */
 @Configuration
 @EnableAutoConfiguration
+@EnableScheduling
 @ComponentScan("org.jrevolt.sysmon")
 public class ServerMain {
 
@@ -40,12 +42,11 @@ public class ServerMain {
 	@Autowired
 	ServerEvents events;
 
-//	@Scheduled(fixedRate = 10000)
-	@PostConstruct
+	@Scheduled(fixedRate = 5000)
 	void run() {
 		try {
+			System.out.println("ping()");
 			events.ping();
-			events.restart();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

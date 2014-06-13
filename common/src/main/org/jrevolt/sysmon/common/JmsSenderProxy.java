@@ -2,6 +2,7 @@ package org.jrevolt.sysmon.common;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -35,11 +38,7 @@ public class JmsSenderProxy implements InvocationHandler {
 		template.setExplicitQosEnabled(true);
 		template.setTimeToLive(template.getTimeToLive());
 		template.setMessageConverter(jmscfg.getMessageConverter());
-		org.springframework.messaging.Message<Object[]> msg = MessageBuilder
-				.withPayload(args != null ? args : new Object[0])
-				.build();
-		System.out.println("");
-		template.convertAndSend(destination, msg);
+		template.send(destination, session -> jmscfg.getMessageConverter().toMessage(args, session));
 		return null;
 	}
 }

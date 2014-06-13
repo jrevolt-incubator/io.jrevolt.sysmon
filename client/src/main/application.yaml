@@ -1,0 +1,8 @@
+spring.application:
+   name: JRevolt SysMon Client
+
+sysmon.client:
+   serverUrl: ${sysmon.server.url}
+
+
+

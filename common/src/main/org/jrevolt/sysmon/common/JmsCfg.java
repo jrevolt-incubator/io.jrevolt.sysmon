@@ -1,11 +1,10 @@
 package org.jrevolt.sysmon.common;
 
 import com.thoughtworks.xstream.XStream;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.jrevolt.sysmon.core.SpringApp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
-import org.springframework.jms.support.converter.MessageType;
-import org.springframework.jms.support.converter.SimpleMessageConverter;
 import org.springframework.stereotype.Component;
 
 import javax.jms.JMSException;
@@ -13,7 +12,8 @@ import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -21,6 +21,9 @@ import java.util.HashMap;
  */
 @Component
 public class JmsCfg {
+
+	@Autowired
+	SpringApp app;
 
 	private MessageConverter messageConverter = new MessageConverter() {
 
@@ -36,6 +39,16 @@ public class JmsCfg {
 			return xstream.fromXML(((TextMessage) message).getText());
 		}
 	};
+
+	public String getListenerId(String name) {
+		try {
+			String user = System.getProperty("user.name");
+			String host = InetAddress.getLocalHost().getHostName();
+			return String.format("%s@%s:%s:%s", user, host, name, app.getInstance());
+		} catch (UnknownHostException never) {
+			throw new AssertionError(never);
+		}
+	}
 
 	public String getDestinationName(Method method) {
 		return String.format("%s.%s", method.getDeclaringClass().getSimpleName(), method.getName());

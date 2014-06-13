@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+	compile("org.springframework:spring-context:${springVersion}")
+	compile("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
+	compile("commons-io:commons-io:2.4")
+	compile("org.apache.commons:commons-lang3:3.2")
+	compile("ch.qos.logback:logback-classic:1.1.2")
+}

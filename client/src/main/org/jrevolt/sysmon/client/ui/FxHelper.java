@@ -2,7 +2,7 @@ package org.jrevolt.sysmon.client.ui;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import org.jrevolt.sysmon.client.ClientMain;
+import org.jrevolt.sysmon.client.ClientApp;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -20,7 +20,7 @@ public abstract class FxHelper {
 
 	static public <T extends Base> T load(Class<T> cls) {
 		try {
-			T controller = ClientMain.instance().lookup(cls);
+			T controller = ClientApp.instance().lookup(cls);
 			FXMLLoader loader = new FXMLLoader(cls.getResource(cls.getSimpleName() + ".fxml"));
 			loader.setController(controller);
 			controller.pane = loader.load();

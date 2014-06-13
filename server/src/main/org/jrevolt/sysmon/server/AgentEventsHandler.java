@@ -11,4 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AgentEventsHandler implements AgentEvents {
 
+	@Override
+	public void status(String server) {
+		System.out.println("pong()");
+	}
 }

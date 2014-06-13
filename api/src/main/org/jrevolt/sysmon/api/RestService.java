@@ -1,0 +1,15 @@
+package org.jrevolt.sysmon.api;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
+ * @version $Id$
+ */
+public interface RestService {
+
+	@GET @Path("version")
+	String version();
+
+}

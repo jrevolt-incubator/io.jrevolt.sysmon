@@ -1,5 +1,6 @@
 package org.jrevolt.sysmon.common;
 
+import org.jrevolt.sysmon.core.SpringApp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.jms.JmsException;
@@ -11,6 +12,11 @@ import org.springframework.messaging.handler.invocation.InvocableHandlerMethod;
 
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,6 +40,9 @@ public class EventsHandler {
 	ConnectionFactory cf;
 
 	@Autowired
+	SpringApp app;
+
+	@Autowired
 	JmsCfg jmscfg;
 
 	Map<String, AbstractMessageListenerContainer> containers = new HashMap<>();
@@ -46,24 +55,25 @@ public class EventsHandler {
 	void init() {
 		Object handler = factory.getBean(type);
 
-		String hostName = getHostName();
-		UUID uuid = UUID.randomUUID();
-
 		for (Method method : type.getDeclaredMethods()) {
 			String name = String.format("%s.%s", method.getDeclaringClass().getSimpleName(), method.getName());
 			JMS jms = method.getAnnotation(JMS.class);
 			DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
-//			container.setClientId(hostName+":"+name+":"+ uuid);
+			container.setClientId(jmscfg.getListenerId(name));
 			container.setConnectionFactory(cf);
 			container.setMaxConcurrentConsumers(1);
 			container.setDestinationName(name);
 			container.setPubSubDomain(jms.topic());
 //			container.setConnectLazily(true);
 			container.setMessageConverter(jmscfg.getMessageConverter());
-			container.setMessageListener(new MessagingMessageListenerAdapter() {{
-				setMessageConverter(jmscfg.getMessageConverter());
-				setHandlerMethod(new InvocableHandlerMethod(handler, method));
-			}});
+			container.setMessageListener((MessageListener) message -> {
+				try {
+					Object[] args = (Object[]) jmscfg.getMessageConverter().fromMessage(message);
+					method.invoke(handler, args);
+				} catch (Exception e) {
+					throw new UnsupportedOperationException(e);
+				}
+			});
 			factory.initializeBean(container, name);
 			containers.put(name, container);
 		}
@@ -80,11 +90,4 @@ public class EventsHandler {
 		}
 	}
 
-	private String getHostName() {
-		try {
-			return InetAddress.getLocalHost().getCanonicalHostName();
-		} catch (UnknownHostException never) {
-			throw new AssertionError(never);
-		}
-	}
 }

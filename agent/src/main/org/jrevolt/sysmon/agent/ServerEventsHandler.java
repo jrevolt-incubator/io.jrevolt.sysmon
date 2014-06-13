@@ -22,8 +22,8 @@ public class ServerEventsHandler implements ServerEvents {
 
 	@Override
 	public void ping() {
-		events.status("agent");
-
+		System.out.println("ping()");
+		events.status("pong()");
 	}
 
 	@Override

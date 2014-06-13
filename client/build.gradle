@@ -6,5 +6,9 @@ springBoot {
 }
 
 dependencies {
-	compile project(":org.jrevolt.sysmon.common")
+	compile project(":org.jrevolt.sysmon.api")
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+	compile("org.glassfish.jersey.core:jersey-client:2.8-SNAPSHOT")
+	compile("org.glassfish.jersey.ext:jersey-proxy-client:2.8-SNAPSHOT")
+	compile("com.jcraft:jsch:0.1.51")
 }

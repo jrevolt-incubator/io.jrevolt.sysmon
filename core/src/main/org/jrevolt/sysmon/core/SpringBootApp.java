@@ -1,10 +1,10 @@
 package org.jrevolt.sysmon.core;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.env.EnumerableCompositePropertySource;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -65,14 +65,18 @@ public class SpringBootApp extends SpringApplication {
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
 		try {
 			super.configureEnvironment(environment, args);
-			PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-			Resource[] resources = resolver.getResources("classpath*:spring.yaml");
+
+			PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
 			YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
-			CompositePropertySource composite = new CompositePropertySource("classpath*:spring.yaml");
-			for (Resource resource : resources) {
-				composite.addPropertySource(loader.load(resource.getFilename(), resource, null));
+
+			String pattern = "classpath*:spring.yaml";
+			EnumerableCompositePropertySource composite = new EnumerableCompositePropertySource(pattern);
+			Resource[] resources = resourceResolver.getResources(pattern);
+			for (Resource r : resources) {
+				composite.add(loader.load(r.getURI().toString(), r, null));
 			}
 			environment.getPropertySources().addLast(composite);
+
 		} catch (IOException e) {
 			throw new UnsupportedOperationException(e);
 		}

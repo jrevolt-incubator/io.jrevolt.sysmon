@@ -1,8 +1,8 @@
 package org.jrevolt.sysmon.agent;
 
 import org.jrevolt.sysmon.common.AgentEvents;
-import org.jrevolt.sysmon.common.EventsHandler;
-import org.jrevolt.sysmon.common.JmsSenderProxy;
+import org.jrevolt.sysmon.common.JmsReceiver;
+import org.jrevolt.sysmon.common.JmsSender;
 import org.jrevolt.sysmon.common.ServerEvents;
 import org.jrevolt.sysmon.core.SpringBootApp;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +24,17 @@ import java.lang.reflect.Proxy;
 public class AgentMain {
 
 	@Bean
-	AgentEvents agentEvents(JmsSenderProxy jmsSenderProxy) {
+	AgentEvents agentEvents(JmsSender jmsSender) {
 		return (AgentEvents) Proxy.newProxyInstance(
 				Thread.currentThread().getContextClassLoader(),
 				new Class[]{AgentEvents.class},
-				jmsSenderProxy);
+				jmsSender);
 	}
 
 
 	@Bean
-	EventsHandler serverEvents() {
-		return new EventsHandler(ServerEvents.class);
+	JmsReceiver serverEvents() {
+		return new JmsReceiver(ServerEvents.class);
 	}
 
 	@Autowired

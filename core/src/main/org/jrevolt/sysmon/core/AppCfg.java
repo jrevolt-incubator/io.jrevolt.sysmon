@@ -58,11 +58,13 @@ public class AppCfg {
 		this.instance = instance;
 	}
 
-	@Value("${spring.activemq.brokerUrl:}")
-	String brokerUrl;
+	String test;
 
-	@PostConstruct
-	void init() {
-		System.out.println(ToStringBuilder.reflectionToString(this));
+	public String getTest() {
+		return test;
+	}
+
+	public void setTest(String test) {
+		this.test = test;
 	}
 }

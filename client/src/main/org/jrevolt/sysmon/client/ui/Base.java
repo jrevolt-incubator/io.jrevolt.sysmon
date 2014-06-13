@@ -12,15 +12,15 @@ import java.net.URL;
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-public abstract class Base {
+public abstract class Base<T extends Pane> {
 
 	@FXML
 	URL location;
 
 	@FXML
-	protected Pane pane;
+	protected T pane;
 
-	@FXML
+//	@FXML
 	protected void initialize() {
 	}
 

@@ -1,8 +1,8 @@
 package org.jrevolt.sysmon.server;
 
 import org.jrevolt.sysmon.common.AgentEvents;
-import org.jrevolt.sysmon.common.EventsHandler;
-import org.jrevolt.sysmon.common.JmsSenderProxy;
+import org.jrevolt.sysmon.common.JmsReceiver;
+import org.jrevolt.sysmon.common.JmsSender;
 import org.jrevolt.sysmon.common.ServerEvents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import javax.annotation.PostConstruct;
 import java.lang.reflect.Proxy;
 
 /**
@@ -27,16 +26,16 @@ import java.lang.reflect.Proxy;
 public class ServerMain {
 
 	@Bean
-	ServerEvents serverEvents(JmsSenderProxy jmsSenderProxy) {
+	ServerEvents serverEvents(JmsSender jmsSender) {
 		return (ServerEvents) Proxy.newProxyInstance(
 				Thread.currentThread().getContextClassLoader(),
 				new Class[]{ServerEvents.class},
-				jmsSenderProxy);
+				jmsSender);
 	}
 
 	@Bean
-	EventsHandler agentEvents() {
-		return new EventsHandler(AgentEvents.class);
+	JmsReceiver agentEvents() {
+		return new JmsReceiver(AgentEvents.class);
 	}
 
 	@Autowired
@@ -45,7 +44,6 @@ public class ServerMain {
 	@Scheduled(fixedRate = 5000)
 	void run() {
 		try {
-			System.out.println("ping()");
 			events.ping();
 		} catch (Exception e) {
 			e.printStackTrace();

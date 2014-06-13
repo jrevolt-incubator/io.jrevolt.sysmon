@@ -1,4 +1,6 @@
+koki: pid:${PID}
+
 spring.application:
-   pid: ${PID}
+   pid: ${koki}
 
 

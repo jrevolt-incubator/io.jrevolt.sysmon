@@ -1,6 +1,9 @@
 package org.jrevolt.sysmon.common;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jrevolt.sysmon.core.AppCfg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.jms.JmsException;
@@ -11,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +23,9 @@ import java.util.Map;
  * @version $Id$
  */
 //@Component
-public class EventsHandler {
+public class JmsReceiver {
+
+	static private final Logger LOG = LoggerFactory.getLogger(JmsReceiver.class);
 
 	Class type;
 
@@ -37,7 +43,7 @@ public class EventsHandler {
 
 	Map<String, AbstractMessageListenerContainer> containers = new HashMap<>();
 
-	public EventsHandler(Class type) {
+	public JmsReceiver(Class type) {
 		this.type = type;
 	}
 
@@ -59,6 +65,7 @@ public class EventsHandler {
 			container.setMessageListener((MessageListener) message -> {
 				try {
 					Object[] args = (Object[]) jmscfg.getMessageConverter().fromMessage(message);
+					LOG.debug("Received message. Invoking handler: {} {}", jmscfg.getDestinationName(method), ToStringBuilder.reflectionToString(args));
 					method.invoke(handler, args);
 				} catch (Exception e) {
 					throw new UnsupportedOperationException(e);

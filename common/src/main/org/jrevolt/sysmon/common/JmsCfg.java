@@ -1,7 +1,7 @@
 package org.jrevolt.sysmon.common;
 
 import com.thoughtworks.xstream.XStream;
-import org.jrevolt.sysmon.core.SpringApp;
+import org.jrevolt.sysmon.core.AppCfg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ import java.net.UnknownHostException;
 public class JmsCfg {
 
 	@Autowired
-	SpringApp app;
+	AppCfg app;
 
 	@Bean @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 	static JmsTemplate jmsTemplate(ConnectionFactory cf, JmsCfg jmscfg) {

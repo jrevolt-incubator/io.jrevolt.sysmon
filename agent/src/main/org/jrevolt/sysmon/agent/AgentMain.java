@@ -4,26 +4,14 @@ import org.jrevolt.sysmon.common.AgentEvents;
 import org.jrevolt.sysmon.common.EventsHandler;
 import org.jrevolt.sysmon.common.JmsSenderProxy;
 import org.jrevolt.sysmon.common.ServerEvents;
-import org.jrevolt.sysmon.core.SpringApp;
-import org.jrevolt.sysmon.core.SpringCfg;
+import org.jrevolt.sysmon.core.SpringBootApp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.CompositePropertySource;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePropertySource;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.lang.reflect.Proxy;
 
 /**
@@ -58,24 +46,6 @@ public class AgentMain {
 	}
 
 	static public void main(String[] args) {
-		SpringApplication app = new SpringApplication(AgentMain.class) {
-			@Override
-			protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
-				try {
-					super.configureEnvironment(environment, args);
-					PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-					Resource[] resources = resolver.getResources("classpath*:spring.yaml");
-					YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
-					CompositePropertySource composite = new CompositePropertySource("classpath*:spring.yaml");
-					for (Resource resource : resources) {
-						composite.addPropertySource(loader.load(resource.getFilename(), resource, null));
-					}
-					environment.getPropertySources().addLast(composite);
-				} catch (IOException e) {
-					throw new UnsupportedOperationException(e);
-				}
-			}
-		};
-		app.run(args);
+		SpringBootApp.run(AgentMain.class, args);
 	}
 }

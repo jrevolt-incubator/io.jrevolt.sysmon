@@ -1,28 +1,18 @@
 package org.jrevolt.sysmon.common;
 
-import org.jrevolt.sysmon.core.SpringApp;
+import org.jrevolt.sysmon.core.AppCfg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.listener.SimpleMessageListenerContainer;
-import org.springframework.jms.listener.adapter.MessagingMessageListenerAdapter;
-import org.springframework.messaging.handler.invocation.InvocableHandlerMethod;
 
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -40,7 +30,7 @@ public class EventsHandler {
 	ConnectionFactory cf;
 
 	@Autowired
-	SpringApp app;
+	AppCfg app;
 
 	@Autowired
 	JmsCfg jmscfg;

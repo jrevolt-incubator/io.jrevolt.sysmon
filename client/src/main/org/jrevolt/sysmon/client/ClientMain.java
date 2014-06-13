@@ -2,6 +2,7 @@ package org.jrevolt.sysmon.client;
 
 import javafx.application.Application;
 import org.jrevolt.sysmon.client.ui.FxMain;
+import org.jrevolt.sysmon.core.SpringBootApp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,7 +25,7 @@ import org.springframework.core.env.MutablePropertySources;
 public class ClientMain {
 
 	static public void main(String[] args) {
-		SpringApplication.run(ClientMain.class, args);
+		SpringBootApp.run(ClientMain.class, args);
 		Application.launch(FxMain.class);
 	}
 }

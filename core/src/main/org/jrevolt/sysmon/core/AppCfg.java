@@ -19,7 +19,7 @@ import java.util.UUID;
  */
 @Component
 @ConfigurationProperties("spring.application")
-public class SpringApp {
+public class AppCfg {
 
 	String id;
 	String name;

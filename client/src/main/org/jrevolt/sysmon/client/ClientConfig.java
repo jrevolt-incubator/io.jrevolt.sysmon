@@ -1,7 +1,10 @@
 package org.jrevolt.sysmon.client;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.env.StandardEnvironment;
 
+import javax.annotation.PostConstruct;
 import java.net.URI;
 
 /**
@@ -20,4 +23,5 @@ public class ClientConfig {
 	public void setServerUrl(URI serverUrl) {
 		this.serverUrl = serverUrl;
 	}
+
 }

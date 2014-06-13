@@ -2,6 +2,10 @@ package org.jrevolt.sysmon.client.ui;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import org.jrevolt.sysmon.client.ClientApp;
+import org.jrevolt.sysmon.core.AppCfg;
+import org.jrevolt.sysmon.core.SpringBootApp;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -25,6 +29,13 @@ public class FxMain extends Application {
 
 	Stage stage;
 
+	@Autowired
+	AppCfg app;
+
+	{
+		SpringBootApp.instance().autowire(this);
+	}
+
 	@Override
 	public void start(Stage stage) throws Exception {
 		INSTANCE = this;
@@ -39,7 +50,7 @@ public class FxMain extends Application {
 //
 //        System.out.println("launch time: "+(now.getTime() - jvmLaunched.getTime()));
 
-//		stage.setTitle("CA");
+		stage.setTitle(app.getName());
 		base.show();
 	}
 

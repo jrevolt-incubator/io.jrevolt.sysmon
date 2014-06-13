@@ -1,19 +1,29 @@
 package org.jrevolt.sysmon.core;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
+import javax.annotation.PostConstruct;
 import java.util.UUID;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
+@Component
 @ConfigurationProperties("spring.application")
 public class SpringApp {
 
 	String id;
 	String name;
+	String pid;
 	UUID instance = UUID.randomUUID();
 
 	public String getId() {
@@ -32,11 +42,27 @@ public class SpringApp {
 		this.name = name;
 	}
 
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
 	public UUID getInstance() {
 		return instance;
 	}
 
 	public void setInstance(UUID instance) {
 		this.instance = instance;
+	}
+
+	@Value("${spring.activemq.brokerUrl:}")
+	String brokerUrl;
+
+	@PostConstruct
+	void init() {
+		System.out.println(ToStringBuilder.reflectionToString(this));
 	}
 }

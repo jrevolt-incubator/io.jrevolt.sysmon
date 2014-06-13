@@ -1,5 +1,5 @@
 spring.activemq:
-   inMemory:   false
-   brokerUrl:  tcp://localhost:61616
-   user:       system
-   password:   manager
+      inMemory:   false
+      brokerUrl:  tcp://localhost:61616
+#      user:       system
+#      password:   manager

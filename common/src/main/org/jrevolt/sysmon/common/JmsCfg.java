@@ -3,10 +3,15 @@ package org.jrevolt.sysmon.common;
 import com.thoughtworks.xstream.XStream;
 import org.jrevolt.sysmon.core.SpringApp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
@@ -24,6 +29,12 @@ public class JmsCfg {
 
 	@Autowired
 	SpringApp app;
+
+	@Bean @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+	static JmsTemplate jmsTemplate(ConnectionFactory cf, JmsCfg jmscfg) {
+		JmsTemplate template = new JmsTemplate(cf);
+		return template;
+	}
 
 	private MessageConverter messageConverter = new MessageConverter() {
 

@@ -8,4 +8,10 @@ springBoot {
 dependencies {
 	compile project(":org.jrevolt.sysmon.common")
 
+	compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+
+	compile("org.glassfish.jersey.containers:jersey-container-servlet:2.8-SNAPSHOT")
+	compile("org.glassfish.jersey.containers:jersey-container-servlet-core:2.8-SNAPSHOT")
+	compile("org.glassfish.jersey.ext:jersey-spring3:2.7")
 }

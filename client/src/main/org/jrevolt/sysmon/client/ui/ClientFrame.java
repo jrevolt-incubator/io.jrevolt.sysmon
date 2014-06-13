@@ -2,6 +2,7 @@ package org.jrevolt.sysmon.client.ui;
 
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
+import org.jrevolt.sysmon.api.RestService;
 import org.jrevolt.sysmon.core.AppCfg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,10 +25,11 @@ public class ClientFrame extends Base<BorderPane> {
 	@Autowired
 	StandardEnvironment env;
 
+	@Autowired
+	AppCfg app;
 
-	@Value("${PID}") String pid;
-	@Value("${spring.application.pid:}") String pid2;
-	@Autowired AppCfg app;
+	@Autowired
+	RestService rest;
 
 	@Override
 	protected void initialize() {
@@ -36,6 +38,7 @@ public class ClientFrame extends Base<BorderPane> {
 		pane.setCenter(new TextArea() {{
 			StringBuilder sb = new StringBuilder();
 			Formatter f = new Formatter(sb);
+			f.format("version: %s%n", rest.version());
 			for (PropertySource<?> src : env.getPropertySources()) {
 				try {
 					String[] names = ((MapPropertySource) src).getPropertyNames();

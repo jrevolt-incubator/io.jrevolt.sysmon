@@ -4,6 +4,7 @@ dependencies{
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
 	compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
 	compile("org.springframework:spring-jms:${springVersion}")
+	compile("org.springframework:spring-aspects:${springVersion}")
 //	compile("org.apache.activemq:activemq-broker:${activemqVersion}")
 //	compile("org.apache.activemq:activemq-http:${activemqVersion}")
 	compile("org.apache.activemq:activemq-amqp:${activemqVersion}")

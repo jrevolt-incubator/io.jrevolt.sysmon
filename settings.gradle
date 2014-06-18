@@ -1,4 +1,4 @@
-rootProject.name = 'org.jrevolt.sysmon'
+rootProject.name = 'io.jrevolt.sysmon'
 
 include 'core'
 include 'common'

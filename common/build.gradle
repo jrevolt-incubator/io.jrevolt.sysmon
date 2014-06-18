@@ -1,6 +1,6 @@
 
 dependencies{
-	compile project(":org.jrevolt.sysmon.api")
+	compile project(":io.jrevolt.sysmon.api")
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
 	compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
 	compile("org.springframework:spring-jms:${springVersion}")

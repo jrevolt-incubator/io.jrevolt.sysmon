@@ -1,12 +1,12 @@
 apply plugin: 'spring-boot'
 
 springBoot {
-	mainClass = "org.jrevolt.sysmon.client.ClientMain"
+	mainClass = "io.jrevolt.sysmon.client.ClientMain"
 	layout = "MAVEN"
 }
 
 dependencies {
-	compile project(":org.jrevolt.sysmon.api")
+	compile project(":io.jrevolt.sysmon.api")
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
 	compile("org.glassfish.jersey.core:jersey-client:2.8-SNAPSHOT")
 	compile("org.glassfish.jersey.ext:jersey-proxy-client:2.8-SNAPSHOT")

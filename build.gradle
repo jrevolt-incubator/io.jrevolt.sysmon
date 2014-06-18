@@ -34,7 +34,7 @@ subprojects {
 	apply plugin: 'java'
 	apply plugin: 'maven'
 
-	group = "org.jrevolt.sysmon"
+	group = "io.jrevolt.sysmon"
 	version = "${releaseVersion ?: snapshotVersion}"
 
 	sourceCompatibility = 1.8

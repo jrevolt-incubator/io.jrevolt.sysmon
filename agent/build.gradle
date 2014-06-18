@@ -1,10 +1,10 @@
 apply plugin: 'spring-boot'
 
 springBoot {
-	mainClass = "org.jrevolt.sysmon.agent.AgentMain"
+	mainClass = "io.jrevolt.sysmon.agent.AgentMain"
 	layout = "MAVEN"
 }
 
 dependencies {
-	compile project(":org.jrevolt.sysmon.common")
+	compile project(":io.jrevolt.sysmon.common")
 }

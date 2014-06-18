@@ -1,12 +1,12 @@
 apply plugin: 'spring-boot'
 
 springBoot {
-	mainClass = "org.jrevolt.sysmon.server.ServerMain"
+	mainClass = "io.jrevolt.sysmon.server.ServerMain"
 	layout = "MAVEN"
 }
 
 dependencies {
-	compile project(":org.jrevolt.sysmon.common")
+	compile project(":io.jrevolt.sysmon.common")
 
 	compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
 	compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")

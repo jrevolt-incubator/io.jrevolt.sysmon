@@ -58,4 +58,9 @@ public class AppCfg {
 		this.instance = instance;
 	}
 
+	@PostConstruct
+	void init() {
+		System.out.println();
+	}
+
 }

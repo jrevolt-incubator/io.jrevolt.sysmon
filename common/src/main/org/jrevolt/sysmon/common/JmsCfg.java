@@ -28,6 +28,9 @@ import java.net.UnknownHostException;
 public class JmsCfg {
 
 	@Autowired
+	ConnectionFactory connectionFactory;
+
+	@Autowired
 	AppCfg app;
 
 	@Bean @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)

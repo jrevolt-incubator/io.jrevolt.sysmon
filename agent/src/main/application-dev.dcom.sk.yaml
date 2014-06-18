@@ -1,0 +1,45 @@
+domain:
+   name: dev.dcom.sk
+   nodes:
+      si1soa01:
+         hostname: si1soa01
+         provides:
+            - http://local:8080
+         depends:
+            - https://lbsoa.intra.dcom.sk
+         requires:
+            - https://lbcc.intra.dcom.sk
+      si1crms01:
+         hostname: si1crms01
+         provides:
+            - http://local:8080/crm
+            - http://local:8080/servio
+         depends:
+            - https://lbcrm.intra.dcom.sk/crm
+            - https://lbcrm.intra.dcom.sk/servio
+         requires:
+            - https://lbsoa.intra.dcom.sk/
+      si1port01:
+         hostname: si1port01
+         provides:
+            - http://local:80
+            - http://local:81
+         depends:
+         requires:
+      si1port02:
+         hostname: si1port02
+      si1port03:
+         hostname: si1port03
+      si1port04:
+         hostname: si1port04
+      si1port05:
+         hostname: si1port05
+         provides:
+            - http://local:8080
+            - http://local:8081
+      si1port06:
+         hostname: si1port06
+         provides:
+            - http://${hostname}:8080
+            - http://${hostname}:8081
+

@@ -1,22 +1,19 @@
 package org.jrevolt.sysmon.common;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.jrevolt.sysmon.core.AppCfg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.jms.JmsException;
-import org.springframework.jms.listener.AbstractMessageListenerContainer;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.annotation.PostConstruct;
-import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -30,61 +27,71 @@ public class JmsReceiver {
 	Class type;
 
 	@Autowired
-	AutowireCapableBeanFactory factory;
+	ApplicationContext ctx;
 
 	@Autowired
-	ConnectionFactory cf;
-
-	@Autowired
-	AppCfg app;
+	ConfigurableListableBeanFactory factory;
 
 	@Autowired
 	JmsCfg jmscfg;
 
-	Map<String, AbstractMessageListenerContainer> containers = new HashMap<>();
+//	Map<String, DefaultMessageListenerContainer> containers = new HashMap<>();
 
 	public JmsReceiver(Class type) {
 		this.type = type;
 	}
 
-	@PostConstruct
-	void init() {
-		Object handler = factory.getBean(type);
-
-		for (Method method : type.getDeclaredMethods()) {
-			String name = String.format("%s.%s", method.getDeclaringClass().getSimpleName(), method.getName());
+	static public class JmsListener extends DefaultMessageListenerContainer {
+		public JmsListener(String name, Object handler, Method method, JmsCfg jmscfg) {
 			JMS jms = method.getAnnotation(JMS.class);
-			DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
-			container.setClientId(jmscfg.getListenerId(name));
-			container.setConnectionFactory(cf);
-			container.setMaxConcurrentConsumers(1);
-			container.setDestinationName(name);
-			container.setPubSubDomain(jms.topic());
-//			container.setConnectLazily(true);
-			container.setMessageConverter(jmscfg.getMessageConverter());
-			container.setMessageListener((MessageListener) message -> {
+			setClientId(jmscfg.getListenerId(name));
+			setConnectionFactory(jmscfg.connectionFactory);
+			setMaxConcurrentConsumers(1);
+			setDestinationName(name);
+			setPubSubDomain(jms.topic());
+//			setConnectLazily(true);
+			setMessageConverter(jmscfg.getMessageConverter());
+			setMessageListener((MessageListener) message -> {
 				try {
 					Object[] args = (Object[]) jmscfg.getMessageConverter().fromMessage(message);
-					LOG.debug("Received message. Invoking handler: {} {}", jmscfg.getDestinationName(method), ToStringBuilder.reflectionToString(args));
+					LOG.debug("Received message. Invoking handler: {} {}", jmscfg.getDestinationName(method),
+								 ToStringBuilder.reflectionToString(args));
 					method.invoke(handler, args);
 				} catch (Exception e) {
 					throw new UnsupportedOperationException(e);
 				}
 			});
-			factory.initializeBean(container, name);
-			containers.put(name, container);
+			setAutoStartup(true);
 		}
 	}
 
+
 	@PostConstruct
-	void start() {
-		for (AbstractMessageListenerContainer container : containers.values()) {
-			try {
-				container.start();
-			} catch (JmsException e) {
-				e.printStackTrace();
-			}
+	void init() {
+		Object handler = ctx.getBean(type);
+
+		for (Method method : type.getDeclaredMethods()) {
+			String name = String.format("%s.%s", method.getDeclaringClass().getSimpleName(), method.getName());
+			GenericBeanDefinition def = new GenericBeanDefinition();
+			def.setBeanClass(JmsListener.class);
+			def.setConstructorArgumentValues(new ConstructorArgumentValues() {{
+				addGenericArgumentValue(name);
+				addGenericArgumentValue(handler);
+				addGenericArgumentValue(method);
+				addGenericArgumentValue(jmscfg);
+			}});
+			((BeanDefinitionRegistry) factory).registerBeanDefinition(name, def);
+			ctx.getBean(name);
+			System.out.printf("%s : created bean %s%n", ctx, name);
 		}
 	}
+
+//	@PreDestroy
+//	void close() {
+//		for (DefaultMessageListenerContainer container : containers.values()) {
+//			container.stop();
+//			container.destroy();
+//		}
+//	}
 
 }

@@ -13,5 +13,6 @@ dependencies{
 	compile("org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1")
 	compile("com.fasterxml.jackson.core:jackson-databind:2.4.0")
 	compile("com.thoughtworks.xstream:xstream:1.4.7")
+	compile("dnsjava:dnsjava:2.1.6")
 }
 

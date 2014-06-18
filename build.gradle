@@ -14,6 +14,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+//		classpath("javax:javax.tools:1.8")
 	}
 }
 
@@ -62,6 +63,11 @@ subprojects {
 		}
 		mavenCentral()
 	}
+
+//	jar.doLast { task ->
+//		["jarsigner", "-keystore", ".keystore", "-storepass", "changeit", "-keypass", "changeit",
+//		 task.archivePath, "jrevolt.io"].execute()
+//	}
 
 	uploadArchives {
 		repositories {

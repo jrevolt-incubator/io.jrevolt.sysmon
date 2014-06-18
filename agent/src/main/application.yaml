@@ -1,4 +1,3 @@
-spring.application:
-   name: JRevolt SysMon Agent
-
+spring:
+   application.name: JRevolt SysMon Agent
 

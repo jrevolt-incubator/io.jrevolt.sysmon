@@ -10,6 +10,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 /**
@@ -32,7 +34,14 @@ public class SpringBootApp extends SpringApplication {
 
 	ConfigurableApplicationContext applicationContext;
 
-	{ INSTANCE = this; }
+	{
+		INSTANCE = this;
+//		try {
+//			String hostname = InetAddress.getLocalHost().getHostName();
+//			System.setProperty("hostname", hostname);
+//		} catch (UnknownHostException ignore) {
+//		}
+	}
 
 	public SpringBootApp(Object... sources) {
 		super(sources);

@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.agent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Map;
 @ConfigurationProperties("domain")
 public class DomainCfg {
 
-	Map<String, Node> nodes;
+	Map<String, Node> nodes = new HashMap<>();
 
 	public Map<String, Node> getNodes() {
 		return nodes;
@@ -24,6 +25,7 @@ public class DomainCfg {
 
 	@PostConstruct
 	void init() {
-		System.out.println();
+		// copy the node key (hostname) into the node.hostname property
+		nodes.entrySet().forEach(e -> e.getValue().setHostname(e.getKey()));
 	}
 }

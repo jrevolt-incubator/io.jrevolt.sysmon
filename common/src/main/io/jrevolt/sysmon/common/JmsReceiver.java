@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.common;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import javax.annotation.PostConstruct;
 import javax.jms.MessageListener;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -54,8 +58,14 @@ public class JmsReceiver {
 			setMessageListener((MessageListener) message -> {
 				try {
 					Object[] args = (Object[]) jmscfg.getMessageConverter().fromMessage(message);
-					LOG.debug("Received message. Invoking handler: {} {}", jmscfg.getDestinationName(method),
-								 ToStringBuilder.reflectionToString(args));
+					if (LOG.isDebugEnabled()) {
+						Map<String, Object> map = new HashMap<>();
+						Parameter[] params = method.getParameters();
+						for (int i=0; i<params.length; i++) {
+							map.put(params[i].getName(), args[i]);
+						}
+						LOG.debug("Received message. Invoking handler: {} {}", jmscfg.getDestinationName(method), map);
+					}
 					method.invoke(handler, args);
 				} catch (Exception e) {
 					throw new UnsupportedOperationException(e);
@@ -82,7 +92,6 @@ public class JmsReceiver {
 			}});
 			((BeanDefinitionRegistry) factory).registerBeanDefinition(name, def);
 			ctx.getBean(name);
-			System.out.printf("%s : created bean %s%n", ctx, name);
 		}
 	}
 

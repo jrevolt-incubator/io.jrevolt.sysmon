@@ -9,6 +9,6 @@ public interface ServerEvents {
 	@JMS(topic = true, timeToLive = 5000)
 	default void ping() {}
 
-	@JMS
+	@JMS(topic=true, timeToLive = 5000)
 	default void restart() {}
 }

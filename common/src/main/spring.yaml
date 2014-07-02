@@ -1,5 +1,8 @@
 spring.activemq:
       inMemory:   false
+#      brokerUrl:  https://build.dcom.sk:443/jms
       brokerUrl:  tcp://localhost:61616
+#      brokerUrl:  amqp://greenbook:5672
+#      brokerUrl:  amqp://greenbook:5673
 #      user:       system
 #      password:   manager

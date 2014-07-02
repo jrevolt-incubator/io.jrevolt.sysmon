@@ -1,3 +1,5 @@
 spring:
    application.name: JRevolt SysMon Agent
 
+spring.activemq:
+      inMemory:   false

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 import javax.jms.ConnectionFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -39,7 +42,14 @@ public class JmsSender implements InvocationHandler {
 		template.setTimeToLive(jms.timeToLive());
 		template.setMessageConverter(jmscfg.getMessageConverter());
 		template.send(destination, session -> jmscfg.getMessageConverter().toMessage(args, session));
-		LOG.debug("Message sent: {} {}", destination, ToStringBuilder.reflectionToString(args));
+		if (LOG.isDebugEnabled()) {
+			Map<String, Object> map = new HashMap<>();
+			Parameter[] params = method.getParameters();
+			for (int i=0; i<params.length; i++) {
+				map.put(params[i].getName(), args[i]);
+			}
+			LOG.debug("Message sent: {} {}", destination, map);
+		}
 		return null;
 	}
 }

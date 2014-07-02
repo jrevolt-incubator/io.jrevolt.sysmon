@@ -3,7 +3,7 @@ buildscript {
 		springVersion = "4.1.0.BUILD-SNAPSHOT"
 //		springBootVersion = "1.0.2.RELEASE"
 		springBootVersion = "1.1.2.BUILD-SNAPSHOT"
-		activemqVersion = "5.9.1"
+		activemqVersion = "5.10.0"
 	}
 	repositories {
 		mavenLocal()
@@ -23,7 +23,7 @@ ext {
 	branchShort = branch.replaceFirst(".*/", "")
 	commit = "$git rev-parse HEAD".execute().in.text.trim()
 	commitShort = commit.length() > 7 ? commit.substring(0, 7) : commit
-	tag = branch.matches("master") ? 'git describe --tags --exact-match'.execute().in.text.trim() : null
+	tag = branch.matches("master") ? "$git describe --tags --exact-match".execute().in.text.trim() : null
 	gitDescribe = "$git describe --tags --always --long".execute().in.text.trim()
 	snapshotVersion = "${branchShort}-SNAPSHOT"
 	releaseVersion = tag ? "${tag}-${commitShort}" : null

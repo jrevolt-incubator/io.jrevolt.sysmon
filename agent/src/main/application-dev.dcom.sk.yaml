@@ -2,44 +2,67 @@ domain:
    name: dev.dcom.sk
    nodes:
       si1soa01:
-         hostname: si1soa01
          provides:
-            - http://local:8080
+            - http://$hostname:8080
          depends:
             - https://lbsoa.intra.dcom.sk
          requires:
             - https://lbcc.intra.dcom.sk
       si1crms01:
-         hostname: si1crms01
          provides:
-            - http://local:8080/crm
-            - http://local:8080/servio
+            - http://$hostname:8080/crm
+            - http://$hostname:8080/servio
          depends:
             - https://lbcrm.intra.dcom.sk/crm
             - https://lbcrm.intra.dcom.sk/servio
          requires:
             - https://lbsoa.intra.dcom.sk/
       si1port01:
-         hostname: si1port01
          provides:
-            - http://local:80
-            - http://local:81
+            - http://$hostname:80
+            - http://$hostname:81
          depends:
+            - http://www.dcom.sk
+            - https://www.dcom.sk
          requires:
+            - ajp://sp1port05:8009
+            - ajp://sp1port06:8009
+            - ajp://sp1port05:8010
+            - ajp://sp1port06:8010
       si1port02:
-         hostname: si1port02
+         provides:
+            - http://$hostname:80
+            - http://$hostname:81
+         depends:
+            - http://www.dcom.sk
+            - https://www.dcom.sk
+         requires:
+            - ajp://sp1port05:8009
+            - ajp://sp1port06:8009
+            - ajp://sp1port05:8010
+            - ajp://sp1port06:8010
       si1port03:
-         hostname: si1port03
+         provides:
+            - http://$hostname:81
+         depends:
+            - https://www.dcom.sk
+         requires:
+            - ajp://sp1port05:8010
+            - ajp://sp1port06:8010
       si1port04:
-         hostname: si1port04
+         provides:
+            - http://$hostname:81
+         depends:
+            - https://www.dcom.sk
+         requires:
+            - ajp://sp1port05:8010
+            - ajp://sp1port06:8010
       si1port05:
-         hostname: si1port05
          provides:
-            - http://local:8080
-            - http://local:8081
+            - http://$hostname:8080
+            - http://$hostname:8081
       si1port06:
-         hostname: si1port06
          provides:
-            - http://${hostname}:8080
-            - http://${hostname}:8081
+            - http://$hostname:8080
+            - http://$hostname:8081
 

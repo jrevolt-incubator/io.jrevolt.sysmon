@@ -57,7 +57,7 @@ public class ClientFrame extends Base<BorderPane> {
 		}});
 
 
-		try {
+		if (false) try {
 			JSch ssh = new JSch();
 //			ssh.getHostKeyRepository().add();
 //			HostKey key = new HostKey("gubuntu", null);
@@ -81,13 +81,10 @@ public class ClientFrame extends Base<BorderPane> {
 //				System.out.println(s);
 //			}
 			Thread.sleep(TimeUnit.HOURS.toMillis(1));
-		} catch (JSchException e) {
-			throw new UnsupportedOperationException(e);
-		} catch (IOException e) {
-			throw new UnsupportedOperationException(e);
-		} catch (InterruptedException e) {
-			throw new UnsupportedOperationException(e);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
+
 }

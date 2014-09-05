@@ -1,21 +1,16 @@
 package io.jrevolt.sysmon.client.ui;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import io.jrevolt.sysmon.client.ClientConfig;
-import io.jrevolt.sysmon.core.AppCfg;
-import io.jrevolt.sysmon.core.SpringBootApp;
+import io.jrevolt.sysmon.model.AppCfg;
+import io.jrevolt.sysmon.model.SpringBootApp;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
 import java.io.IOException;

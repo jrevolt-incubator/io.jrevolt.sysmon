@@ -2,7 +2,7 @@ buildscript {
 	ext {
 		springVersion = "4.1.0.BUILD-SNAPSHOT"
 //		springBootVersion = "1.0.2.RELEASE"
-		springBootVersion = "1.1.2.BUILD-SNAPSHOT"
+		springBootVersion = "1.2.0.BUILD-SNAPSHOT"
 		activemqVersion = "5.10.0"
 	}
 	repositories {

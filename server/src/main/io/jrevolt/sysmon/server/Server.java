@@ -1,9 +1,9 @@
 package io.jrevolt.sysmon.server;
 
-import io.jrevolt.sysmon.common.AgentEvents;
-import io.jrevolt.sysmon.common.JmsReceiver;
-import io.jrevolt.sysmon.common.JmsSender;
-import io.jrevolt.sysmon.common.ServerEvents;
+import io.jrevolt.sysmon.jms.AgentEvents;
+import io.jrevolt.sysmon.jms.JmsReceiver;
+import io.jrevolt.sysmon.jms.JmsSender;
+import io.jrevolt.sysmon.jms.ServerEvents;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

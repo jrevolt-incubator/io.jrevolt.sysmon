@@ -1,7 +1,7 @@
 package io.jrevolt.sysmon.server.rest;
 
-import io.jrevolt.sysmon.api.RestService;
-import io.jrevolt.sysmon.core.AppCfg;
+import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.model.AppCfg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -7,7 +7,7 @@ springBoot {
 }
 
 dependencies {
-	compile project(":io.jrevolt.sysmon.common")
+	compile project(":io.jrevolt.sysmon.jms")
 
 	compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
 	compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")

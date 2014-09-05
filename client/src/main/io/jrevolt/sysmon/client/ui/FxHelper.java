@@ -3,7 +3,7 @@ package io.jrevolt.sysmon.client.ui;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
-import io.jrevolt.sysmon.core.SpringBootApp;
+import io.jrevolt.sysmon.model.SpringBootApp;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;

@@ -1,6 +1,6 @@
 package io.jrevolt.sysmon.client;
 
-import io.jrevolt.sysmon.api.RestService;
+import io.jrevolt.sysmon.rest.RestService;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

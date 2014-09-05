@@ -1,10 +1,6 @@
 package io.jrevolt.sysmon.server;
 
-import io.jrevolt.sysmon.core.SpringBootApp;
-
-import org.springframework.boot.SpringApplication;
-
-import java.security.Security;
+import io.jrevolt.sysmon.model.SpringBootApp;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>

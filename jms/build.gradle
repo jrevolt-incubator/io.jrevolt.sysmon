@@ -1,0 +1,21 @@
+
+dependencies{
+	compile project(":io.jrevolt.sysmon.rest")
+
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
+	compile("org.springframework:spring-jms:${springVersion}")
+	compile("org.springframework:spring-aspects:${springVersion}")
+//	compile("org.apache.activemq:activemq-broker:${activemqVersion}")
+//	compile("org.apache.activemq:activemq-http:${activemqVersion}") {
+//		exclude module: "javax.annotation"
+//		exclude module: ":jetty-all-server"
+//	}
+	compile("org.apache.activemq:activemq-amqp:${activemqVersion}")
+	compile("org.apache.activemq:activemq-client:${activemqVersion}")
+	compile("org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1")
+	compile("com.fasterxml.jackson.core:jackson-databind:2.4.0")
+	compile("com.thoughtworks.xstream:xstream:1.4.7")
+	compile("dnsjava:dnsjava:2.1.6")
+}
+

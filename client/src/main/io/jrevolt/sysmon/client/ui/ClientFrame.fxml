@@ -29,4 +29,10 @@
    <bottom>
       <TextField disable="true" editable="false" text="Status bar!" BorderPane.alignment="CENTER" />
    </bottom>
+   <left>
+      <TreeView fx:id="servers" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </left>
+   <center>
+      <TextArea fx:id="details" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
 </BorderPane>

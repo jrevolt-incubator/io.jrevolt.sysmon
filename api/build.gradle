@@ -1,6 +1,0 @@
-apply plugin: 'java'
-
-dependencies {
-	compile project(":io.jrevolt.sysmon.core")
-	compile("javax.ws.rs:javax.ws.rs-api:2.0")
-}

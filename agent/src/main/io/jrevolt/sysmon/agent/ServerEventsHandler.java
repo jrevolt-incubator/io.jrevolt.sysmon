@@ -1,7 +1,10 @@
 package io.jrevolt.sysmon.agent;
 
-import io.jrevolt.sysmon.common.ServerEvents;
-import io.jrevolt.sysmon.common.AgentEvents;
+import io.jrevolt.sysmon.jms.ServerEvents;
+import io.jrevolt.sysmon.jms.AgentEvents;
+import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.NodeDef;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -21,9 +24,12 @@ public class ServerEventsHandler implements ServerEvents {
 	@Autowired
 	AgentEvents events;
 
+	@Autowired
+	DomainDef domain;
+
 	@Override
 	public void ping() {
-		events.status("pong()");
+		events.status(domain.currentNode());
 	}
 
 	@Override
@@ -34,5 +40,10 @@ public class ServerEventsHandler implements ServerEvents {
 			System.out.println("EXIT");
 			System.exit(7);
 		});
+	}
+
+	public void reportProvides() {
+		NodeDef node = domain.currentNode();
+		events.provides(node.getProvides());
 	}
 }

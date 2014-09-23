@@ -1,8 +1,8 @@
 buildscript {
 	ext {
-		springVersion = "4.1.0.BUILD-SNAPSHOT"
-//		springBootVersion = "1.0.2.RELEASE"
+		springVersion = "4.1.0.RELEASE"
 		springBootVersion = "1.2.0.BUILD-SNAPSHOT"
+		jerseyVersion="2.12"
 		activemqVersion = "5.10.0"
 	}
 	repositories {

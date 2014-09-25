@@ -4,11 +4,13 @@ import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.jms.JmsReceiver;
 import io.jrevolt.sysmon.jms.JmsSender;
 import io.jrevolt.sysmon.jms.ServerEvents;
+import io.jrevolt.sysmon.model.DomainDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,7 @@ import java.lang.reflect.Proxy;
 @EnableSpringConfigured
 @EnableScheduling
 @ComponentScan("io.jrevolt.sysmon")
+@EnableConfigurationProperties(DomainDef.class)
 public class Server {
 
 	@Bean
@@ -56,7 +59,7 @@ public class Server {
 	@Autowired
 	ServerEvents events;
 
-	@Scheduled(initialDelay = 5000L, fixedDelay = 5000L)
+	@Scheduled(initialDelay = 5000L, fixedDelay = 60000L)
 	void run() {
 		try {
 			events.ping();

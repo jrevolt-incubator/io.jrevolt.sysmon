@@ -2,10 +2,13 @@ package io.jrevolt.sysmon.model;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import jdk.nashorn.internal.runtime.ScriptObject;
+
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -15,30 +18,32 @@ import java.util.Map;
 @ConfigurationProperties("domain")
 public class DomainDef {
 
-	Map<String, NodeDef> nodes = new HashMap<>();
+	String name;
+	Map<String, ClusterDef> clusters = new LinkedHashMap<>();
 
-	public Map<String, NodeDef> getNodes() {
-		return nodes;
+	public String getName() {
+		return name;
 	}
 
-	public void setNodes(Map<String, NodeDef> nodes) {
-		this.nodes = nodes;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Map<String, ClusterDef> getClusters() {
+		return clusters;
+	}
+
+	public void setClusters(Map<String, ClusterDef> clusters) {
+		this.clusters = clusters;
 	}
 
 	@PostConstruct
 	void init() {
-		// copy the node key (hostname) into the node.hostname property
-		nodes.entrySet().forEach(e -> e.getValue().setHostname(e.getKey()));
+		clusters.entrySet().forEach(e -> e.getValue().setName(e.getKey()));
 	}
-
-	///
 
 	public NodeDef currentNode() {
-		try {
-			String hostname = InetAddress.getLocalHost().getHostName();
-			return nodes.get(hostname);
-		} catch (UnknownHostException e) {
-			throw new UnsupportedOperationException(e);
-		}
+		throw new UnsupportedOperationException(); // todo implement this
 	}
+
 }

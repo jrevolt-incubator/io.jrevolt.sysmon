@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.input.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
@@ -11,6 +12,11 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem mnemonicParsing="false" text="Close" />
+                  <MenuItem mnemonicParsing="false" onAction="#refresh" text="Refresh">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
@@ -29,10 +35,68 @@
    <bottom>
       <TextField disable="true" editable="false" text="Status bar!" BorderPane.alignment="CENTER" />
    </bottom>
-   <left>
-      <TreeView fx:id="servers" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </left>
    <center>
-      <TextArea fx:id="details" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+              <tabs>
+                  <Tab text="&lt;all&gt;">
+                     <content>
+                        <GridPane>
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
+                                <columns>
+                                  <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
+                                    <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
+                                    <TableColumn fx:id="endpoint" prefWidth="70.0" text="Endpoint" />
+                                    <TableColumn fx:id="type" prefWidth="75.0" text="Type" />
+                                    <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
+                                    <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </GridPane>
+                     </content>
+                  </Tab>
+                <Tab text="Clusters" />
+                  <Tab text="Proxies">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                <Tab text="Servers">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                  </content>
+                </Tab>
+                  <Tab text="Artifacts">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                  <Tab text="Endpoints" />
+                  <Tab text="Dependencies">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                  <Tab text="Management">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
+         </center>
+         <bottom>
+            <TextField fx:id="filter" onAction="#onFilterUpdated" onKeyTyped="#onFilterUpdated" BorderPane.alignment="CENTER" />
+         </bottom>
+      </BorderPane>
    </center>
 </BorderPane>

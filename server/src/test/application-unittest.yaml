@@ -1,0 +1,36 @@
+jmx.url.jboss: service:jmx:remoting-jmx://$hostname:9999 # JBoss JMX
+jmx.url.tomcat: service:jmx:rmi:///jndi/rmi://$hostname:9010/jmxrmi # Tomcat JMX
+jolokia.url: http://$hostname:8080/jolokia # JMX/REST bridge
+
+version: develop-SNAPSHOT
+
+domain:
+   name: example.com
+   clusters:
+      sample: # name of the cluster, usually xxxx in sp1xxxx01 host name
+         proxies: # list of URLs of the reverse proxies providing access to this cluster
+            - https://lbsample.example.com
+            - https://sample.example.com
+            - https://sample.dcom.sk
+            - http://sample.dcom.sk
+         servers:
+            server1, server2, server3
+         artifacts: # list of Maven URIs of the artifacts deployed to this cluster
+            - com.example.sample:com.example.sample.ws:$version:war
+            - com.example.sample:com.example.sample.rest:$version:war
+            - com.example.sample:com.example.sample.ui:$version:war
+         provides: # list of published endpoints URLs; Placeholder $hostname resolves to actual server (node) host name (e.g. sp1xxxx01.example.com, etc)
+            - http://$hostname:8080/ws1
+            - http://$hostname:8080/ws2
+            - http://$hostname:8080/rest
+            - http://$hostname:8080/ui
+         dependencies: # list of URLs representing other services required by this cluster
+            - jdbc:sqlserver://lbdb.example.com:12345;database=sample;user=myuser
+            - https://lbsvc.example.com/another/ws
+            - https://lbsvc.example.com/another/rest
+         management:
+            - http://$hostname:9990/console # JBoss console
+            - http://$hostname:8080/jolokia # JMX/REST bridge
+            - service:jmx:remoting-jmx://$hostname:9999 # JBoss JMX
+            - service:jmx:rmi:///jndi/rmi://$hostname:9010/jmxrmi # Tomcat JMX
+

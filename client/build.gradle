@@ -9,7 +9,12 @@ dependencies {
 	compile project(":io.jrevolt.sysmon.rest")
 
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-	compile("org.glassfish.jersey.core:jersey-client:2.8-SNAPSHOT")
-	compile("org.glassfish.jersey.ext:jersey-proxy-client:2.8-SNAPSHOT")
+	compile("org.glassfish.jersey.core:jersey-client:${jerseyVersion}")
+	compile("org.glassfish.jersey.media:jersey-media-moxy:${jerseyVersion}")
+	compile("org.glassfish.jersey.media:jersey-media-json-processing:${jerseyVersion}")
+	compile("org.glassfish.jersey.ext:jersey-spring3:${jerseyVersion}")
+	compile("org.glassfish.jersey.ext:jersey-bean-validation:${jerseyVersion}")
+	compile("org.glassfish.jersey.ext:jersey-proxy-client:${jerseyVersion}")
 	compile("com.jcraft:jsch:0.1.51")
+	compile("org.jolokia:jolokia-client-java:1.2.2")
 }

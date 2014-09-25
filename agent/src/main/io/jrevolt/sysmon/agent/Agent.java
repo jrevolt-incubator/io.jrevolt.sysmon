@@ -29,7 +29,7 @@ import java.lang.reflect.Proxy;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan("io.jrevolt.sysmon")
-@EnableConfigurationProperties(DomainDef.class)
+//@EnableConfigurationProperties(DomainDef.class)
 @EnableScheduling
 public class Agent {
 

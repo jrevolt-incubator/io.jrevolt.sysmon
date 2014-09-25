@@ -2,12 +2,15 @@ package io.jrevolt.sysmon.client;
 
 import io.jrevolt.sysmon.rest.RestService;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -22,7 +25,7 @@ public class ClientApp {
 		return ClientBuilder.newClient();
 	}
 
-	@Bean
+	@Bean @ConditionalOnMissingBean
 	RestService restService(Client client, ClientConfig cfg) {
 		return WebResourceFactory.newResource(RestService.class, client.target(cfg.getServerUrl()));
 	}

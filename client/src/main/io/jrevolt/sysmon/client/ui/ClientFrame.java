@@ -1,28 +1,21 @@
 package io.jrevolt.sysmon.client.ui;
 
-import javafx.application.Platform;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.adapter.JavaBeanObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.event.EventHandler;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
-import javafx.util.Callback;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.StandardEnvironment;
@@ -31,22 +24,14 @@ import org.springframework.stereotype.Component;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
-import io.jrevolt.sysmon.model.NodeDef;
 import io.jrevolt.sysmon.rest.RestService;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.UriBuilder;
 
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Formatter;
-import java.util.List;
-import java.util.Set;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
@@ -77,6 +62,7 @@ public class ClientFrame extends Base<BorderPane> {
 	@FXML TableColumn<Endpoint, URI> endpoint;
 	@FXML TableColumn<Endpoint, Endpoint.Type> type;
 	@FXML TableColumn<Endpoint, Endpoint.Status> status;
+	@FXML TableColumn<Endpoint, String> comment;
 	@FXML TextField filter;
 
 	DomainDef domain;
@@ -108,6 +94,7 @@ public class ClientFrame extends Base<BorderPane> {
 			endpoint.setCellValueFactory(new PropertyValueFactory<>("uri"));
 			type.setCellValueFactory(new PropertyValueFactory<>("type"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
+			comment.setCellValueFactory(new PropertyValueFactory<>("comment"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -123,6 +110,7 @@ public class ClientFrame extends Base<BorderPane> {
 
 	void check(Endpoint endpoint) {
 		ObjectProperty<Endpoint.Status> status = new SimpleObjectProperty<>(Endpoint.Status.UNDETERMINED);
+		StringProperty comment = new SimpleStringProperty();
 		try {
 			URL url = endpoint.getUri().toURL();
 			URLConnection con = url.openConnection();
@@ -139,18 +127,27 @@ public class ClientFrame extends Base<BorderPane> {
 					status.set(Endpoint.Status.ERROR); break;
 			}
 
+			comment.set(String.format("HTTP %d", code));
+
 		} catch (Exception e) {
 			status.set(Endpoint.Status.ERROR);
+			comment.set(e.toString());
 		} finally {
 			fxupdate(() -> {
 				endpoint.status.set(status.get());
+				endpoint.comment.set(comment.get());
 				//http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items
 				this.status.setVisible(false);
 				this.status.setVisible(true);
+
 			});
-			System.out.printf("%-10s %s%n", status.get(), endpoint.getUri());
+//			System.out.printf("%-10s %s%n", status.get(), endpoint.getUri());
 		}
 	}
+
+	void checkOnAgent(Endpoint endpoint) {
+	}
+
 
 	@FXML
 	void onFilterUpdated() {
@@ -161,7 +158,17 @@ public class ClientFrame extends Base<BorderPane> {
 					|| pattern.matcher(p.getServer()).matches()
 					|| pattern.matcher(p.getUri().toString()).matches()
 					|| pattern.matcher(p.getStatus().name()).matches()
-					|| pattern.matcher(p.getType().name()).matches();
+					|| pattern.matcher(p.getComment()).matches()
+					|| pattern.matcher(p.getType().name()).matches()
+			;
 		});
+	}
+
+	@FXML
+	void copyCellValue(Event e) {
+		URI uri = table.getSelectionModel().getSelectedItem().getUri();
+		ClipboardContent content = new ClipboardContent();
+		content.putString(uri.toString());
+		Clipboard.getSystemClipboard().setContent(content);
 	}
 }

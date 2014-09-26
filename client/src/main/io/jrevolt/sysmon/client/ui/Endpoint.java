@@ -24,6 +24,7 @@ public class Endpoint {
 
 	ObjectProperty<Status> status = new SimpleObjectProperty<>(Status.UNKNOWN);
 
+	StringProperty comment = new SimpleStringProperty();
 
 	public Endpoint(URI uri,Type type, String server, ClusterDef cluster) {
 		this.uri = new SimpleObjectProperty<>(uri);
@@ -37,12 +38,14 @@ public class Endpoint {
 	public StringProperty server() { return server; }
 	public ObjectProperty<ClusterDef> cluster() { return cluster; }
 	public ObjectProperty<Status> status() { return status; }
+	public StringProperty comment() { return comment; }
 
 	public URI getUri() { return uri.getValue(); }
 	public Type getType() { return type.get(); }
 	public String getServer() { return server.get(); }
 	public ClusterDef getCluster() { return cluster.get(); }
 	public Status getStatus() { return status.get(); }
+	public String getComment() { return comment.get(); }
 
 	public String getClusterName() { return cluster.get().getName(); }
 	public String getStatusName() { return status.get().name(); }

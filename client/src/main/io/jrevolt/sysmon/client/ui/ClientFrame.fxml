@@ -54,7 +54,14 @@
                                 <columns>
                                   <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
                                     <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
-                                    <TableColumn fx:id="endpoint" prefWidth="70.0" text="Endpoint" />
+                                    <TableColumn fx:id="endpoint" prefWidth="70.0" text="Endpoint">
+                                       <contextMenu>
+                                          <ContextMenu>
+                                            <items>
+                                              <MenuItem mnemonicParsing="false" onAction="#copyCellValue" text="copy" />
+                                            </items>
+                                          </ContextMenu>
+                                       </contextMenu></TableColumn>
                                     <TableColumn fx:id="type" prefWidth="75.0" text="Type" />
                                     <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
                                     <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />

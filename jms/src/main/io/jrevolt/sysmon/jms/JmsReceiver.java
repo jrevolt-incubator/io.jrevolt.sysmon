@@ -2,13 +2,18 @@ package io.jrevolt.sysmon.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.util.StringValueResolver;
 
 import javax.annotation.PostConstruct;
 import javax.jms.MessageListener;
@@ -44,13 +49,18 @@ public class JmsReceiver {
 	}
 
 	static public class JmsListener extends DefaultMessageListenerContainer {
-		public JmsListener(String name, Object handler, Method method, JmsCfg jmscfg) {
+
+		public JmsListener(String name, Object handler, Method method, JmsCfg jmscfg, ConfigurableListableBeanFactory factory) {
 			JMS jms = method.getAnnotation(JMS.class);
+			JMSSelector selector = method.getAnnotation(JMSSelector.class);
 			setClientId(jmscfg.getListenerId(name));
 			setConnectionFactory(jmscfg.connectionFactory);
 			setMaxConcurrentConsumers(1);
 			setDestinationName(name);
 			setPubSubDomain(jms.topic());
+			if (selector != null) {
+				setMessageSelector(factory.resolveEmbeddedValue(selector.value()));
+			}
 //			setConnectLazily(true);
 			setMessageConverter(jmscfg.getMessageConverter());
 			setMessageListener((MessageListener) message -> {
@@ -73,6 +83,7 @@ public class JmsReceiver {
 			});
 			setAutoStartup(true);
 		}
+
 	}
 
 
@@ -89,6 +100,7 @@ public class JmsReceiver {
 				addGenericArgumentValue(handler);
 				addGenericArgumentValue(method);
 				addGenericArgumentValue(jmscfg);
+				addGenericArgumentValue(factory);
 			}});
 			((BeanDefinitionRegistry) factory).registerBeanDefinition(name, def);
 			ctx.getBean(name);

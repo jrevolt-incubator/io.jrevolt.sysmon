@@ -20,6 +20,7 @@ public interface ServerEvents {
 	@JMS(topic = true)
 	default void reportProvides() {}
 
-	@JMS
-	default void checkProvidedEndpoints(ClusterDef clusterDef) {}
+	@JMS(topic = true)
+	@JMSSelector("name='${cluster.name}'")
+	default void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {}
 }

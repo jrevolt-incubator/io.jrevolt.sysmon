@@ -7,6 +7,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.Message;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -40,7 +41,19 @@ public class JmsSender implements InvocationHandler {
 		template.setExplicitQosEnabled(true);
 		template.setTimeToLive(jms.timeToLive());
 		template.setMessageConverter(jmscfg.getMessageConverter());
-		template.send(destination, session -> jmscfg.getMessageConverter().toMessage(args, session));
+		template.send(destination, session -> {
+			Message message = jmscfg.getMessageConverter().toMessage(args, session);
+			Parameter[] params = method.getParameters();
+			for (int i = 0; i < params.length; i++) {
+				Parameter p = params[i];
+				if (p.getAnnotation(JMSProperty.class) == null) { continue; }
+
+				Object o = args[i];
+				if (o == null) { continue; }
+				if (o instanceof String) { message.setStringProperty(p.getName(), (String) o); }
+			}
+			return message;
+		});
 		if (LOG.isDebugEnabled()) {
 			Map<String, Object> map = new HashMap<>();
 			Parameter[] params = method.getParameters();

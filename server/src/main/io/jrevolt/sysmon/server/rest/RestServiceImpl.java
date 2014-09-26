@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -30,5 +31,17 @@ public class RestServiceImpl implements RestService {
 	@Override
 	public DomainDef getDomainDef() {
 		return domainDef;
+	}
+
+	@Override
+	public Response resource(String resource) {
+		String type
+				= resource.endsWith(".html") ? "text/html"
+				: resource.endsWith(".jnlp") ? "application/x-java-jnlp-file"
+				: resource.endsWith(".jar") ? "application/java-archive"
+				: null;
+		return Response.ok(getClass().getResourceAsStream(resource))
+				.type(type)
+				.build();
 	}
 }

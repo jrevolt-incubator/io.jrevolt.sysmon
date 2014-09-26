@@ -24,7 +24,7 @@ public class Endpoint {
 
 	ObjectProperty<Status> status = new SimpleObjectProperty<>(Status.UNKNOWN);
 
-	StringProperty comment = new SimpleStringProperty();
+	StringProperty comment = new SimpleStringProperty("");
 
 	public Endpoint(URI uri,Type type, String server, ClusterDef cluster) {
 		this.uri = new SimpleObjectProperty<>(uri);

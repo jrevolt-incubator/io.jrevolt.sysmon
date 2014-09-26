@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.server.rest;
 
+import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.rest.RestService;
 import io.jrevolt.sysmon.model.AppCfg;
@@ -23,6 +24,9 @@ public class RestServiceImpl implements RestService {
 	@Autowired
 	DomainDef domainDef;
 
+	@Autowired
+	ServerEvents events;
+
 	@Override
 	public String version() {
 		return String.format("%s", app.getName());
@@ -43,5 +47,12 @@ public class RestServiceImpl implements RestService {
 		return Response.ok(getClass().getResourceAsStream(resource))
 				.type(type)
 				.build();
+	}
+
+	@Override
+	public void checkAll() {
+		domainDef.getClusters().values().parallelStream().forEach(c->{
+			events.checkCluster(c.getName(), c);
+		});
 	}
 }

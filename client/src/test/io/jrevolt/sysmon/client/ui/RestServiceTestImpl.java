@@ -6,6 +6,8 @@ import io.jrevolt.sysmon.rest.RestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.core.Response;
+
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
@@ -23,5 +25,10 @@ public class RestServiceTestImpl implements RestService {
 	@Override
 	public DomainDef getDomainDef() {
 		return domain;
+	}
+
+	@Override
+	public Response resource(String resource) {
+		throw new UnsupportedOperationException(); // todo implement this
 	}
 }

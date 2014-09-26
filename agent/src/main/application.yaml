@@ -3,3 +3,5 @@ spring:
 
 spring.activemq:
       inMemory:   false
+
+cluster.name: soa

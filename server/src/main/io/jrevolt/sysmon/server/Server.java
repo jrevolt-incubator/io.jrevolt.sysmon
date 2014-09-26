@@ -67,7 +67,7 @@ public class Server {
 
 	@Autowired DomainDef domain;
 
-	@Scheduled(initialDelay = 5000L, fixedDelay = 10000L)
+	//@Scheduled(initialDelay = 5000L, fixedDelay = 10000L)
 	void run() {
 		try {
 			events.checkCluster("soa", domain.getClusters().get("soa"));

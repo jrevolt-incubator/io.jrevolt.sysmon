@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.agent;
 
+import io.jrevolt.sysmon.jms.JMSProperty;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.model.ClusterDef;
@@ -11,8 +12,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -52,7 +55,11 @@ public class ServerEventsHandler implements ServerEvents {
 	}
 
 	@Override
-	public void checkProvidedEndpoints(ClusterDef clusterDef) {
-		throw new UnsupportedOperationException(); // todo implement
+	public void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {
+		try {
+			events.serverChecked(clusterDef.getName(), InetAddress.getLocalHost().getHostName());
+		} catch (UnknownHostException e) {
+			throw new UnsupportedOperationException(e);
+		}
 	}
 }

@@ -27,4 +27,7 @@ public interface RestService {
 	@GET @Path("jnlp/{resource}")
 	Response resource(@PathParam("resource") String resource);
 
+	@POST @Path("checkAll")
+	void checkAll();
+
 }

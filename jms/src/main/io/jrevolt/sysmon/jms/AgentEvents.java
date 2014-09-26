@@ -22,4 +22,7 @@ public interface AgentEvents {
 
 	@JMS
 	default void provides(List<URI> uris) {}
+
+	@JMS
+	default void serverChecked(String clusterName, String serverName) {}
 }

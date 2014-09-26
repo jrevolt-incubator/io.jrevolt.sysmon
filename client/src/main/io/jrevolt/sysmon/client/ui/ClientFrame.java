@@ -26,17 +26,19 @@ import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.rest.RestService;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.ws.rs.core.UriBuilder;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.function.Predicate;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
-import static io.jrevolt.sysmon.client.ui.FxHelper.fxasync;
-import static io.jrevolt.sysmon.client.ui.FxHelper.fxupdate;
+import static io.jrevolt.sysmon.client.ui.FxHelper.*;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -86,7 +88,7 @@ public class ClientFrame extends Base<BorderPane> {
 			endpoint.status.set(Endpoint.Status.CHECKING);
 			FxHelper.async(() -> check(endpoint));
 		})));
-		table.setItems(new FilteredList<>(endpoints, p->true));
+		table.setItems(new FilteredList<>(endpoints, this::filter));
 
 		try {
 			cluster.setCellValueFactory(new PropertyValueFactory<>("clusterName"));
@@ -145,23 +147,28 @@ public class ClientFrame extends Base<BorderPane> {
 		}
 	}
 
-	void checkOnAgent(Endpoint endpoint) {
+	@FXML
+	void checkAll() {
+		async(rest::checkAll);
 	}
 
 
 	@FXML
 	void onFilterUpdated() {
-		((FilteredList<Endpoint>) table.getItems()).setPredicate(p-> {
-			Pattern pattern = Pattern.compile(".*" + filter.getText() + ".*");
-			return pattern.matcher(p.getClusterName()).matches()
-					|| pattern.matcher(p.getServer()).matches()
-					|| pattern.matcher(p.getServer()).matches()
-					|| pattern.matcher(p.getUri().toString()).matches()
-					|| pattern.matcher(p.getStatus().name()).matches()
-					|| pattern.matcher(p.getComment()).matches()
-					|| pattern.matcher(p.getType().name()).matches()
-			;
-		});
+		((FilteredList<Endpoint>) table.getItems()).setPredicate(this::filter);
+	}
+
+	boolean filter(Endpoint p) {
+		if (StringUtils.isEmpty(filter.getText())) { return true; }
+		Pattern pattern = Pattern.compile(".*" + filter.getText() + ".*");
+		return pattern.matcher(p.getClusterName()).matches()
+				|| pattern.matcher(p.getServer()).matches()
+				|| pattern.matcher(p.getServer()).matches()
+				|| pattern.matcher(p.getUri().toString()).matches()
+				|| pattern.matcher(p.getStatus().name()).matches()
+				|| pattern.matcher(p.getComment()).matches()
+				|| pattern.matcher(p.getType().name()).matches()
+				;
 	}
 
 	@FXML
@@ -171,4 +178,5 @@ public class ClientFrame extends Base<BorderPane> {
 		content.putString(uri.toString());
 		Clipboard.getSystemClipboard().setContent(content);
 	}
+
 }

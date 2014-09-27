@@ -88,6 +88,18 @@ public class ClientFrame extends Base<BorderPane> {
 			endpoint.status.set(Endpoint.Status.CHECKING);
 			FxHelper.async(() -> check(endpoint));
 		})));
+		domain.getClusters().values().forEach(c->c.getDependencies().forEach(d->{
+			Endpoint endpoint = new Endpoint(d, Endpoint.Type.DEPENDENCY, null, c);
+			endpoints.add(endpoint);
+			endpoint.status.set(Endpoint.Status.CHECKING);
+			FxHelper.async(() -> check(endpoint));
+		}));
+		domain.getClusters().values().forEach(c->c.getProxies().forEach(p->{
+			Endpoint endpoint = new Endpoint(p, Endpoint.Type.PROXY, null, c);
+			endpoints.add(endpoint);
+			endpoint.status.set(Endpoint.Status.CHECKING);
+			FxHelper.async(() -> check(endpoint));
+		}));
 		table.setItems(new FilteredList<>(endpoints, this::filter));
 
 		try {
@@ -162,11 +174,10 @@ public class ClientFrame extends Base<BorderPane> {
 		if (StringUtils.isEmpty(filter.getText())) { return true; }
 		Pattern pattern = Pattern.compile(".*" + filter.getText() + ".*");
 		return pattern.matcher(p.getClusterName()).matches()
-				|| pattern.matcher(p.getServer()).matches()
-				|| pattern.matcher(p.getServer()).matches()
+				|| (p.getServer() != null && pattern.matcher(p.getServer()).matches())
 				|| pattern.matcher(p.getUri().toString()).matches()
 				|| pattern.matcher(p.getStatus().name()).matches()
-				|| pattern.matcher(p.getComment()).matches()
+				|| (p.getComment() != null && pattern.matcher(p.getComment()).matches())
 				|| pattern.matcher(p.getType().name()).matches()
 				;
 	}

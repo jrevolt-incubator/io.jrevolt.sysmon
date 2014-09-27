@@ -31,4 +31,9 @@ public class RestServiceTestImpl implements RestService {
 	public Response resource(String resource) {
 		throw new UnsupportedOperationException(); // todo implement this
 	}
+
+	@Override
+	public void checkAll() {
+		throw new UnsupportedOperationException(); // todo implement this
+	}
 }

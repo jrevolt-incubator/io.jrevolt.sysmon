@@ -30,7 +30,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.UriBuilder;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -126,22 +129,32 @@ public class ClientFrame extends Base<BorderPane> {
 		ObjectProperty<Endpoint.Status> status = new SimpleObjectProperty<>(Endpoint.Status.UNDETERMINED);
 		StringProperty comment = new SimpleStringProperty();
 		try {
-			URL url = endpoint.getUri().toURL();
-			URLConnection con = url.openConnection();
-			int code = con instanceof HttpURLConnection ? ((HttpURLConnection) con).getResponseCode() : 0;
+			if (endpoint.getUri().getScheme().equals("jdbc")) {
+				Socket socket = new Socket();
+				URL url = URI.create(endpoint.getUri().getSchemeSpecificPart()
+						.replaceFirst(".*//(.*):([0-9]+).*", "http://$1:$2"))
+						.toURL();
+				socket.connect(new InetSocketAddress(url.getHost(), url.getPort()), 1000);
+				status.set(Endpoint.Status.OK);
+				comment.set("Connected");
+			} else {
+				URL url = endpoint.getUri().toURL();
+				URLConnection con = url.openConnection();
+				int code = con instanceof HttpURLConnection ? ((HttpURLConnection) con).getResponseCode() : 0;
 
-			switch (code) {
-				case 200:
-				case 302:
-				case 401:
-					status.set(Endpoint.Status.OK); break;
-				case 404:
-					status.set(Endpoint.Status.UNAVALABLE); break;
-				case 500:
-					status.set(Endpoint.Status.ERROR); break;
+				switch (code) {
+					case 200:
+					case 302:
+					case 401:
+						status.set(Endpoint.Status.OK); break;
+					case 404:
+						status.set(Endpoint.Status.UNAVALABLE); break;
+					case 500:
+						status.set(Endpoint.Status.ERROR); break;
+				}
+
+				comment.set(String.format("HTTP %d", code));
 			}
-
-			comment.set(String.format("HTTP %d", code));
 
 		} catch (Exception e) {
 			status.set(Endpoint.Status.ERROR);

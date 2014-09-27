@@ -1,0 +1,9 @@
+spring.application:
+   name: JRevolt SysMon Browser
+
+sysmon.browser:
+   directory: ${user.home}/.io.jrevolt.sysmon/browser
+   serverUrl: ${sysmon.server.url}
+
+
+

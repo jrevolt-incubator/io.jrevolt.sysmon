@@ -6,6 +6,7 @@ include 'rest'
 include 'server'
 include 'agent'
 include 'client'
+include 'browser'
 
 rootProject.children.each { it.name = "$rootProject.name.$it.name" }
 

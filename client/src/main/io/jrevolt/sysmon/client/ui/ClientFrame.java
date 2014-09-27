@@ -173,12 +173,12 @@ public class ClientFrame extends Base<BorderPane> {
 	boolean filter(Endpoint p) {
 		if (StringUtils.isEmpty(filter.getText())) { return true; }
 		Pattern pattern = Pattern.compile(".*" + filter.getText() + ".*");
-		return pattern.matcher(p.getClusterName()).matches()
-				|| (p.getServer() != null && pattern.matcher(p.getServer()).matches())
-				|| pattern.matcher(p.getUri().toString()).matches()
-				|| pattern.matcher(p.getStatus().name()).matches()
-				|| (p.getComment() != null && pattern.matcher(p.getComment()).matches())
-				|| pattern.matcher(p.getType().name()).matches()
+		return (cluster.isVisible() && pattern.matcher(p.getClusterName()).matches())
+				|| (server.isVisible() && p.getServer() != null && pattern.matcher(p.getServer()).matches())
+				|| (endpoint.isVisible() && pattern.matcher(p.getUri().toString()).matches())
+				|| (status.isVisible() && pattern.matcher(p.getStatus().name()).matches())
+				|| (comment.isVisible() && p.getComment() != null && pattern.matcher(p.getComment()).matches())
+				|| (type.isVisible() && pattern.matcher(p.getType().name()).matches())
 				;
 	}
 

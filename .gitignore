@@ -8,5 +8,8 @@
 /gradle.properties
 /mybuild.sh
 
+# OTHER
+rebel.xml
+
 # DCOM
 /*-dcom.sk.yaml

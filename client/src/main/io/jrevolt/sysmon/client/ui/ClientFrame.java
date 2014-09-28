@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Component;
 
+import io.jrevolt.sysmon.client.ClientConfig;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
@@ -28,6 +29,8 @@ import io.jrevolt.sysmon.rest.RestService;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
@@ -37,6 +40,8 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
@@ -80,6 +85,7 @@ public class ClientFrame extends Base<BorderPane> {
 
 	@FXML
 	void refresh() {
+
 		domain = rest.getDomainDef();
 
 		ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();

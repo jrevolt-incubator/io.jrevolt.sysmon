@@ -57,8 +57,12 @@ public class ServerEventsHandler implements ServerEvents {
 	@Override
 	public void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {
 		try {
+
+
+
+
 			events.serverChecked(clusterDef.getName(), InetAddress.getLocalHost().getHostName());
-		} catch (UnknownHostException e) {
+		} catch (Exception e) {
 			throw new UnsupportedOperationException(e);
 		}
 	}

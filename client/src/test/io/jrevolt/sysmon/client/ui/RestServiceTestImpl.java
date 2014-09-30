@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.client.ui;
 
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.StatusInfo;
 import io.jrevolt.sysmon.rest.RestService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,6 @@ public class RestServiceTestImpl implements RestService {
 
 	@Autowired
 	DomainDef domain;
-
-	@Override
-	public String version() {
-		return "undefined";
-	}
 
 	@Override
 	public DomainDef getDomainDef() {

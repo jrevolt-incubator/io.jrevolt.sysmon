@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.server;
 
+import io.jrevolt.sysmon.common.VersionInfo;
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.jms.JmsReceiver;
 import io.jrevolt.sysmon.jms.JmsSender;
@@ -26,6 +27,7 @@ import org.apache.coyote.http11.Http11NioProtocol;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.ServletProperties;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.lang.reflect.Proxy;
 
@@ -67,15 +69,6 @@ public class Server {
 
 	@Autowired DomainDef domain;
 
-	//@Scheduled(initialDelay = 5000L, fixedDelay = 10000L)
-	void run() {
-		try {
-			events.checkCluster("soa", domain.getClusters().get("soa"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	@Bean @Profile("ssl")
 	EmbeddedServletContainerCustomizer containerCustomizer() {
 		return (ConfigurableEmbeddedServletContainer container) -> {
@@ -99,6 +92,11 @@ public class Server {
 		};
 	}
 
+	@PostConstruct
+	void init() {
+		VersionInfo version = VersionInfo.forClass(Server.class);
+		System.out.printf("%s (%s)%n", version.getArtifactUri(), version.getArtifactVersion());
+	}
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Server.class, args);

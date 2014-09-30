@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 buildscript {
 	ext {
 		springVersion = "4.1.0.RELEASE"
@@ -27,6 +29,7 @@ ext {
 	gitDescribe = "$git describe --tags --always --long".execute().in.text.trim()
 	snapshotVersion = "${branchShort}-SNAPSHOT"
 	releaseVersion = tag ? "${tag}-${commitShort}" : null
+	buildTimestamp = new Date()
 }
 
 subprojects {
@@ -66,8 +69,10 @@ subprojects {
 
 	compileJava.doLast { task ->
 		manifest.attributes(
-				"Artifact-URI"			: "$project.group:$project.name:$project.version",
-				"Artifact-Version" 	: "$branchShort-$commitShort",
+				"Artifact-URI"					: "$project.group:$project.name:$project.version",
+				"Artifact-Version" 			: "$branchShort-$commitShort",
+				"Build-Timestamp" 			: buildTimestamp.format("yyyyMMdd-HHmmZ"),
+				"Build-Timestamp-Format"	: "yyyyMMdd-HHmmZ",
 				)
 		manifest.writeTo(project.buildDir.toString()+"/classes/main/META-INF/MANIFEST.MF")
 	}

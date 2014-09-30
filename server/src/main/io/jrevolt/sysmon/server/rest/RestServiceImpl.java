@@ -1,9 +1,12 @@
 package io.jrevolt.sysmon.server.rest;
 
+import io.jrevolt.sysmon.common.VersionInfo;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.StatusInfo;
 import io.jrevolt.sysmon.rest.RestService;
 import io.jrevolt.sysmon.model.AppCfg;
+import io.jrevolt.sysmon.server.Server;
 import io.jrevolt.sysmon.server.ServerCfg;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -40,17 +42,20 @@ public class RestServiceImpl implements RestService {
 	ServerEvents events;
 
 	@Override
-	public String version() {
-		return String.format("%s", app.getName());
+	public StatusInfo status() {
+		VersionInfo version = VersionInfo.forClass(Server.class);
+		return new StatusInfo(
+				app.getName(), version.getArtifactUri(), version.getArtifactVersion(), version.getTimestamp());
 	}
 
 	@Override
-	public void restart() {
+	public Response restart() {
 		events.restart();
 		ForkJoinPool.commonPool().submit(() -> {
 			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
 			System.exit(7);
 		});
+		return Response.accepted().build();
 	}
 
 	@Override

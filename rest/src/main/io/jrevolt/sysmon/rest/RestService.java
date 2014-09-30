@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.rest;
 
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.StatusInfo;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -16,15 +17,14 @@ import javax.ws.rs.core.Response;
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-@Path("/") @Produces({"application/json", "application/xml"})
+@Path("/") @Produces("application/json")
 public interface RestService {
 
-
-	@GET @Path("version")
-	String version();
+	@GET @Path("status")
+	default StatusInfo status() { throw new UnsupportedOperationException(); }
 
 	@GET @Path("restart")
-	default void restart() { throw new UnsupportedOperationException(); }
+	default Response restart() { throw new UnsupportedOperationException(); }
 
 	@GET @Path("domain")
 	DomainDef getDomainDef();

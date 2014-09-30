@@ -76,7 +76,7 @@ public class Agent {
 	void init() {
 		AgentInfo info = new AgentInfo(cfg.getClusterName(), cfg.getServerName());
 		info.setStatus(AgentInfo.Status.STARTED);
-		info.setVersion(VersionInfo.forClass(getClass()).getArtifactVersion());
+		info.setVersion(VersionInfo.forClass(Agent.class).getArtifactVersion());
 		events.started(info);
 	}
 

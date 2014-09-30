@@ -1,5 +1,6 @@
 rootProject.name = 'io.jrevolt.sysmon'
 
+include 'common'
 include 'model'
 include 'jms'
 include 'rest'
@@ -7,6 +8,7 @@ include 'server'
 include 'agent'
 include 'client'
 include 'browser'
+include 'install'
 
 rootProject.children.each { it.name = "$rootProject.name.$it.name" }
 

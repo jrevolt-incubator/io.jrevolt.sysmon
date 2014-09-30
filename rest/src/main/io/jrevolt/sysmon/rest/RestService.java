@@ -16,12 +16,15 @@ import javax.ws.rs.core.Response;
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-@Path("/") @Produces("application/json")
+@Path("/") @Produces({"application/json", "application/xml"})
 public interface RestService {
 
 
 	@GET @Path("version")
 	String version();
+
+	@GET @Path("restart")
+	default void restart() { throw new UnsupportedOperationException(); }
 
 	@GET @Path("domain")
 	DomainDef getDomainDef();

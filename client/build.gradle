@@ -6,6 +6,7 @@ springBoot {
 }
 
 dependencies {
+	compile project(":io.jrevolt.sysmon.common")
 	compile project(":io.jrevolt.sysmon.rest")
 
 	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")

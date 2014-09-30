@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.server;
 
 import io.jrevolt.sysmon.jms.AgentEvents;
+import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.NodeDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,11 @@ public class AgentEventsHandler implements AgentEvents {
 	Database db;
 
 	@Override
+	public void started(AgentInfo info) {
+		System.out.println(info);
+	}
+
+	@Override
 	public void status(NodeDef node) {
 //		throw new UnsupportedOperationException(); // todo implement this
 	}
@@ -27,5 +33,10 @@ public class AgentEventsHandler implements AgentEvents {
 	@Override
 	public void provides(List<URI> uris) {
 //		throw new UnsupportedOperationException(); // todo implement this
+	}
+
+	@Override
+	public void restarting(String cluster, String host) {
+		throw new UnsupportedOperationException(); // todo implement this
 	}
 }

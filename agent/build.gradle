@@ -6,5 +6,6 @@ springBoot {
 }
 
 dependencies {
+	compile project(":io.jrevolt.sysmon.common")
 	compile project(":io.jrevolt.sysmon.jms")
 }

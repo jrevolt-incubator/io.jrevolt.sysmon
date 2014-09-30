@@ -1,16 +1,16 @@
 package io.jrevolt.sysmon.agent;
 
+import io.jrevolt.sysmon.common.VersionInfo;
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.jms.CloudEvents;
 import io.jrevolt.sysmon.jms.JmsReceiver;
 import io.jrevolt.sysmon.jms.JmsSender;
 import io.jrevolt.sysmon.jms.ServerEvents;
-import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.SpringBootApp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Proxy;
 
 /**
@@ -59,6 +60,9 @@ public class Agent {
 		return new JmsReceiver(CloudEvents.class);
 	}
 
+	@Autowired 
+	AgentCfg cfg;
+	
 	@Autowired
 	AgentEvents events;
 
@@ -67,6 +71,14 @@ public class Agent {
 
 	@Autowired
 	ActiveMQConnectionFactory amq;
+
+	@PostConstruct
+	void init() {
+		AgentInfo info = new AgentInfo(cfg.getClusterName(), cfg.getServerName());
+		info.setStatus(AgentInfo.Status.STARTED);
+		info.setVersion(VersionInfo.forClass(getClass()).getArtifactVersion());
+		events.started(info);
+	}
 
 	static public void main(String[] args) {
 		SpringBootApp.run(Agent.class, args);

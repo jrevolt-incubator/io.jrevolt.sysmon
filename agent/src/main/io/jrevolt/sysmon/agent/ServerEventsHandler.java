@@ -8,14 +8,15 @@ import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.NodeDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.net.HttpURLConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -24,34 +25,22 @@ import java.util.concurrent.ForkJoinPool;
  */
 @Component
 public class ServerEventsHandler implements ServerEvents {
+	
+	static private final Logger LOG = LoggerFactory.getLogger(ServerEventsHandler.class);
 
 	@Autowired
-	ConfigurableApplicationContext ctx;
-
+	AgentCfg cfg;
+	
 	@Autowired
 	AgentEvents events;
 
-//	@Autowired
-	DomainDef domain;
-
-	@Override
-	public void ping() {
-		events.status(domain.currentNode());
-	}
-
 	@Override
 	public void restart() {
-		System.out.println("ServerEvents.restart()");
-		// restart (special exit code handled by launcher script)
+		events.restarting(cfg.getClusterName(), cfg.getServerName());
 		ForkJoinPool.commonPool().submit(() -> {
-			System.out.println("EXIT");
+			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
 			System.exit(7);
 		});
-	}
-
-	public void reportProvides() {
-		NodeDef node = domain.currentNode();
-		events.provides(node.getProvides());
 	}
 
 	@Override

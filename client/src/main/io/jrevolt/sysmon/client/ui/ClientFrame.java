@@ -86,47 +86,49 @@ public class ClientFrame extends Base<BorderPane> {
 	@FXML
 	void refresh() {
 
-		domain = rest.getDomainDef();
+		async(()->{
+			domain = rest.getDomainDef();
 
-		ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();
-		domain.getClusters().values().forEach(c-> c.getServers().forEach(s-> c.getProvides().forEach(u->{
-			Endpoint endpoint = new Endpoint(
-					UriBuilder.fromUri(u).host(s).build(),
-					Endpoint.Type.PROVIDED, s, c);
-			endpoints.add(endpoint);
-			endpoint.status.set(Endpoint.Status.CHECKING);
-			FxHelper.async(() -> check(endpoint));
-		})));
-		domain.getClusters().values().forEach(c->c.getDependencies().forEach(d->{
-			Endpoint endpoint = new Endpoint(d, Endpoint.Type.DEPENDENCY, null, c);
-			endpoints.add(endpoint);
-			endpoint.status.set(Endpoint.Status.CHECKING);
-			FxHelper.async(() -> check(endpoint));
-		}));
-		domain.getClusters().values().forEach(c->c.getProxies().forEach(p->{
-			Endpoint endpoint = new Endpoint(p, Endpoint.Type.PROXY, null, c);
-			endpoints.add(endpoint);
-			endpoint.status.set(Endpoint.Status.CHECKING);
-			FxHelper.async(() -> check(endpoint));
-		}));
-		table.setItems(new FilteredList<>(endpoints, this::filter));
+			ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();
+			domain.getClusters().values().forEach(c-> c.getServers().forEach(s-> c.getProvides().forEach(u->{
+				Endpoint endpoint = new Endpoint(
+						UriBuilder.fromUri(u).host(s).build(),
+						Endpoint.Type.PROVIDED, s, c);
+				endpoints.add(endpoint);
+				endpoint.status.set(Endpoint.Status.CHECKING);
+				FxHelper.async(() -> check(endpoint));
+			})));
+			domain.getClusters().values().forEach(c->c.getDependencies().forEach(d->{
+				Endpoint endpoint = new Endpoint(d, Endpoint.Type.DEPENDENCY, null, c);
+				endpoints.add(endpoint);
+				endpoint.status.set(Endpoint.Status.CHECKING);
+				FxHelper.async(() -> check(endpoint));
+			}));
+			domain.getClusters().values().forEach(c->c.getProxies().forEach(p->{
+				Endpoint endpoint = new Endpoint(p, Endpoint.Type.PROXY, null, c);
+				endpoints.add(endpoint);
+				endpoint.status.set(Endpoint.Status.CHECKING);
+				FxHelper.async(() -> check(endpoint));
+			}));
+			table.setItems(new FilteredList<>(endpoints, this::filter));
 
-		try {
-			cluster.setCellValueFactory(new PropertyValueFactory<>("clusterName"));
-			server.setCellValueFactory(new PropertyValueFactory<>("server"));
-			endpoint.setCellValueFactory(new PropertyValueFactory<>("uri"));
-			type.setCellValueFactory(new PropertyValueFactory<>("type"));
-			status.setCellValueFactory(new PropertyValueFactory<>("status"));
-			comment.setCellValueFactory(new PropertyValueFactory<>("comment"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			try {
+				cluster.setCellValueFactory(new PropertyValueFactory<>("clusterName"));
+				server.setCellValueFactory(new PropertyValueFactory<>("server"));
+				endpoint.setCellValueFactory(new PropertyValueFactory<>("uri"));
+				type.setCellValueFactory(new PropertyValueFactory<>("type"));
+				status.setCellValueFactory(new PropertyValueFactory<>("status"));
+				comment.setCellValueFactory(new PropertyValueFactory<>("comment"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-		Preferences prefs = Preferences.userNodeForPackage(ClientFrame.class);
-		table.getColumns().forEach(c-> {
-			c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
-			c.widthProperty().addListener((observable, oldValue, newValue) -> {
-				prefs.putDouble(c.getId(), c.getWidth());
+			Preferences prefs = Preferences.userNodeForPackage(ClientFrame.class);
+			table.getColumns().forEach(c-> {
+				c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
+				c.widthProperty().addListener((observable, oldValue, newValue) -> {
+					prefs.putDouble(c.getId(), c.getWidth());
+				});
 			});
 		});
 	}
@@ -201,6 +203,10 @@ public class ClientFrame extends Base<BorderPane> {
 				;
 	}
 
+	@FXML void restartServer() {
+		async(rest::restart);
+	}
+
 	@FXML
 	void copyCellValue(Event e) {
 		URI uri = table.getSelectionModel().getSelectedItem().getUri();
@@ -208,5 +214,7 @@ public class ClientFrame extends Base<BorderPane> {
 		content.putString(uri.toString());
 		Clipboard.getSystemClipboard().setContent(content);
 	}
+
+
 
 }

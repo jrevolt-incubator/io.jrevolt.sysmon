@@ -18,6 +18,7 @@
                      </accelerator>
                   </MenuItem>
                   <MenuItem mnemonicParsing="false" onAction="#checkAll" text="Check all" />
+                  <MenuItem mnemonicParsing="false" onAction="#restartServer" text="Restart server" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

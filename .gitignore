@@ -10,6 +10,7 @@
 
 # OTHER
 rebel.xml
+/.keystore
 
 # DCOM
 /*-dcom.sk.yaml

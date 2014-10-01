@@ -1,16 +1,12 @@
 package io.jrevolt.sysmon.common;
 
-import org.springframework.util.ReflectionUtils;
-
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.chrono.ChronoZonedDateTime;
 import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -48,6 +44,7 @@ public class VersionInfo {
 	}
 
 	static public VersionInfo forClass(Class cls) {
+		VersionInfo info = null;
 		try {
 			URL root = cls.getProtectionDomain().getCodeSource().getLocation();
 			URL url;
@@ -61,7 +58,6 @@ public class VersionInfo {
 			} else {
 				url = new URL(root, "META-INF/MANIFEST.MF");
 			}
-			VersionInfo info;
 			if (url != null) {
 				URLConnection con = url.openConnection();
 				Manifest mf = new Manifest(con.getInputStream());
@@ -71,15 +67,20 @@ public class VersionInfo {
 						attrs.getValue("Artifact-Version"),
 						parse(attrs.getValue("Build-Timestamp"), attrs.getValue("Build-Timestamp-Format"))
 				);
-			} else {
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (info == null) {
+			try {
 				Instant timestamp = new Date(
 						cls.getResource(cls.getSimpleName()+".class").openConnection().getLastModified()).toInstant();
 				info = new VersionInfo(cls.getName(), "UNKNOWN", timestamp);
+			} catch (IOException never) {
+				throw new AssertionError(never);
 			}
-			return info;
-		} catch (IOException e) {
-			throw new UnsupportedOperationException(e);
 		}
+		return info;
 	}
 
 	static private Instant parse(String date, String format) {

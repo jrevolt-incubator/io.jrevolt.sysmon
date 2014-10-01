@@ -77,18 +77,10 @@ subprojects {
 		manifest.writeTo(project.buildDir.toString()+"/classes/main/META-INF/MANIFEST.MF")
 	}
 
-//	jar {
-//		manifest.attributes(
-//				"Artifact" 		: "$project.group:$project.name:$project.version",
-//				"Git-Branch" 	: "$branch",
-//				"Git-Version" 	: "$commitShort",
-//		)
-//	}
-
-//	jar.doLast { task ->
-//		["jarsigner", "-keystore", ".keystore", "-storepass", "changeit", "-keypass", "changeit",
-//		 task.archivePath, "jrevolt.io"].execute()
-//	}
+	jar.doLast { task ->
+		["jarsigner", "-keystore", ".keystore", "-storepass", "changeit", "-keypass", "changeit",
+		 task.archivePath, "teamcity@build.dcom.sk"].execute()
+	}
 
 	uploadArchives {
 		repositories {

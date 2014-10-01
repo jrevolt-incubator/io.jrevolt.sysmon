@@ -14,4 +14,6 @@ ln -s $dir/sysmon-agent /etc/init.d/sysmon-agent && (
 )
 chkconfig sysmon-agent on
 
+sudo -u sysmon ln -s $dir/sysmon-agent ~/bin/sysmon-agent
+
 service sysmon-agent start

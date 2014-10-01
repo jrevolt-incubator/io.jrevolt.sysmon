@@ -18,4 +18,6 @@ ln -s $dir/sysmon-server /etc/init.d/sysmon-server && (
 )
 chkconfig sysmon-server on
 
+sudo -u sysmon ln -s $dir/sysmon-server ~/bin/sysmon-server
+
 service sysmon-server start

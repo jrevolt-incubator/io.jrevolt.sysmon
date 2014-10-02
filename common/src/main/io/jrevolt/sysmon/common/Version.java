@@ -38,6 +38,12 @@ public class Version {
 		return timestamp;
 	}
 
+	///
+
+	public boolean isUnknown() {
+		return "UNKNOWN".equals(artifactVersion);
+	}
+
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);

@@ -233,7 +233,7 @@ public class ClientFrame extends Base<BorderPane> {
 	}
 
 	@FXML void restartServer() {
-		async(() -> rest.restart(null, null));
+		async(() -> rest.restart("all", "all"));
 	}
 
 	@FXML

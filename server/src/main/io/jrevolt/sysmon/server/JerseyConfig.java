@@ -9,7 +9,7 @@ public class JerseyConfig extends ResourceConfig {
 	public JerseyConfig() {
 		register(RequestContextFilter.class);
 		packages(getClass().getPackage().getName());
-		register(LoggingFilter.class);
+//		register(LoggingFilter.class);
 	}
 
 

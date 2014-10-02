@@ -19,7 +19,7 @@ import java.util.List;
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-@Path("/") @Produces("application/json")
+@Path("/") @Produces({"application/json", "application/xml"})
 public interface RestService {
 
 	@GET @Path("status")
@@ -30,10 +30,17 @@ public interface RestService {
 		throw new UnsupportedOperationException();
 	}
 
+	/// domain info ///
+
 	@GET @Path("domain")
 	default DomainDef getDomainDef() {
 		throw new UnsupportedOperationException();
 	}
+
+	@GET @Path("servers")
+	default List<String> getServers() { throw new UnsupportedOperationException(); }
+
+	///
 
 	@GET @Path("jnlp/{resource}")
 	default Response resource(@PathParam("resource") String resource) {

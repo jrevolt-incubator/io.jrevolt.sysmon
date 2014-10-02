@@ -14,6 +14,8 @@ ln -s $dir/sysmon-agent /etc/init.d/sysmon-agent && (
 )
 chkconfig sysmon-agent on
 
-sudo -u sysmon ln -s $dir/sysmon-agent ~/bin/sysmon-agent
+shortcut="$(echo ~sysmon)/bin/sysmon-agent"
+[ -L $shortcut ] && rm -f $shortcut
+sudo -u sysmon ln -sv $dir/sysmon-agent $shortcut
 
 service sysmon-agent start

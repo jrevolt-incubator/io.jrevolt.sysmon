@@ -30,6 +30,8 @@ import org.glassfish.jersey.servlet.ServletProperties;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -90,6 +92,11 @@ public class Server {
 			});
 
 		};
+	}
+
+	@Bean
+	ScheduledExecutorService scheduler() {
+		return Executors.newScheduledThreadPool(20);
 	}
 
 	@PostConstruct

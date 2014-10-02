@@ -69,7 +69,7 @@ public class VersionInfo {
 				);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.debug(VersionInfo.class, e.toString());
 		}
 		if (info == null) {
 			try {

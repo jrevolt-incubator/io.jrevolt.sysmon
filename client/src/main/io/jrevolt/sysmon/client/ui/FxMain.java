@@ -19,6 +19,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -73,7 +75,9 @@ public class FxMain extends Application {
 		loadStage();
 
 		Version version = Version.getVersion(ClientMain.class);
-		stage.setTitle(String.format("%s (%s, %s)", app.getName(), version.getArtifactVersion(), version.getTimestamp()));
+		stage.setTitle(String.format(
+				"%s (%s, %s)", app.getName(), version.getArtifactVersion(),
+				LocalDate.from(version.getTimestamp().atZone(ZoneOffset.systemDefault()))));
 
 		base.show();
 

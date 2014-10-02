@@ -8,8 +8,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.ws.rs.client.AsyncInvoker;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -28,6 +30,11 @@ public class ClientApp {
 	@Bean @ConditionalOnMissingBean
 	RestService restService(Client client, ClientConfig cfg) {
 		return WebResourceFactory.newResource(RestService.class, client.target(cfg.getServerUrl()));
+	}
+
+	@Bean
+	WebTarget webtarget(Client client, ClientConfig cfg) {
+		return client.target(cfg.getServerUrl());
 	}
 
 

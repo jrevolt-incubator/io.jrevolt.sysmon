@@ -2,10 +2,12 @@ package io.jrevolt.sysmon.server.rest;
 
 import io.jrevolt.sysmon.common.VersionInfo;
 import io.jrevolt.sysmon.jms.ServerEvents;
+import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.StatusInfo;
 import io.jrevolt.sysmon.rest.RestService;
 import io.jrevolt.sysmon.model.AppCfg;
+import io.jrevolt.sysmon.server.Database;
 import io.jrevolt.sysmon.server.Server;
 import io.jrevolt.sysmon.server.ServerCfg;
 
@@ -16,8 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+
+import static io.jrevolt.sysmon.server.Utils.async;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -37,6 +45,9 @@ public class RestServiceImpl implements RestService {
 
 	@Autowired
 	DomainDef domainDef;
+
+	@Autowired
+	Database db;
 
 	@Autowired
 	ServerEvents events;
@@ -79,6 +90,19 @@ public class RestServiceImpl implements RestService {
 	public void checkAll() {
 		domainDef.getClusters().values().parallelStream().forEach(c->{
 			events.checkCluster(c.getName(), c);
+		});
+	}
+
+	@Override
+	public List<AgentInfo> getAgentInfo() {
+		return new ArrayList<>(db.getAgents().values());
+	}
+
+	@Override
+	public void ping(String server, @Suspended AsyncResponse response) {
+		async(() -> {
+			events.ping(null, server);
+			db.onUpdate(server, ()->response.resume(db.getAgents().get(server)));
 		});
 	}
 }

@@ -74,32 +74,13 @@
                      </content>
                   </Tab>
                 <Tab text="Clusters" />
-                  <Tab text="Proxies">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
-                  </Tab>
-                <Tab text="Servers">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                  </content>
-                </Tab>
-                  <Tab text="Artifacts">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
-                  </Tab>
+                  <Tab text="Proxies" />
+                <Tab fx:id="servers" text="Servers" />
+                  <Tab text="Artifacts" />
                   <Tab text="Endpoints" />
-                  <Tab text="Dependencies">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
-                  </Tab>
-                  <Tab text="Management">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
-                  </Tab>
+                  <Tab text="Dependencies" />
+                  <Tab text="Management" />
+                  <Tab fx:id="agents" text="Agents" />
               </tabs>
             </TabPane>
          </center>

@@ -9,7 +9,8 @@ import io.jrevolt.sysmon.model.ClusterDef;
 public interface ServerEvents {
 
 	@JMS(topic = true, timeToLive = 5000L)
-	default void ping() {}
+	@JMSSelector("(clusterName is null or clusterName='${cluster.name}') and (serverName is null or serverName='${server.name}')")
+	default void ping(@JMSProperty String clusterName, @JMSProperty String serverName) {}
 
 	@JMS(topic=true)
 	default void restart() {}

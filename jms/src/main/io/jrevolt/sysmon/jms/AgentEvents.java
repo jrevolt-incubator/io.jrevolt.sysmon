@@ -16,20 +16,8 @@ public interface AgentEvents {
 	default void started(AgentInfo info) {}
 
 	@JMS(timeToLive = 5000L)
-	default void status(NodeDef node) {}
-
-	@JMS
-	default void applications() {}
-
-	@JMS
-	default void ports() {}
-
-	@JMS
-	default void provides(List<URI> uris) {}
-
-	@JMS
-	default void serverChecked(String clusterName, String serverName) {}
+	default void status(AgentInfo info) {}
 
 	@JMS(timeToLive = 5000L)
-	default void restarting(String cluster, String host) {}
+	default void restarting(AgentInfo info) {}
 }

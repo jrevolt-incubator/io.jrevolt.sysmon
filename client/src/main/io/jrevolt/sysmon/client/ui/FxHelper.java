@@ -24,7 +24,7 @@ public abstract class FxHelper {
 
 	static ScheduledExecutorService executor = Executors.newScheduledThreadPool(30);
 
-	static LinkedList<Runnable> updateQueue = new LinkedList<Runnable>() {{
+	static final LinkedList<Runnable> updateQueue = new LinkedList<Runnable>() {{
 		executor.scheduleAtFixedRate(()-> Platform.runLater(()->{
 			if (isEmpty()) { return; }
 			synchronized (updateQueue) {
@@ -39,12 +39,7 @@ public abstract class FxHelper {
 			T controller = SpringBootApp.instance().lookup(cls);
 			FXMLLoader loader = new FXMLLoader(cls.getResource(cls.getSimpleName() + ".fxml"));
 //			loader.setController(controller);
-			loader.setControllerFactory(new Callback<Class<?>, Object>() {
-				@Override
-				public Object call(Class<?> aClass) {
-					return controller;
-				}
-			});
+			loader.setControllerFactory(aClass -> controller);
 			controller.pane = loader.load();
 			controller.initialize();
 			return controller;

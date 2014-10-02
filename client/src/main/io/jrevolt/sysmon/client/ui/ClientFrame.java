@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -16,12 +17,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Component;
 
-import io.jrevolt.sysmon.client.ClientConfig;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
@@ -29,24 +30,19 @@ import io.jrevolt.sysmon.rest.RestService;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.function.Predicate;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -63,6 +59,12 @@ public class ClientFrame extends Base<BorderPane> {
 
 	@Autowired
 	RestService rest;
+
+	@FXML
+	Tab servers;
+
+	@FXML
+	Tab agents;
 
 	@FXML
 	TableView<Endpoint> table;
@@ -85,6 +87,11 @@ public class ClientFrame extends Base<BorderPane> {
 
 	@FXML
 	void refresh() {
+
+		agents.setContent(FxHelper.load(AgentsView.class).pane);
+
+		AgentsView agentsView = FxHelper.load(AgentsView.class);
+		agents.setContent(agentsView.pane);
 
 		async(()->{
 			domain = rest.getDomainDef();
@@ -147,7 +154,26 @@ public class ClientFrame extends Base<BorderPane> {
 				comment.set("Connected");
 			} else {
 				URL url = endpoint.getUri().toURL();
+				String test = trimToEmpty(endpoint.getUri().getFragment()).replaceFirst(".*test=([^;]+).*", "$1");
+				url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getPath() + test
+						+ (url.getQuery() != null ? "?" + url.getQuery() : ""));
+//				System.out.println(url);
 				URLConnection con = url.openConnection();
+				if (con instanceof HttpURLConnection) {
+					if (endpoint.getUri().getFragment() != null) {
+						if (endpoint.getUri().getFragment().contains("post")) {
+							((HttpURLConnection) con).setRequestMethod("POST");
+						}
+						if (endpoint.getUri().getFragment().contains("method=")) {
+							((HttpURLConnection) con).setRequestMethod(
+									endpoint.getUri().getFragment().replaceFirst(".*method=([^;]+).*", "$1").toUpperCase());
+						}
+						if (endpoint.getUri().getFragment().contains("type=")) {
+							con.setRequestProperty("Content-Type",
+														  endpoint.getUri().getFragment().replaceFirst(".*type=([^;]+).*", "$1"));
+						}
+					}
+				}
 				int code = con instanceof HttpURLConnection ? ((HttpURLConnection) con).getResponseCode() : 0;
 
 				switch (code) {

@@ -37,13 +37,14 @@ public class DomainDef {
 		this.clusters = clusters;
 	}
 
+	///
+
 	@PostConstruct
 	void init() {
-		clusters.entrySet().forEach(e -> e.getValue().setName(e.getKey()));
-	}
-
-	public NodeDef currentNode() {
-		throw new UnsupportedOperationException(); // todo implement this
+		clusters.entrySet().forEach(e -> {
+			e.getValue().setName(e.getKey());
+			e.getValue().init(this);
+		});
 	}
 
 }

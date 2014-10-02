@@ -1,10 +1,13 @@
 package io.jrevolt.sysmon.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.loader.mvn.MvnArtifact;
 
+import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -74,5 +77,13 @@ public class ClusterDef {
 
 	public void setManagement(List<URI> management) {
 		this.management = management;
+	}
+
+	///
+
+	void init(DomainDef domain) {
+		setServers(getServers().stream()
+							  .map(s -> String.format("%s.%s", s, domain.getName()))
+							  .collect(Collectors.toList()));
 	}
 }

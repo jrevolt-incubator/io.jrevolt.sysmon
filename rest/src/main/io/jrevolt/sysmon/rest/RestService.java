@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.rest;
 
+import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.StatusInfo;
 
@@ -12,6 +13,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -21,10 +23,10 @@ import javax.ws.rs.core.Response;
 public interface RestService {
 
 	@GET @Path("status")
-	default StatusInfo status() { throw new UnsupportedOperationException(); }
+	StatusInfo status();
 
 	@GET @Path("restart")
-	default Response restart() { throw new UnsupportedOperationException(); }
+	Response restart();
 
 	@GET @Path("domain")
 	DomainDef getDomainDef();
@@ -34,5 +36,13 @@ public interface RestService {
 
 	@POST @Path("checkAll")
 	void checkAll();
+
+	/// agents ///
+
+	@GET @Path("agents")
+	List<AgentInfo> getAgentInfo();
+
+	@GET @Path("ping/{server}")
+	void ping(@PathParam("server") String server, @Suspended AsyncResponse response);
 
 }

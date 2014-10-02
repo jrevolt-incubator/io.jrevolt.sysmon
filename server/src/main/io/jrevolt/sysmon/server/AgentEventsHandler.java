@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -22,21 +23,14 @@ public class AgentEventsHandler implements AgentEvents {
 
 	@Override
 	public void started(AgentInfo info) {
-		System.out.println(info);
+		status(info);
 	}
 
 	@Override
-	public void status(NodeDef node) {
-//		throw new UnsupportedOperationException(); // todo implement this
+	public void status(AgentInfo info) {
+		info.setLastUpdated(Instant.now());
+		db.updateAgent(info);
 	}
 
-	@Override
-	public void provides(List<URI> uris) {
-//		throw new UnsupportedOperationException(); // todo implement this
-	}
 
-	@Override
-	public void restarting(String cluster, String host) {
-		throw new UnsupportedOperationException(); // todo implement this
-	}
 }

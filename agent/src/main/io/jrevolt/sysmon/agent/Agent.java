@@ -22,6 +22,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Proxy;
+import java.time.Instant;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -74,9 +75,9 @@ public class Agent {
 
 	@PostConstruct
 	void init() {
-		AgentInfo info = new AgentInfo(cfg.getClusterName(), cfg.getServerName());
-		info.setStatus(AgentInfo.Status.STARTED);
-		info.setVersion(VersionInfo.forClass(Agent.class).getArtifactVersion());
+		AgentInfo info = new AgentInfo(
+				cfg.getClusterName(), cfg.getServerName(),
+				AgentInfo.Status.STARTED, VersionInfo.forClass(Agent.class).getArtifactVersion(), Instant.now());
 		events.started(info);
 	}
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.AgentsView">
+   <center>
+      <TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
+          <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
+            <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
+            <TableColumn fx:id="version" prefWidth="75.0" text="Version" />
+            <TableColumn fx:id="lastUpdated" prefWidth="75.0" text="LastUpdated" />
+            <TableColumn fx:id="actions" prefWidth="75.0" text="Actions" />
+        </columns>
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#refresh" text="Refresh" />
+                  <MenuItem mnemonicParsing="false" onAction="#restartSelectedAgents" text="Restart selected agents" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </TableView>
+   </center>
+</BorderPane>

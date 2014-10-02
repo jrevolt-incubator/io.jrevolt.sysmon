@@ -1,8 +1,10 @@
 package io.jrevolt.sysmon.agent;
 
+import io.jrevolt.sysmon.common.VersionInfo;
 import io.jrevolt.sysmon.jms.JMSProperty;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.jms.AgentEvents;
+import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.NodeDef;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.time.Instant;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -35,8 +38,13 @@ public class ServerEventsHandler implements ServerEvents {
 	AgentEvents events;
 
 	@Override
+	public void ping(@JMSProperty String clusterName, @JMSProperty String serverName) {
+		events.status(createAgentInfo());
+	}
+
+	@Override
 	public void restart() {
-		events.restarting(cfg.getClusterName(), cfg.getServerName());
+		events.restarting(createAgentInfo());
 		ForkJoinPool.commonPool().submit(() -> {
 			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
 			System.exit(7);
@@ -45,14 +53,18 @@ public class ServerEventsHandler implements ServerEvents {
 
 	@Override
 	public void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {
-		try {
+//		try {
+//			events.serverChecked(clusterDef.getName(), InetAddress.getLocalHost().getHostName());
+//		} catch (Exception e) {
+//			throw new UnsupportedOperationException(e);
+//		}
+	}
 
-
-
-
-			events.serverChecked(clusterDef.getName(), InetAddress.getLocalHost().getHostName());
-		} catch (Exception e) {
-			throw new UnsupportedOperationException(e);
-		}
+	private AgentInfo createAgentInfo() {
+		return new AgentInfo(
+				cfg.getClusterName(), cfg.getServerName(), AgentInfo.Status.ONLINE,
+				VersionInfo.forClass(Agent.class).getArtifactVersion(),
+				Instant.now()
+		);
 	}
 }

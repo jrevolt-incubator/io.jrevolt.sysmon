@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
@@ -129,6 +130,8 @@ public class AgentsView extends Base<BorderPane> {
 				Future<AgentInfo> f = arest.path("ping").path(item.getServer()).request().async().get(AgentInfo.class);
 				AgentInfo info = f.get(10, TimeUnit.SECONDS);
 				fxupdate(() -> uiagents.get(item.getServer()).update(info));
+			} catch (TimeoutException e) {
+				fxupdate(() -> uiagents.get(item.getServer()).setStatus(AgentInfo.Status.UNKNOWN));
 			} catch (Exception e) {
 				throw new UnsupportedOperationException(e);
 			}

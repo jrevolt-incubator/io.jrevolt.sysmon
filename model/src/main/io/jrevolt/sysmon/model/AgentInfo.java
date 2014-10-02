@@ -14,7 +14,7 @@ import java.time.Instant;
  */
 public class AgentInfo {
 
-	static public enum Status { STARTED, ONLINE, CHECKING, REQUESTED, RESTARTING, UNAVAILABLE, ERROR, UNKNOWN }
+	static public enum Status { STARTED, ONLINE, CHECKING, REQUESTED, RESTARTING, UNAVAILABLE, ERROR, UNKNOWN, UNREGISTERED }
 
 	String cluster;
 	String server;

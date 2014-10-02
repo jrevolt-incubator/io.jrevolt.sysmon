@@ -12,7 +12,7 @@ chown -R sysmon:sysmon /opt/sysmon
 
 dir="$(realpath $(dirname $0))"
 
-cp -v $dir/$name.conf /etc/sysconfig/$name
+cp -v $dir/$name.conf /etc/sysconfig/$name && chown sysmon:sysmon /etc/sysconfig/$name
 rm -fv /etc/init.d/$name || true
 ln -s $dir/$name /etc/init.d/$name && (
 	chown root:root $dir/$name;
@@ -23,5 +23,7 @@ chkconfig $name on
 shortcut="$(echo ~sysmon)/bin/$name"
 [ -L $shortcut ] && rm -f $shortcut
 sudo -u sysmon ln -sv $dir/$name $shortcut
+
+sudo -u sysmon mkdir ~sysmon/log
 
 service $name start

@@ -41,7 +41,9 @@ public class JmsCfg {
 
 	private MessageConverter messageConverter = new MessageConverter() {
 
-		XStream xstream = new XStream();
+		XStream xstream = new XStream() {{
+			autodetectAnnotations(true);
+		}};
 
 		@Override
 		public Message toMessage(Object object, Session session) throws JMSException, MessageConversionException {

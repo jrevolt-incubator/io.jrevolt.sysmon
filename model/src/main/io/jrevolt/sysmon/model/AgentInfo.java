@@ -22,6 +22,9 @@ public class AgentInfo {
 	VersionInfo version;
 
 	@XStreamConverter(value=InstantConverter.class)
+	Instant lastChecked;
+
+	@XStreamConverter(value=InstantConverter.class)
 	Instant lastUpdated;
 
 	public AgentInfo() {
@@ -67,6 +70,14 @@ public class AgentInfo {
 		this.version = version;
 	}
 
+	public Instant getLastChecked() {
+		return lastChecked;
+	}
+
+	public void setLastChecked(Instant lastChecked) {
+		this.lastChecked = lastChecked;
+	}
+
 	public Instant getLastUpdated() {
 		return lastUpdated;
 	}
@@ -80,6 +91,7 @@ public class AgentInfo {
 	public void updateFrom(AgentInfo info) {
 		setStatus(info.getStatus());
 		setVersion(info.getVersion());
+		setLastChecked(info.getLastChecked());
 		setLastUpdated(info.getLastUpdated());
 	}
 

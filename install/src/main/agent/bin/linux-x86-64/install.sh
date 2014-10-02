@@ -4,18 +4,26 @@ set -eu
 fail() { echo "$1"; exit 1; }
 [ $(whoami) = root ] || fail "Must be root, not $(whoami)";
 
+name="sysmon-agent"
+
+# cleanup/reset
+service $name stop || true
+chown -R sysmon:sysmon /opt/sysmon
+
 dir="$(realpath $(dirname $0))"
 
-cp -v $dir/sysmon-agent.conf /etc/sysconfig/sysmon-agent && chown sysmon:sysmon /etc/sysconfig/sysmon-agent
-rm -fv /etc/init.d/sysmon-agent || true
-ln -s $dir/sysmon-agent /etc/init.d/sysmon-agent && (
-	chown root:root $dir/sysmon-agent;
-	chmod 755 $dir/sysmon-agent;
+cp -v $dir/$name.conf /etc/sysconfig/$name && chown sysmon:sysmon /etc/sysconfig/$name
+rm -fv /etc/init.d/$name || true
+ln -s $dir/$name /etc/init.d/$name && (
+	chown root:root $dir/$name;
+	chmod 755 $dir/$name;
 )
-chkconfig sysmon-agent on
+chkconfig $name on
 
-shortcut="$(echo ~sysmon)/bin/sysmon-agent"
+shortcut="$(echo ~sysmon)/bin/$name"
 [ -L $shortcut ] && rm -f $shortcut
-sudo -u sysmon ln -sv $dir/sysmon-agent $shortcut
+sudo -u sysmon ln -sv $dir/$name $shortcut
 
-service sysmon-agent start
+[ -d ~sysmon/log ] || sudo -u sysmon mkdir ~sysmon/log
+
+service $name start

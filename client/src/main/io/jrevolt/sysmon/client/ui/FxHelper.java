@@ -45,7 +45,7 @@ public class FxHelper {
 		executor.scheduleAtFixedRate(()-> Platform.runLater(()->{
 			if (isEmpty()) { return; }
 			synchronized (updateQueue) {
-				System.out.printf("updateQueue.size()=%d%n", size());
+//				System.out.printf("updateQueue.size()=%d%n", size());
 				while (!isEmpty()) { pop().run(); }
 			}
 		}), 1000, 500, TimeUnit.MILLISECONDS);
@@ -84,6 +84,10 @@ public class FxHelper {
 
 	static public <T> Future<T> async(Callable<T> callable) {
 		return executor.submit(callable);
+	}
+
+	static public ScheduledExecutorService scheduler() {
+		return executor;
 	}
 
 	static private void runGuarded(Runnable r) {

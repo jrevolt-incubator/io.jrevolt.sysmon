@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
 import static io.jrevolt.sysmon.server.Utils.async;
 
@@ -61,6 +62,8 @@ public class RestServiceImpl implements RestService {
 
 	@Override
 	public Response restart(String cluster, String server) {
+		if ("all".equals(cluster)) { cluster = null; }
+		if ("all".equals(server)) { server = null; }
 		events.restart(cluster, server);
 		if (cluster == null && server == null) {
 			ForkJoinPool.commonPool().submit(() -> {
@@ -74,6 +77,14 @@ public class RestServiceImpl implements RestService {
 	@Override
 	public DomainDef getDomainDef() {
 		return domainDef;
+	}
+
+	@Override
+	public List<String> getServers() {
+		List<String> servers = domainDef.getClusters().values().stream()
+				.flatMap(c -> c.getServers().stream())
+				.collect(Collectors.toList());
+		return servers;
 	}
 
 	@Override

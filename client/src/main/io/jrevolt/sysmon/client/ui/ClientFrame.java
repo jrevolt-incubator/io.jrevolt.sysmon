@@ -94,9 +94,6 @@ public class ClientFrame extends Base<BorderPane> {
 
 		agents.setContent(FxHelper.load(AgentsView.class).pane);
 
-		AgentsView agentsView = FxHelper.load(AgentsView.class);
-		agents.setContent(agentsView.pane);
-
 		async(()->{
 			domain = rest.getDomainDef();
 
@@ -142,6 +139,11 @@ public class ClientFrame extends Base<BorderPane> {
 	}
 
 	void check(Endpoint endpoint) {
+		if (System.getProperty("enableClientCheck", "false").equals("false")) {
+			fxupdate(()->endpoint.status().set(Endpoint.Status.UNDETERMINED));
+			return;
+		}
+
 		ObjectProperty<Endpoint.Status> status = new SimpleObjectProperty<>(Endpoint.Status.UNDETERMINED);
 		StringProperty comment = new SimpleStringProperty();
 		try {

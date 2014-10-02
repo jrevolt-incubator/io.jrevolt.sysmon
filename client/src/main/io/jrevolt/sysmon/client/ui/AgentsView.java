@@ -5,6 +5,7 @@ import io.jrevolt.sysmon.model.VersionInfo;
 import io.jrevolt.sysmon.rest.RestService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javafx.collections.FXCollections;
@@ -19,11 +20,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
 import javax.ws.rs.client.WebTarget;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
@@ -43,6 +47,7 @@ public class AgentsView extends Base<BorderPane> {
 
 	@FXML TableColumn<UIAgentInfo, String> status;
 	@FXML TableColumn<UIAgentInfo, Instant> lastUpdated;
+	@FXML TableColumn<UIAgentInfo, Duration> ping;
 
 	@FXML TableColumn<UIAgentInfo, String> artifact;
 	@FXML TableColumn<UIAgentInfo, VersionInfo> version;
@@ -62,9 +67,18 @@ public class AgentsView extends Base<BorderPane> {
 
 	Map<String, UIAgentInfo> uiagents = new HashMap<>();
 
+	ScheduledFuture<?> updater;
+
 	@Override
 	protected void initialize() {
 		async(this::refresh);
+		updater = FxHelper.scheduler().scheduleAtFixedRate(this::update, 1, 5, TimeUnit.SECONDS);
+	}
+
+	@Override
+	protected void close() {
+		updater.cancel(true);
+		super.close();
 	}
 
 	@FXML
@@ -79,6 +93,7 @@ public class AgentsView extends Base<BorderPane> {
 			server.setCellValueFactory(new PropertyValueFactory<>("server"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
 			lastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+			ping.setCellValueFactory(new PropertyValueFactory<>("ping"));
 			artifact.setCellValueFactory(new PropertyValueFactory<>("artifact"));
 			version.setCellValueFactory(new PropertyValueFactory<>("version"));
 			built.setCellValueFactory(new PropertyValueFactory<>("built"));
@@ -136,5 +151,12 @@ public class AgentsView extends Base<BorderPane> {
 				throw new UnsupportedOperationException(e);
 			}
 		});
+	}
+
+	//scheduled
+	void update() {
+		if (!pane.getParent().isVisible()) { return; }
+
+		rest.getAgentInfo().forEach(a -> uiagents.get(a.getServer()).update(a));
 	}
 }

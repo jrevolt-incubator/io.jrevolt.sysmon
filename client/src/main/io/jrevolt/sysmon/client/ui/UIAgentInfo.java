@@ -8,7 +8,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.util.Objects;
 
 import static io.jrevolt.sysmon.model.AgentInfo.Status;
@@ -26,6 +28,7 @@ public class UIAgentInfo {
 	private ObjectProperty<Instant> built = new SimpleObjectProperty<>();
 	private ObjectProperty<Status> status = new SimpleObjectProperty<>();
 	private ObjectProperty<Instant> lastUpdated = new SimpleObjectProperty<>();
+	private ObjectProperty<Duration> ping = new SimpleObjectProperty<>();
 
 	public UIAgentInfo(AgentInfo a) {
 		update(a);
@@ -117,6 +120,18 @@ public class UIAgentInfo {
 		this.lastUpdated.set(lastUpdated);
 	}
 
+	public Duration getPing() {
+		return ping.get();
+	}
+
+	public ObjectProperty<Duration> pingProperty() {
+		return ping;
+	}
+
+	public void setPing(Duration ping) {
+		this.ping.set(ping);
+	}
+
 
 	///
 
@@ -128,5 +143,9 @@ public class UIAgentInfo {
 		builtProperty().set(nonNull(a.getVersion()) ? a.getVersion().getBuildTimestamp() : null);
 		statusProperty().set(a.getStatus());
 		lastUpdatedProperty().set(a.getLastUpdated());
+		if (nonNull(a.getLastChecked()) && nonNull(a.getLastUpdated())) {
+			pingProperty().set(Duration.between(a.getLastChecked(), a.getLastUpdated()));
+		}
+
 	}
 }

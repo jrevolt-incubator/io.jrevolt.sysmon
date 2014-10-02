@@ -26,6 +26,12 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Options">
+               <items>
+                  <RadioMenuItem mnemonicParsing="false" text="INT" />
+                  <RadioMenuItem mnemonicParsing="false" text="TEST" />
+               </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />

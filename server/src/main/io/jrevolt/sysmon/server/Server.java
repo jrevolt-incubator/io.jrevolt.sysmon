@@ -1,6 +1,6 @@
 package io.jrevolt.sysmon.server;
 
-import io.jrevolt.sysmon.common.VersionInfo;
+import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.jms.JmsReceiver;
 import io.jrevolt.sysmon.jms.JmsSender;
@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -94,14 +93,9 @@ public class Server {
 		};
 	}
 
-	@Bean
-	ScheduledExecutorService scheduler() {
-		return Executors.newScheduledThreadPool(20);
-	}
-
 	@PostConstruct
 	void init() {
-		VersionInfo version = VersionInfo.forClass(Server.class);
+		Version version = Version.getVersion(Server.class);
 		System.out.printf("%s (%s)%n", version.getArtifactUri(), version.getArtifactVersion());
 	}
 

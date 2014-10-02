@@ -22,6 +22,6 @@ chkconfig $name on
 
 shortcut="$(echo ~sysmon)/bin/$name"
 [ -L $shortcut ] && rm -f $shortcut
-sudo -u sysmon ln -sv $dir/sysmon-agent $shortcut
+sudo -u sysmon ln -sv $dir/$name $shortcut
 
 service $name start

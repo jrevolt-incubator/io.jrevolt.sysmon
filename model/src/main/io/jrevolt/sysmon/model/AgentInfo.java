@@ -14,12 +14,12 @@ import java.time.Instant;
  */
 public class AgentInfo {
 
-	static public enum Status { STARTED, ONLINE, CHECKING, UNAVAILABLE, UNKNOWN }
+	static public enum Status { STARTED, ONLINE, CHECKING, REQUESTED, RESTARTING, UNAVAILABLE, ERROR, UNKNOWN }
 
 	String cluster;
 	String server;
 	Status status;
-	String version;
+	VersionInfo version;
 
 	@XStreamConverter(value=InstantConverter.class)
 	Instant lastUpdated;
@@ -27,7 +27,7 @@ public class AgentInfo {
 	public AgentInfo() {
 	}
 
-	public AgentInfo(String cluster, String server, Status status, String version, Instant lastUpdated) {
+	public AgentInfo(String cluster, String server, Status status, VersionInfo version, Instant lastUpdated) {
 		this.cluster = cluster;
 		this.server = server;
 		this.status = status;
@@ -59,11 +59,11 @@ public class AgentInfo {
 		this.status = status;
 	}
 
-	public String getVersion() {
+	public VersionInfo getVersion() {
 		return version;
 	}
 
-	public void setVersion(String version) {
+	public void setVersion(VersionInfo version) {
 		this.version = version;
 	}
 

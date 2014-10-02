@@ -1,6 +1,6 @@
 package io.jrevolt.sysmon.server.rest;
 
-import io.jrevolt.sysmon.common.VersionInfo;
+import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
@@ -54,18 +54,20 @@ public class RestServiceImpl implements RestService {
 
 	@Override
 	public StatusInfo status() {
-		VersionInfo version = VersionInfo.forClass(Server.class);
+		Version version = Version.getVersion(Server.class);
 		return new StatusInfo(
 				app.getName(), version.getArtifactUri(), version.getArtifactVersion(), version.getTimestamp());
 	}
 
 	@Override
-	public Response restart() {
-		events.restart();
-		ForkJoinPool.commonPool().submit(() -> {
-			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
-			System.exit(7);
-		});
+	public Response restart(String cluster, String server) {
+		events.restart(cluster, server);
+		if (cluster == null && server == null) {
+			ForkJoinPool.commonPool().submit(() -> {
+				LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
+				System.exit(7);
+			});
+		}
 		return Response.accepted().build();
 	}
 
@@ -102,7 +104,7 @@ public class RestServiceImpl implements RestService {
 	public void ping(String server, @Suspended AsyncResponse response) {
 		async(() -> {
 			events.ping(null, server);
-			db.onUpdate(server, ()->response.resume(db.getAgents().get(server)));
+			db.onUpdate(server, () -> response.resume(db.getAgents().get(server)));
 		});
 	}
 }

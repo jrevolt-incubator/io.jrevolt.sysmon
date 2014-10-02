@@ -39,8 +39,11 @@ public class Database {
 	}
 
 	public void updateAgent(AgentInfo info) {
-		agents.get(info.getServer()).updateFrom(info);
-		fireUpdate(info.getServer());
+		AgentInfo our = agents.get(info.getServer());
+		if (our == null) { return; }
+
+		our.updateFrom(info);
+		fireUpdate(our.getServer());
 	}
 
 	///

@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.client.ui;
 
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.VersionInfo;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -8,27 +9,29 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 import java.time.Instant;
+import java.util.Objects;
+
+import static io.jrevolt.sysmon.model.AgentInfo.Status;
+import static java.util.Objects.nonNull;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
 public class UIAgentInfo {
 
-	StringProperty cluster = new SimpleStringProperty();
-	StringProperty server = new SimpleStringProperty();
-	StringProperty version = new SimpleStringProperty();
-	StringProperty status = new SimpleStringProperty();
-	ObjectProperty<Instant> lastUpdated = new SimpleObjectProperty<>();
+	private StringProperty cluster = new SimpleStringProperty();
+	private StringProperty server = new SimpleStringProperty();
+	private StringProperty version = new SimpleStringProperty();
+	private StringProperty artifact = new SimpleStringProperty();
+	private ObjectProperty<Instant> built = new SimpleObjectProperty<>();
+	private ObjectProperty<Status> status = new SimpleObjectProperty<>();
+	private ObjectProperty<Instant> lastUpdated = new SimpleObjectProperty<>();
 
 	public UIAgentInfo(AgentInfo a) {
 		update(a);
 	}
 
-	StringProperty cluster() { return cluster; }
-	StringProperty server() { return server; }
-	StringProperty version() { return status; }
-	StringProperty status() { return status; }
-	ObjectProperty<Instant> lastUpdated() { return lastUpdated; }
+	///
 
 	public String getCluster() {
 		return cluster.get();
@@ -36,6 +39,10 @@ public class UIAgentInfo {
 
 	public StringProperty clusterProperty() {
 		return cluster;
+	}
+
+	public void setCluster(String cluster) {
+		this.cluster.set(cluster);
 	}
 
 	public String getServer() {
@@ -46,12 +53,8 @@ public class UIAgentInfo {
 		return server;
 	}
 
-	public String getStatus() {
-		return status.get();
-	}
-
-	public StringProperty statusProperty() {
-		return status;
+	public void setServer(String server) {
+		this.server.set(server);
 	}
 
 	public String getVersion() {
@@ -62,6 +65,46 @@ public class UIAgentInfo {
 		return version;
 	}
 
+	public void setVersion(String version) {
+		this.version.set(version);
+	}
+
+	public String getArtifact() {
+		return artifact.get();
+	}
+
+	public StringProperty artifactProperty() {
+		return artifact;
+	}
+
+	public void setArtifact(String artifact) {
+		this.artifact.set(artifact);
+	}
+
+	public Instant getBuilt() {
+		return built.get();
+	}
+
+	public ObjectProperty<Instant> builtProperty() {
+		return built;
+	}
+
+	public void setBuilt(Instant built) {
+		this.built.set(built);
+	}
+
+	public Status getStatus() {
+		return status.get();
+	}
+
+	public ObjectProperty<Status> statusProperty() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status.set(status);
+	}
+
 	public Instant getLastUpdated() {
 		return lastUpdated.get();
 	}
@@ -70,15 +113,20 @@ public class UIAgentInfo {
 		return lastUpdated;
 	}
 
+	public void setLastUpdated(Instant lastUpdated) {
+		this.lastUpdated.set(lastUpdated);
+	}
+
+
 	///
 
 	public void update(AgentInfo a) {
-		cluster().set(a.getCluster());
-		server().set(a.getServer());
-		version().set(a.getVersion());
-
-		status().set(a.getStatus().name());
-
-		lastUpdated().set(a.getLastUpdated());
+		clusterProperty().set(a.getCluster());
+		serverProperty().set(a.getServer());
+		versionProperty().set(nonNull(a.getVersion()) ? a.getVersion().getVersion() : null);
+		artifactProperty().set(nonNull(a.getVersion()) ? a.getVersion().getArtifact() : null);
+		builtProperty().set(nonNull(a.getVersion()) ? a.getVersion().getBuildTimestamp() : null);
+		statusProperty().set(a.getStatus());
+		lastUpdatedProperty().set(a.getLastUpdated());
 	}
 }

@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.client.ui;
 
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.VersionInfo;
 import io.jrevolt.sysmon.rest.RestService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +18,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
@@ -41,11 +39,15 @@ public class AgentsView extends Base<BorderPane> {
 
 	@FXML TableColumn<UIAgentInfo, String> cluster;
 	@FXML TableColumn<UIAgentInfo, String> server;
-	@FXML TableColumn<UIAgentInfo, String> status;
-	@FXML TableColumn<UIAgentInfo, String> version;
-	@FXML TableColumn<UIAgentInfo, Instant> lastUpdated;
-	@FXML TableColumn<UIAgentInfo, UIAgentInfo> actions;
 
+	@FXML TableColumn<UIAgentInfo, String> status;
+	@FXML TableColumn<UIAgentInfo, Instant> lastUpdated;
+
+	@FXML TableColumn<UIAgentInfo, String> artifact;
+	@FXML TableColumn<UIAgentInfo, VersionInfo> version;
+	@FXML TableColumn<UIAgentInfo, Instant> built;
+
+	@FXML TableColumn<UIAgentInfo, UIAgentInfo> actions;
 
 	///
 
@@ -75,20 +77,23 @@ public class AgentsView extends Base<BorderPane> {
 			cluster.setCellValueFactory(new PropertyValueFactory<>("cluster"));
 			server.setCellValueFactory(new PropertyValueFactory<>("server"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
-			version.setCellValueFactory(new PropertyValueFactory<>("version"));
 			lastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+			artifact.setCellValueFactory(new PropertyValueFactory<>("artifact"));
+			version.setCellValueFactory(new PropertyValueFactory<>("version"));
+			built.setCellValueFactory(new PropertyValueFactory<>("built"));
 			actions.setCellFactory(param -> new TableCell<UIAgentInfo, UIAgentInfo>() {
 				@Override
-				protected void updateItem(UIAgentInfo item, boolean empty) {
+				protected void updateItem(UIAgentInfo unusued, boolean empty) {
 					if (empty) {
 						setText(null);
 						setGraphic(null);
 					} else {
+						UIAgentInfo item = table.getItems().get(getIndex());
 						Button bRestart = new Button("restart");
-						bRestart.setOnAction(e->restartSingle());
+						bRestart.setOnAction(e->restartSingle(item));
 
 						Button bCheck  = new Button("ping");
-						bCheck.setOnAction(e->pingAgent(table.getItems().get(getIndex())));
+						bCheck.setOnAction(e->pingAgent(item));
 
 						HBox box = new HBox();
 						box.getChildren().addAll(bRestart, bCheck);
@@ -112,14 +117,15 @@ public class AgentsView extends Base<BorderPane> {
 	void restartSelectedAgents() {
 	}
 
-	void restartSingle() {
-		async(rest::restart);
+	void restartSingle(UIAgentInfo info) {
+		fxasync(()->info.statusProperty().set(AgentInfo.Status.REQUESTED));
+		async(()->rest.restart(info.getCluster(), info.getServer()));
 	}
 
 	void pingAgent(UIAgentInfo item) {
 		async(() -> {
 			try {
-				fxasync(()-> item.status().set(AgentInfo.Status.CHECKING.name()));
+				fxasync(()-> item.statusProperty().set(AgentInfo.Status.CHECKING));
 				Future<AgentInfo> f = arest.path("ping").path(item.getServer()).request().async().get(AgentInfo.class);
 				AgentInfo info = f.get(10, TimeUnit.SECONDS);
 				fxupdate(() -> uiagents.get(item.getServer()).update(info));

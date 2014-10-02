@@ -17,7 +17,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.StandardEnvironment;
@@ -85,6 +84,11 @@ public class ClientFrame extends Base<BorderPane> {
 		fxasync(this::refresh);
 	}
 
+	@Override
+	protected void close() {
+		super.close(); // todo implement this
+	}
+
 	@FXML
 	void refresh() {
 
@@ -117,18 +121,15 @@ public class ClientFrame extends Base<BorderPane> {
 				endpoint.status.set(Endpoint.Status.CHECKING);
 				FxHelper.async(() -> check(endpoint));
 			}));
-			table.setItems(new FilteredList<>(endpoints, this::filter));
-
-			try {
+			fxasync(() -> {
+				table.setItems(new FilteredList<>(endpoints, this::filter));
 				cluster.setCellValueFactory(new PropertyValueFactory<>("clusterName"));
 				server.setCellValueFactory(new PropertyValueFactory<>("server"));
 				endpoint.setCellValueFactory(new PropertyValueFactory<>("uri"));
 				type.setCellValueFactory(new PropertyValueFactory<>("type"));
 				status.setCellValueFactory(new PropertyValueFactory<>("status"));
 				comment.setCellValueFactory(new PropertyValueFactory<>("comment"));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			});
 
 			Preferences prefs = Preferences.userNodeForPackage(ClientFrame.class);
 			table.getColumns().forEach(c-> {
@@ -230,7 +231,7 @@ public class ClientFrame extends Base<BorderPane> {
 	}
 
 	@FXML void restartServer() {
-		async(rest::restart);
+		async(() -> rest.restart(null, null));
 	}
 
 	@FXML

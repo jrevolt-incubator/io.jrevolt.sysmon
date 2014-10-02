@@ -1,10 +1,16 @@
 package io.jrevolt.sysmon.client.ui;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
 import java.net.URL;
 
@@ -34,11 +40,16 @@ public abstract class Base<T extends Pane> {
 //        scene.getStylesheets().add(css.toExternalForm());
 		stage.setScene(scene);
 		stage.show();
+		getWindow().setOnCloseRequest(e -> {
+			close();
+		});
 	}
 
 	protected <T extends Base> T load(Class<T> cls) {
 		return FxHelper.load(cls);
 	}
+
+	protected void close() {}
 
 	protected Window getWindow() {
 		return pane.getScene().getWindow();

@@ -23,26 +23,33 @@ import java.util.List;
 public interface RestService {
 
 	@GET @Path("status")
-	StatusInfo status();
+	default StatusInfo status() { throw new UnsupportedOperationException(); }
 
-	@GET @Path("restart")
-	Response restart();
+	@GET @Path("restart/{cluster}/{server}")
+	default Response restart(@PathParam("cluster") String cluster, @PathParam("server") String server) {
+		throw new UnsupportedOperationException();
+	}
 
 	@GET @Path("domain")
-	DomainDef getDomainDef();
+	default DomainDef getDomainDef() {
+		throw new UnsupportedOperationException();
+	}
 
 	@GET @Path("jnlp/{resource}")
-	Response resource(@PathParam("resource") String resource);
+	default Response resource(@PathParam("resource") String resource) {
+		throw new UnsupportedOperationException();
+	}
 
 	@POST @Path("checkAll")
-	void checkAll();
+	default void checkAll() { throw new UnsupportedOperationException(); }
+
 
 	/// agents ///
 
 	@GET @Path("agents")
-	List<AgentInfo> getAgentInfo();
+	default List<AgentInfo> getAgentInfo() { throw new UnsupportedOperationException(); }
 
 	@GET @Path("ping/{server}")
-	void ping(@PathParam("server") String server, @Suspended AsyncResponse response);
+	default void ping(@PathParam("server") String server, @Suspended AsyncResponse response) { throw new UnsupportedOperationException(); }
 
 }

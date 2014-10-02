@@ -11,8 +11,10 @@
           <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
           <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
             <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
-            <TableColumn fx:id="version" prefWidth="75.0" text="Version" />
             <TableColumn fx:id="lastUpdated" prefWidth="75.0" text="LastUpdated" />
+            <TableColumn fx:id="artifact" prefWidth="75.0" text="Artifact" />
+            <TableColumn fx:id="version" prefWidth="75.0" text="Version" />
+            <TableColumn fx:id="built" prefWidth="75.0" text="Built" />
             <TableColumn fx:id="actions" prefWidth="75.0" text="Actions" />
         </columns>
          <contextMenu>

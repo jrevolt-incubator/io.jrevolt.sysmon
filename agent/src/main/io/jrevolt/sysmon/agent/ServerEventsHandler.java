@@ -1,24 +1,19 @@
 package io.jrevolt.sysmon.agent;
 
-import io.jrevolt.sysmon.common.VersionInfo;
+import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.JMSProperty;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
-import io.jrevolt.sysmon.model.DomainDef;
-import io.jrevolt.sysmon.model.NodeDef;
+import io.jrevolt.sysmon.model.VersionInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.InetAddress;
 import java.time.Instant;
 import java.util.concurrent.ForkJoinPool;
 
@@ -38,12 +33,12 @@ public class ServerEventsHandler implements ServerEvents {
 	AgentEvents events;
 
 	@Override
-	public void ping(@JMSProperty String clusterName, @JMSProperty String serverName) {
+	public void ping(@JMSProperty String cluster, @JMSProperty String server) {
 		events.status(createAgentInfo());
 	}
 
 	@Override
-	public void restart() {
+	public void restart(@JMSProperty String cluster, @JMSProperty String server) {
 		events.restarting(createAgentInfo());
 		ForkJoinPool.commonPool().submit(() -> {
 			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
@@ -63,7 +58,7 @@ public class ServerEventsHandler implements ServerEvents {
 	private AgentInfo createAgentInfo() {
 		return new AgentInfo(
 				cfg.getClusterName(), cfg.getServerName(), AgentInfo.Status.ONLINE,
-				VersionInfo.forClass(Agent.class).getArtifactVersion(),
+				new VersionInfo(Version.getVersion(Agent.class)),
 				Instant.now()
 		);
 	}

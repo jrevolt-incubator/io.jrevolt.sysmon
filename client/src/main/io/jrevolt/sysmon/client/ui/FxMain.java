@@ -7,6 +7,8 @@ import io.jrevolt.sysmon.client.ClientConfig;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.SpringBootApp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.DumperOptions;
@@ -39,10 +41,15 @@ public class FxMain extends Application {
 	Stage stage;
 
 	@Autowired
+	ConfigurableApplicationContext ctx;
+
+	@Autowired
 	AppCfg app;
 
 	@Autowired
 	ClientConfig client;
+
+	@Autowired FxHelper helper;
 
 	{
 		SpringBootApp.instance().autowire(this);
@@ -65,7 +72,11 @@ public class FxMain extends Application {
 		stage.setTitle(app.getName());
 		base.show();
 
-		stage.setOnCloseRequest(event -> saveStage());
+		stage.setOnCloseRequest(event -> {
+			saveStage();
+			ctx.close();
+//			System.exit(0);
+		});
 	}
 
 	Class<? extends Base> getMainFrameClass() {

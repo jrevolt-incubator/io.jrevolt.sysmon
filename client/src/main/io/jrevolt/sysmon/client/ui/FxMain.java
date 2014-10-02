@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 import io.jrevolt.sysmon.client.ClientConfig;
+import io.jrevolt.sysmon.client.ClientMain;
+import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.SpringBootApp;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,10 @@ public class FxMain extends Application {
 //        System.out.println("launch time: "+(now.getTime() - jvmLaunched.getTime()));
 
 		loadStage();
-		stage.setTitle(app.getName());
+
+		Version version = Version.getVersion(ClientMain.class);
+		stage.setTitle(String.format("%s (%s, %s)", app.getName(), version.getArtifactVersion(), version.getTimestamp()));
+
 		base.show();
 
 		stage.setOnCloseRequest(event -> {

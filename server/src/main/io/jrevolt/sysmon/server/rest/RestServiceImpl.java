@@ -62,6 +62,8 @@ public class RestServiceImpl implements RestService {
 
 	@Override
 	public Response restart(String cluster, String server) {
+		if ("all".equals(cluster)) { cluster = null; }
+		if ("all".equals(server)) { server = null; }
 		events.restart(cluster, server);
 		if (cluster == null && server == null) {
 			ForkJoinPool.commonPool().submit(() -> {

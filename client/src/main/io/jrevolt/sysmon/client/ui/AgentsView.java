@@ -22,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javax.ws.rs.client.WebTarget;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
@@ -46,12 +47,14 @@ public class AgentsView extends Base<BorderPane> {
 	@FXML TableColumn<UIAgentInfo, String> server;
 
 	@FXML TableColumn<UIAgentInfo, String> status;
-	@FXML TableColumn<UIAgentInfo, Instant> lastUpdated;
+	@FXML TableColumn<UIAgentInfo, LocalDateTime> lastChecked;
+	@FXML TableColumn<UIAgentInfo, LocalDateTime> lastUpdated;
+
+	@FXML TableColumn<UIAgentInfo, Duration> checked;
 	@FXML TableColumn<UIAgentInfo, Duration> ping;
 
-	@FXML TableColumn<UIAgentInfo, String> artifact;
 	@FXML TableColumn<UIAgentInfo, VersionInfo> version;
-	@FXML TableColumn<UIAgentInfo, Instant> built;
+	@FXML TableColumn<UIAgentInfo, LocalDateTime> built;
 
 	@FXML TableColumn<UIAgentInfo, UIAgentInfo> actions;
 
@@ -92,9 +95,10 @@ public class AgentsView extends Base<BorderPane> {
 			cluster.setCellValueFactory(new PropertyValueFactory<>("cluster"));
 			server.setCellValueFactory(new PropertyValueFactory<>("server"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
+			lastChecked.setCellValueFactory(new PropertyValueFactory<>("lastChecked"));
 			lastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+			checked.setCellValueFactory(new PropertyValueFactory<>("checked"));
 			ping.setCellValueFactory(new PropertyValueFactory<>("ping"));
-			artifact.setCellValueFactory(new PropertyValueFactory<>("artifact"));
 			version.setCellValueFactory(new PropertyValueFactory<>("version"));
 			built.setCellValueFactory(new PropertyValueFactory<>("built"));
 			actions.setCellFactory(param -> new TableCell<UIAgentInfo, UIAgentInfo>() {

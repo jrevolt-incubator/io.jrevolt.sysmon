@@ -7,9 +7,10 @@ set SYSMON_VERSION=integration-SNAPSHOT
 set SYSMON_MODULE=client
 set SYSMON_ARTIFACT=io.jrevolt.sysmon:io.jrevolt.sysmon.%SYSMON_MODULE%:%SYSMON_VERSION%
 
+set JAVA_OPTS=-DenableClientCheck=true
 set MVNLAUNCHER_OPTIONS=--MvnLauncher.repositoryUrl=https://build.dcom.sk/nexus/content/groups/public/ --MvnLauncher.updateInterval=0
 set SPRINGBOOT_OPTIONS=--logging.file=%USERPROFILE%\var\log\sysmon\%SYSMON_MODULE%.log --spring.application.name="DCOM Deployment Manager"
 
 set SYSMON_OPTIONS=--sysmon.client.serverUrl=https://si1mons11.dev.dcom.sk/rest
 
-%JAVA_EXE% -jar %SPRINGBOOT% %SYSMON_ARTIFACT% %MVNLAUNCHER_OPTIONS% %SPRINGBOOT_OPTIONS% %SYSMON_OPTIONS%
+%JAVA_EXE% %JAVA_OPTS% -jar %SPRINGBOOT% %SYSMON_ARTIFACT% %MVNLAUNCHER_OPTIONS% %SPRINGBOOT_OPTIONS% %SYSMON_OPTIONS%

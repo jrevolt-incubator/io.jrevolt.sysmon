@@ -5,16 +5,18 @@ jolokia.url: http://$hostname:8080/jolokia # JMX/REST bridge
 version: develop-SNAPSHOT
 
 domain:
-   name: example.com
+   name: "test.example.com"
    clusters:
       sample: # name of the cluster, usually xxxx in sp1xxxx01 host name
+         servers:
+            server01.dev.example.com,
+            server0[12].test.example.com,
+            server0[12].example.com, server13.example.com
          proxies: # list of URLs of the reverse proxies providing access to this cluster
             - https://lbsample.example.com
             - https://sample.example.com
             - https://sample.dcom.sk
             - http://sample.dcom.sk
-         servers:
-            server1, server2, server3
          artifacts: # list of Maven URIs of the artifacts deployed to this cluster
             - com.example.sample:com.example.sample.ws:$version:war
             - com.example.sample:com.example.sample.rest:$version:war

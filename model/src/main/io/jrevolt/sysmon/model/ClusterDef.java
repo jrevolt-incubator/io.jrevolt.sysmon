@@ -5,9 +5,14 @@ import org.springframework.boot.loader.mvn.MvnArtifact;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -82,8 +87,32 @@ public class ClusterDef {
 	///
 
 	void init(DomainDef domain) {
+		Pattern p = Pattern.compile(".*\\."+domain.getName());
 		setServers(getServers().stream()
-							  .map(s -> String.format("%s.%s", s, domain.getName()))
+							  .map(this::expand)
+							  .flatMap(l -> l.stream())
+							  .filter(s -> p.matcher(s).matches())
+							  .distinct()
 							  .collect(Collectors.toList()));
+	}
+
+	List<String> expand(String s) {
+		List<String> result = new LinkedList<>();
+		Pattern p = Pattern.compile("(.*)\\[(\\p{Digit}+)\\](.*)");
+		Matcher m = p.matcher(s);
+		if (!m.matches()) {
+			result.add(s);
+			return result;
+		}
+
+		String prefix = m.group(1);
+		char[] sequence = m.group(2).toCharArray();
+		String suffix = m.group(3);
+
+		for (char c : sequence) {
+			result.add(String.format("%s%s%s", prefix, c, suffix));
+		}
+
+		return result;
 	}
 }

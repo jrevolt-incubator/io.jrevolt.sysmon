@@ -9,6 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
@@ -57,6 +58,6 @@ public interface RestService {
 	default List<AgentInfo> getAgentInfo() { throw new UnsupportedOperationException(); }
 
 	@GET @Path("ping/{server}")
-	default void ping(@PathParam("server") String server, @Suspended AsyncResponse response) { throw new UnsupportedOperationException(); }
+	default AgentInfo ping(@PathParam("server") String server, @QueryParam("timeout") int timeout, @Suspended AsyncResponse response) { throw new UnsupportedOperationException(); }
 
 }

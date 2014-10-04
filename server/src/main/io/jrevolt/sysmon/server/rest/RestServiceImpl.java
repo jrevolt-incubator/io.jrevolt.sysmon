@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.jrevolt.sysmon.server.Utils.async;
@@ -112,10 +113,14 @@ public class RestServiceImpl implements RestService {
 	}
 
 	@Override
-	public void ping(String server, @Suspended AsyncResponse response) {
+	public AgentInfo ping(String server, int timeout, @Suspended AsyncResponse response) {
 		async(() -> {
+			Runnable action = () -> response.resume(db.getAgents().get(server));
+			response.setTimeout(timeout, TimeUnit.SECONDS);
+			response.setTimeoutHandler(r -> action.run());
 			events.ping(null, server);
-			db.onUpdate(server, () -> response.resume(db.getAgents().get(server)));
+			db.onUpdate(server, action::run);
 		});
+		return null;
 	}
 }

@@ -5,7 +5,6 @@ import io.jrevolt.sysmon.model.VersionInfo;
 import io.jrevolt.sysmon.rest.RestService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javafx.collections.FXCollections;
@@ -21,16 +20,12 @@ import javafx.scene.layout.HBox;
 
 import javax.ws.rs.client.WebTarget;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
@@ -146,11 +141,12 @@ public class AgentsView extends Base<BorderPane> {
 		async(() -> {
 			try {
 				fxasync(()-> item.statusProperty().set(AgentInfo.Status.CHECKING));
-				Future<AgentInfo> f = arest.path("ping").path(item.getServer()).request().async().get(AgentInfo.class);
-				AgentInfo info = f.get(10, TimeUnit.SECONDS);
+//				Future<AgentInfo> f = arest.path("ping").path(item.getServer()).request().async().get(AgentInfo.class);
+//				AgentInfo info = f.get(10, TimeUnit.SECONDS);
+				AgentInfo info = rest.ping(item.getServer(), 10, null);
 				fxupdate(() -> uiagents.get(item.getServer()).update(info));
-			} catch (TimeoutException e) {
-				fxupdate(() -> uiagents.get(item.getServer()).setStatus(AgentInfo.Status.UNKNOWN));
+//			} catch (TimeoutException e) {
+//				fxupdate(() -> uiagents.get(item.getServer()).setStatus(AgentInfo.Status.UNKNOWN));
 			} catch (Exception e) {
 				throw new UnsupportedOperationException(e);
 			}

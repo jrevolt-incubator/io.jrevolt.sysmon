@@ -5,7 +5,7 @@ import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.StatusInfo;
-import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.rest.ApiService;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.server.Database;
 import io.jrevolt.sysmon.server.Server;
@@ -34,10 +34,10 @@ import static io.jrevolt.sysmon.server.Utils.async;
  * @version $Id$
  */
 @Service
-@Path("/")
-public class RestServiceImpl implements RestService {
+@Path("api")
+public class ApiServiceImpl implements ApiService {
 
-	static private final Logger LOG = LoggerFactory.getLogger(RestServiceImpl.class);
+	static private final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
 
 	@Autowired
 	AppCfg app;

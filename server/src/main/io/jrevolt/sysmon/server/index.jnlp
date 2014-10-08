@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="7.0"
       xmlns:jfx="http://javafx.com"
-      codebase="https://st1mons11.test.dcom.sk/rest/jnlp"
+      codebase="https://lbmon.intra.dcom.sk/rest/resources"
       href="index.jnlp">
 	<information>
 		<title>DCOM Deployment Manager</title>
 		<vendor>Patrik Beno, Greenhorn, s.r.o.</vendor>
 		<description>DCOM Deployment Manager</description>
+		<icon href="index.gif" kind="splash"/>
 	</information>
 	<security>
 		<all-permissions/>
 	</security>
-	<property name="jnlp.MvnLauncher.artifact" value="io.jrevolt.sysmon:io.jrevolt.sysmon.client:develop-SNAPSHOT"/>
+	<!--<property name="jnlp.MvnLauncher.artifact" value="io.jrevolt.sysmon:io.jrevolt.sysmon.client:develop-SNAPSHOT"/>-->
 	<resources>
 		<j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se"/>
 		<jfx:javafx-runtime version="2.2+"
 		                    href="http://javadl.sun.com/webapps/download/GetFile/javafx-latest/windows-i586/javafx2.jnlp"/>
-		<jar href="springboot.jar"/>
+		<jar href="browser.jar"/>
 	</resources>
-	<jfx:javafx-desc main-class="org.springframework.boot.loader.FxMain"/>
-	<!--<application-desc main-class="org.springframework.boot.loader.Main"/>-->
+	<jfx:javafx-desc main-class="io.jrevolt.sysmon.browser.BrowserMain"/>
 </jnlp>

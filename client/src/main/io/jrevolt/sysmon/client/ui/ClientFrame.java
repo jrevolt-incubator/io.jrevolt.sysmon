@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
-import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.rest.ApiService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,7 +57,7 @@ public class ClientFrame extends Base<BorderPane> {
 	AppCfg app;
 
 	@Autowired
-	RestService rest;
+	ApiService rest;
 
 	@FXML
 	Tab servers;

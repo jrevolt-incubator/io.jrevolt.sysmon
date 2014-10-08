@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <TableView BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn prefWidth="75.0" text="Module">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="GroupId" />
+                  <TableColumn prefWidth="75.0" text="ArtifactId" />
+                  <TableColumn prefWidth="75.0" text="Version" />
+               </columns></TableColumn>
+          <TableColumn prefWidth="75.0" text="Deployed">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="Build" />
+                  <TableColumn prefWidth="75.0" text="Revision" />
+                  <TableColumn prefWidth="75.0" text="Date" />
+               </columns></TableColumn>
+            <TableColumn prefWidth="75.0" text="Available">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="Build" />
+                  <TableColumn prefWidth="75.0" text="Revision" />
+                  <TableColumn prefWidth="75.0" text="Date" />
+               </columns>
+            </TableColumn>
+            <TableColumn prefWidth="75.0" text="Target">
+               <columns>
+                  <TableColumn prefWidth="75.0" text="Cluster" />
+                  <TableColumn prefWidth="75.0" text="Since" />
+               </columns>
+            </TableColumn>
+        </columns>
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Check for updates" />
+                  <MenuItem mnemonicParsing="false" text="Update deployment status" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </TableView>
+   </center>
+</BorderPane>

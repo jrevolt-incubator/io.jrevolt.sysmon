@@ -15,9 +15,9 @@ public interface AgentEvents {
 	@JMS
 	default void started(AgentInfo info) {}
 
-	@JMS(timeToLive = 5000L)
+	@JMS(timeToLive = 10*60000L)
 	default void status(AgentInfo info) {}
 
-	@JMS(timeToLive = 5000L)
+	@JMS(timeToLive = 15000L)
 	default void restarting(AgentInfo info) {}
 }

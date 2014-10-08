@@ -2,7 +2,7 @@ package io.jrevolt.sysmon.client.ui;
 
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.VersionInfo;
-import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.rest.ApiService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,7 +56,7 @@ public class AgentsView extends Base<BorderPane> {
 	///
 
 	@Autowired
-	RestService rest;
+	ApiService rest;
 
 	@Autowired
 	WebTarget arest;

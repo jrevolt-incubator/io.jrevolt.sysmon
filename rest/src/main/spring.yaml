@@ -1,2 +1,3 @@
 sysmon.server:
-   url: http://localhost:8080/rest
+   url: http://localhost:8080
+   baseUrl: ${sysmon.server.url}/rest

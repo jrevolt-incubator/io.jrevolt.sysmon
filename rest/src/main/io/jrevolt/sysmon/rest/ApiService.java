@@ -20,8 +20,8 @@ import java.util.List;
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-@Path("/") @Produces({"application/json", "application/xml"})
-public interface RestService {
+@Path("api") @Produces({"application/json", "application/xml"})
+public interface ApiService {
 
 	@GET @Path("status")
 	default StatusInfo status() { throw new UnsupportedOperationException(); }

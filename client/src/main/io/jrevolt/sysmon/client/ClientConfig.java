@@ -17,8 +17,6 @@ public class ClientConfig {
 
 	URI serverUrl;
 
-	File directory;
-
 	public URI getServerUrl() {
 		return serverUrl;
 	}
@@ -27,11 +25,4 @@ public class ClientConfig {
 		this.serverUrl = serverUrl;
 	}
 
-	public File getDirectory() {
-		return directory;
-	}
-
-	public void setDirectory(File directory) {
-		this.directory = directory;
-	}
 }

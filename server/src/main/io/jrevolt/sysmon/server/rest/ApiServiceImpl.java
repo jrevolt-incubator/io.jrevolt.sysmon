@@ -34,7 +34,7 @@ import static io.jrevolt.sysmon.server.Utils.async;
  * @version $Id$
  */
 @Service
-@Path("api")
+@Path("/api")
 public class ApiServiceImpl implements ApiService {
 
 	static private final Logger LOG = LoggerFactory.getLogger(ApiServiceImpl.class);
@@ -82,7 +82,7 @@ public class ApiServiceImpl implements ApiService {
 
 	@Override
 	public List<String> getServers() {
-		List<String> servers = domainDef.getClusters().values().stream()
+		List<String> servers = domainDef.getClusters().stream()
 				.flatMap(c -> c.getServers().stream())
 				.collect(Collectors.toList());
 		return servers;
@@ -102,7 +102,7 @@ public class ApiServiceImpl implements ApiService {
 
 	@Override
 	public void checkAll() {
-		domainDef.getClusters().values().parallelStream().forEach(c->{
+		domainDef.getClusters().parallelStream().forEach(c->{
 			events.checkCluster(c.getName(), c);
 		});
 	}

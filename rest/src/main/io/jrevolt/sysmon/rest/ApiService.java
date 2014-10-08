@@ -20,7 +20,7 @@ import java.util.List;
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-@Path("api") @Produces({"application/json", "application/xml"})
+@Path("/api") @Produces({"application/json", "application/xml"})
 public interface ApiService {
 
 	@GET @Path("status")

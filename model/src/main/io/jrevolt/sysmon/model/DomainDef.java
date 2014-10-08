@@ -1,6 +1,12 @@
 package io.jrevolt.sysmon.model;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import jdk.nashorn.internal.runtime.ScriptObject;
 
@@ -9,6 +15,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,8 +26,10 @@ import java.util.Map;
 @ConfigurationProperties("domain")
 public class DomainDef {
 
-	String name;
-	Map<String, ClusterDef> clusters = new LinkedHashMap<>();
+	private String name;
+	private List<ClusterDef> clusters;
+
+	///
 
 	public String getName() {
 		return name;
@@ -29,11 +39,11 @@ public class DomainDef {
 		this.name = name;
 	}
 
-	public Map<String, ClusterDef> getClusters() {
+	public List<ClusterDef> getClusters() {
 		return clusters;
 	}
 
-	public void setClusters(Map<String, ClusterDef> clusters) {
+	public void setClusters(List<ClusterDef> clusters) {
 		this.clusters = clusters;
 	}
 
@@ -41,10 +51,7 @@ public class DomainDef {
 
 	@PostConstruct
 	void init() {
-		clusters.entrySet().forEach(e -> {
-			e.getValue().setName(e.getKey());
-			e.getValue().init(this);
-		});
+		clusters.forEach(c -> c.init(this));
 	}
 
 }

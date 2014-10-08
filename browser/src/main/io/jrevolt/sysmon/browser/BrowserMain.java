@@ -1,25 +1,11 @@
 package io.jrevolt.sysmon.browser;
 
-import org.springframework.boot.loader.FxMain;
-import org.springframework.boot.loader.MvnLauncher;
-
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBoxBuilder;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>

@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 
-import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.rest.ApiService;
 import io.jrevolt.sysmon.server.Server;
 
 import javax.ws.rs.core.UriBuilder;
@@ -25,13 +25,13 @@ import java.net.URI;
 @SpringApplicationConfiguration(classes = Server.class)
 @WebAppConfiguration
 @IntegrationTest({"server.port=0", "spring.profiles=unittest"})
-public class RestServiceTest {
+public class ApiServiceTest {
 
 	@Autowired
 	EmbeddedWebApplicationContext server;
 
 	@Autowired
-	RestService rest;
+	ApiService rest;
 
 	RestTemplate template = new TestRestTemplate();
 

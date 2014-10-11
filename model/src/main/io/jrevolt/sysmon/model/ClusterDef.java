@@ -1,12 +1,11 @@
 package io.jrevolt.sysmon.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.loader.mvn.MvnArtifact;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.annotation.PostConstruct;
-import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -14,14 +13,13 @@ import java.util.stream.Collectors;
  */
 public class ClusterDef {
 
-	String name;
+	private String name;
+	private List<String> servers = new LinkedList<>();
+	private List<EndpointDef> provides = new LinkedList<>();
+	private List<EndpointDef> dependencies = new LinkedList<>();
+	private List<ArtifactDef> artifacts = new LinkedList<>();
 
-	List<URI> proxies = new LinkedList<>();
-	List<String> artifacts = new LinkedList<>();
-	List<String> servers = new LinkedList<>();
-	List<URI> provides = new LinkedList<>();
-	List<URI> dependencies = new LinkedList<>();
-	List<URI> management = new LinkedList<>();
+	///
 
 	public String getName() {
 		return name;
@@ -29,30 +27,6 @@ public class ClusterDef {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public List<String> getArtifacts() {
-		return artifacts;
-	}
-
-	public void setArtifacts(List<String> artifacts) {
-		this.artifacts = artifacts;
-	}
-
-	public List<URI> getProxies() {
-		return proxies;
-	}
-
-	public void setProxies(List<URI> proxies) {
-		this.proxies = proxies;
-	}
-
-	public List<URI> getProvides() {
-		return provides;
-	}
-
-	public void setProvides(List<URI> provides) {
-		this.provides = provides;
 	}
 
 	public List<String> getServers() {
@@ -63,27 +37,69 @@ public class ClusterDef {
 		this.servers = servers;
 	}
 
-	public List<URI> getDependencies() {
+	public List<EndpointDef> getProvides() {
+		return provides;
+	}
+
+	public void setProvides(List<EndpointDef> provides) {
+		this.provides = provides;
+	}
+
+	public List<EndpointDef> getDependencies() {
 		return dependencies;
 	}
 
-	public void setDependencies(List<URI> dependencies) {
+	public void setDependencies(List<EndpointDef> dependencies) {
 		this.dependencies = dependencies;
 	}
 
-	public List<URI> getManagement() {
-		return management;
+	public List<ArtifactDef> getArtifacts() {
+		return artifacts;
 	}
 
-	public void setManagement(List<URI> management) {
-		this.management = management;
+	public void setArtifacts(List<ArtifactDef> artifacts) {
+		this.artifacts = artifacts;
+	}
+
+///
+
+	void init(DomainDef domain) {
+		Pattern p = Pattern.compile(".*\\."+domain.getName());
+		setServers(getServers().stream()
+							  .map(this::expand)
+							  .flatMap(l -> l.stream())
+							  .filter(s -> p.matcher(s).matches())
+							  .distinct()
+							  .collect(Collectors.toList()));
+	}
+
+	List<String> expand(String s) {
+		List<String> result = new LinkedList<>();
+		Pattern p = Pattern.compile("(.*)\\[(\\p{Digit}+)\\](.*)");
+		Matcher m = p.matcher(s);
+		if (!m.matches()) {
+			result.add(s);
+			return result;
+		}
+
+		String prefix = m.group(1);
+		char[] sequence = m.group(2).toCharArray();
+		String suffix = m.group(3);
+
+		for (char c : sequence) {
+			result.add(String.format("%s%s%s", prefix, c, suffix));
+		}
+
+		return result;
 	}
 
 	///
 
-	void init(DomainDef domain) {
-		setServers(getServers().stream()
-							  .map(s -> String.format("%s.%s", s, domain.getName()))
-							  .collect(Collectors.toList()));
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("name", name)
+				.toString();
 	}
 }

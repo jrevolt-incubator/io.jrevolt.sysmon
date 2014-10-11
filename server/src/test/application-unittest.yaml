@@ -1,36 +1,106 @@
-jmx.url.jboss: service:jmx:remoting-jmx://$hostname:9999 # JBoss JMX
-jmx.url.tomcat: service:jmx:rmi:///jndi/rmi://$hostname:9010/jmxrmi # Tomcat JMX
-jolokia.url: http://$hostname:8080/jolokia # JMX/REST bridge
-
-version: develop-SNAPSHOT
+%YAML 1.1   # DCOM Deployment Blueprint
 
 domain:
-   name: example.com
+
+   name: "intra.dcom.sk"
+
    clusters:
-      sample: # name of the cluster, usually xxxx in sp1xxxx01 host name
-         proxies: # list of URLs of the reverse proxies providing access to this cluster
-            - https://lbsample.example.com
-            - https://sample.example.com
-            - https://sample.dcom.sk
-            - http://sample.dcom.sk
+
+      -  name: iamc
+         group: IAM
+         description: OpenAM
+         system: Linux
+         platform: Tomcat
          servers:
-            server1, server2, server3
-         artifacts: # list of Maven URIs of the artifacts deployed to this cluster
-            - com.example.sample:com.example.sample.ws:$version:war
-            - com.example.sample:com.example.sample.rest:$version:war
-            - com.example.sample:com.example.sample.ui:$version:war
-         provides: # list of published endpoints URLs; Placeholder $hostname resolves to actual server (node) host name (e.g. sp1xxxx01.example.com, etc)
-            - http://$hostname:8080/ws1
-            - http://$hostname:8080/ws2
-            - http://$hostname:8080/rest
-            - http://$hostname:8080/ui
-         dependencies: # list of URLs representing other services required by this cluster
-            - jdbc:sqlserver://lbdb.example.com:12345;database=sample;user=myuser
-            - https://lbsvc.example.com/another/ws
-            - https://lbsvc.example.com/another/rest
-         management:
-            - http://$hostname:9990/console # JBoss console
-            - http://$hostname:8080/jolokia # JMX/REST bridge
-            - service:jmx:remoting-jmx://$hostname:9999 # JBoss JMX
-            - service:jmx:rmi:///jndi/rmi://$hostname:9010/jmxrmi # Tomcat JMX
+            si1iamc01.dev.dcom.sk,
+            st1iamc0[12].test.dcom.sk,
+            sp1iamc0[12].intra.dcom.sk, sp2iamc01.intra.dcom.sk
+         artifacts:
+            - sk.dcom.openam:sk.dcom.openam:$version:war
+
+
+      -  name: Midpoint
+         group: IAM
+         servers:
+            si1iamp01.dev.dcom.sk,
+            st1iamp0[12].test.dcom.sk,
+            sp1iamp0[12].intra.dcom.sk, sp2iamp01.intra.dcom.sk
+         artifacts:
+
+      -  name: iami
+         group: IAM
+         description: Midpoint Connectors
+
+      -  name: sts
+         group:
+         description: STS
+         system: Windows
+         platform:
+         servers:
+            si1sts01.dev.dcom.sk,
+            st1sts0[12].dev.dcom.sk,
+            sp1sts0[12].intra.dcom.sk, sp2sts01.intra.dcom.sk
+
+      -  name: ESB
+         group: SOA
+         description: Service Bus
+         system: Linux
+         platform: Fuse ESB
+         servers:
+            si1soa01.dev.dcom.sk,
+            st1soa0[12].test.dcom.sk,
+            sp1soa0[12].intra.dcom.sk, sp2soa01.intra.dcom.sk
+         artifacts:
+            -  uri: sk.dcom.soa:sk.dcom.soa.address:$version:war
+               description:
+               provides:
+                  -  uri: https://hostname:8443/soa/address/1.0/address
+                     status: ?wsdl
+
+
+      -  name: ints
+         description: Integration Support Modules
+         system: Linux
+         platform: JBoss, Tomcat
+         servers:
+            si1ints01.dev.dcom.sk,
+            st1ints0[12].test.dcom.sk,
+            sp1ints0[12].intra.dcom.sk, sp2ints01.intra.dcom.sk
+         dependencies:
+            -  uri:  jdbc:sqlserver://lbdbcl15.intra.dcom.sk:54706;database=billing;user=call_app
+               jndi: java:jboss/datasources/billing
+            -  uri:  jdbc:sqlserver://lbdbcl23.intra.dcom.sk:49263;database=hub01;user=lr_ws_app
+               jndi: java:jboss/datasources/RADS
+         artifacts:
+            -  uri: sk.dcom.integration:sk.dcom.integration.address:$version:war
+               provides:
+                  -  uri: http://hostname:8080/integration/address/1.0/address
+                     status: ?wsdl
+               requires:
+
+      - name: bpms
+      - name: crms
+      - name: epod-intra
+      - name: epod-public
+      - name: ccas
+      - name: egov-redis
+      - name: egov-public
+      - name: egov-fo
+      - name: egov-office
+      - name: egov-widgets-public
+      - name: egov-widgets-intra
+      - name: lear
+      - name: bils
+      - name: vuas
+      - name: vuss
+      - name: proxy-public
+      - name: proxy-intra
+      - name: portal-public
+      - name: portal-intra
+
+
+
+
+
+
 

@@ -1,22 +1,34 @@
 package io.jrevolt.sysmon.browser;
 
+import java.io.IOException;
 import javafx.application.Application;
-import io.jrevolt.sysmon.model.SpringBootApp;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
- * @version $Id$
  */
-@Configuration
-@EnableAutoConfiguration
-@ComponentScan("io.jrevolt.sysmon")
-public class BrowserMain {
+public class BrowserMain extends Application {
 
 	static public void main(String[] args) {
-		SpringBootApp.run(BrowserMain.class, args);
-		Application.launch(FxMain.class);
+		Application.launch(BrowserMain.class, args);
 	}
+
+	@Override
+	public void start(Stage stage) throws Exception {
+		try {
+			Class cls = Browser.class;
+			FXMLLoader loader = new FXMLLoader(cls.getResource(cls.getSimpleName() + ".fxml"));
+			Pane o = loader.load();
+			Scene scene = new Scene(o);
+			stage.setScene(scene);
+			stage.show();
+		} catch (IOException e) {
+			throw new UnsupportedOperationException(e);
+		}
+	}
+
+
 }

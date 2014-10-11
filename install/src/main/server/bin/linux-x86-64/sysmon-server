@@ -406,6 +406,8 @@ console() {
 }
 
 start() {
+    echo "Updating domain configuration..."
+    pushd ~/blueprint > /dev/null && git pull; popd > /dev/null
     echo "Starting $APP_LONG_NAME..."
     getpid
     if [ "X$pid" = "X" ]

@@ -2,8 +2,6 @@ spring.application:
    name: JRevolt SysMon Client
 
 sysmon.client:
-   directory: ${user.home}/.io.jrevolt.sysmon/client
    serverUrl: ${sysmon.server.url}
-
 
 

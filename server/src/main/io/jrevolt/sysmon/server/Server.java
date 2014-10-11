@@ -8,6 +8,7 @@ import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.DomainDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
@@ -29,6 +30,7 @@ import org.glassfish.jersey.servlet.ServletProperties;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -44,9 +46,13 @@ import java.util.concurrent.ScheduledExecutorService;
 @EnableConfigurationProperties(DomainDef.class)
 public class Server {
 
+	@Value("${sysmon.server.baseUrl}")
+	URL baseUrl;
+
 	@Bean
 	public ServletRegistrationBean jerseyServlet() {
-		ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), "/rest/*");
+		String mapping = baseUrl.getPath().replaceFirst("/*$", "/*");
+		ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), mapping);
 		registration.addInitParameter(ServletProperties.JAXRS_APPLICATION_CLASS, JerseyConfig.class.getName());
 		return registration;
 	}
@@ -86,7 +92,7 @@ public class Server {
 													 .getAbsolutePath());
 				proto.setKeystorePass("topsecret");
 				proto.setKeystoreType("JCEKS");
-				proto.setKeyAlias("st1mons11");
+				proto.setKeyAlias("dcom.sk");
 				proto.setKeyPass("topsecret");
 			});
 

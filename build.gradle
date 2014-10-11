@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat
 
 buildscript {
 	ext {
-		springVersion = "4.1.0.RELEASE"
+		springVersion = "4.1.1.RELEASE"
 		springBootVersion = "1.2.0.BUILD-SNAPSHOT"
 		jerseyVersion="2.12"
 		activemqVersion = "5.10.0"
@@ -21,7 +21,8 @@ buildscript {
 }
 
 ext {
-	branch = "$git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
+//	branch = "$git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
+	branch = "integration"
 	branchShort = branch.replaceFirst(".*/", "")
 	commit = "$git rev-parse HEAD".execute().in.text.trim()
 	commitShort = commit.length() > 7 ? commit.substring(0, 7) : commit
@@ -47,6 +48,7 @@ subprojects {
 	[compileJava, compileTestJava]*.options*.compilerArgs = ['-parameters']
 
 	buildDir = "${rootProject.projectDir}/.build/${project.name}"
+
 	sourceSets {
 		main { [java, resources]*.srcDir 'src/main'; }
 		test { [java, resources]*.srcDir 'src/test'; }
@@ -68,13 +70,34 @@ subprojects {
 	}
 
 	compileJava.doLast { task ->
-		manifest.attributes(
+		manifest {
+			def mf = "${project.buildDir}/classes/main/META-INF/MANIFEST.MF"
+			if (new File(mf).exists()) {
+				from file(mf)
+			}
+//			attributes(
+//					"Artifact-URI"					: "$project.group:$project.name:$project.version",
+//					"Artifact-Version" 			: "$branchShort-$commitShort",
+//					"Build-Timestamp" 			: buildTimestamp.format("yyyyMMdd-HHmmZ"),
+//					"Build-Timestamp-Format"	: "yyyyMMdd-HHmmZ",
+//					)
+//			writeTo(project.buildDir.toString()+"/classes/main/META-INF/MANIFEST.MF")
+		}
+	}
+
+	jar {
+		manifest {
+			def mf = "${projectDir}/src/main/META-INF/MANIFEST.MF"
+			if (new File(mf).exists()) {
+				from file(mf)
+			}
+			attributes(
 				"Artifact-URI"					: "$project.group:$project.name:$project.version",
 				"Artifact-Version" 			: "$branchShort-$commitShort",
 				"Build-Timestamp" 			: buildTimestamp.format("yyyyMMdd-HHmmZ"),
 				"Build-Timestamp-Format"	: "yyyyMMdd-HHmmZ",
-				)
-		manifest.writeTo(project.buildDir.toString()+"/classes/main/META-INF/MANIFEST.MF")
+			)
+		}
 	}
 
 	jar.doLast { task ->

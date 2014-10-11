@@ -1,5 +1,7 @@
 package io.jrevolt.sysmon.server;
 
+import io.jrevolt.sysmon.server.rest.ApiServiceImpl;
+
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;

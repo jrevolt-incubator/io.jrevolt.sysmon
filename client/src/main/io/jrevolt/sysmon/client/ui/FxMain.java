@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -95,35 +96,19 @@ public class FxMain extends Application {
 	protected void customize() {}
 
 	public void saveStage() {
-		try {
-			StageCfg cfg = new StageCfg(stage());
-			DumperOptions options = new DumperOptions();
-			options.setPrettyFlow(true);
-			Yaml yaml = new Yaml(options);
-			String dump = yaml.dump(cfg);
-			FileUtils.writeStringToFile(getFile(), dump);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Preferences prefs = Preferences.userNodeForPackage(FxMain.class);
+		prefs.putDouble("stage.x", stage().getX());
+		prefs.putDouble("stage.y", stage().getY());
+		prefs.putDouble("stage.width", stage().getWidth());
+		prefs.putDouble("stage.height", stage().getHeight());
 	}
 
 	public void loadStage() {
-		try {
-			Yaml yaml = new Yaml();
-			StageCfg cfg = (StageCfg) yaml.load(FileUtils.readFileToString(getFile()));
-			stage().setX(cfg.getX());
-			stage().setY(cfg.getY());
-			stage().setWidth(cfg.getWidth());
-			stage().setHeight(cfg.getHeight());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private File getFile() {
-		return Paths.get(
-				client.getDirectory().getPath(),
-				getClass().getSimpleName() + ".yaml").toFile();
+		Preferences prefs = Preferences.userNodeForPackage(FxMain.class);
+		stage().setX(prefs.getDouble("stage.x", 0));
+		stage().setY(prefs.getDouble("stage.d", 0));
+		stage().setWidth(prefs.getDouble("stage.width", 1024));
+		stage().setHeight(prefs.getDouble("stage.height", 768));
 	}
 
 }

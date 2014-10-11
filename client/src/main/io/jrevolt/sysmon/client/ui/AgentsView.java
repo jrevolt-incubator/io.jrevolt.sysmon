@@ -2,10 +2,9 @@ package io.jrevolt.sysmon.client.ui;
 
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.VersionInfo;
-import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.rest.ApiService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javafx.collections.FXCollections;
@@ -21,15 +20,12 @@ import javafx.scene.layout.HBox;
 
 import javax.ws.rs.client.WebTarget;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
@@ -46,19 +42,21 @@ public class AgentsView extends Base<BorderPane> {
 	@FXML TableColumn<UIAgentInfo, String> server;
 
 	@FXML TableColumn<UIAgentInfo, String> status;
-	@FXML TableColumn<UIAgentInfo, Instant> lastUpdated;
+	@FXML TableColumn<UIAgentInfo, LocalDateTime> lastChecked;
+	@FXML TableColumn<UIAgentInfo, LocalDateTime> lastUpdated;
+
+	@FXML TableColumn<UIAgentInfo, Duration> checked;
 	@FXML TableColumn<UIAgentInfo, Duration> ping;
 
-	@FXML TableColumn<UIAgentInfo, String> artifact;
 	@FXML TableColumn<UIAgentInfo, VersionInfo> version;
-	@FXML TableColumn<UIAgentInfo, Instant> built;
+	@FXML TableColumn<UIAgentInfo, LocalDateTime> built;
 
 	@FXML TableColumn<UIAgentInfo, UIAgentInfo> actions;
 
 	///
 
 	@Autowired
-	RestService rest;
+	ApiService rest;
 
 	@Autowired
 	WebTarget arest;
@@ -92,9 +90,10 @@ public class AgentsView extends Base<BorderPane> {
 			cluster.setCellValueFactory(new PropertyValueFactory<>("cluster"));
 			server.setCellValueFactory(new PropertyValueFactory<>("server"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
+			lastChecked.setCellValueFactory(new PropertyValueFactory<>("lastChecked"));
 			lastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+			checked.setCellValueFactory(new PropertyValueFactory<>("checked"));
 			ping.setCellValueFactory(new PropertyValueFactory<>("ping"));
-			artifact.setCellValueFactory(new PropertyValueFactory<>("artifact"));
 			version.setCellValueFactory(new PropertyValueFactory<>("version"));
 			built.setCellValueFactory(new PropertyValueFactory<>("built"));
 			actions.setCellFactory(param -> new TableCell<UIAgentInfo, UIAgentInfo>() {
@@ -142,11 +141,12 @@ public class AgentsView extends Base<BorderPane> {
 		async(() -> {
 			try {
 				fxasync(()-> item.statusProperty().set(AgentInfo.Status.CHECKING));
-				Future<AgentInfo> f = arest.path("ping").path(item.getServer()).request().async().get(AgentInfo.class);
-				AgentInfo info = f.get(10, TimeUnit.SECONDS);
+//				Future<AgentInfo> f = arest.path("ping").path(item.getServer()).request().async().get(AgentInfo.class);
+//				AgentInfo info = f.get(10, TimeUnit.SECONDS);
+				AgentInfo info = rest.ping(item.getServer(), 10, null);
 				fxupdate(() -> uiagents.get(item.getServer()).update(info));
-			} catch (TimeoutException e) {
-				fxupdate(() -> uiagents.get(item.getServer()).setStatus(AgentInfo.Status.UNKNOWN));
+//			} catch (TimeoutException e) {
+//				fxupdate(() -> uiagents.get(item.getServer()).setStatus(AgentInfo.Status.UNKNOWN));
 			} catch (Exception e) {
 				throw new UnsupportedOperationException(e);
 			}

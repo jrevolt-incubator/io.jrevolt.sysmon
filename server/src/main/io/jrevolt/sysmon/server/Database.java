@@ -29,7 +29,7 @@ public class Database {
 
 	@PostConstruct
 	void init() {
-		domain.getClusters().values()
+		domain.getClusters()
 				.forEach(c-> c.getServers()
 				.forEach(s-> agents.put(s, new AgentInfo(c.getName(), s, AgentInfo.Status.UNKNOWN, null, null))));
 	}

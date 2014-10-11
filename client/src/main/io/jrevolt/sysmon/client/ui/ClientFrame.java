@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
-import io.jrevolt.sysmon.rest.RestService;
+import io.jrevolt.sysmon.rest.ApiService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,7 +57,7 @@ public class ClientFrame extends Base<BorderPane> {
 	AppCfg app;
 
 	@Autowired
-	RestService rest;
+	ApiService rest;
 
 	@FXML
 	Tab servers;
@@ -98,26 +98,26 @@ public class ClientFrame extends Base<BorderPane> {
 			domain = rest.getDomainDef();
 
 			ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();
-			domain.getClusters().values().forEach(c-> c.getServers().forEach(s-> c.getProvides().forEach(u->{
+			domain.getClusters().forEach(c-> c.getServers().forEach(s-> c.getProvides().forEach(u->{
 				Endpoint endpoint = new Endpoint(
-						UriBuilder.fromUri(u).host(s).build(),
+						UriBuilder.fromUri(u.getUri()).host(s).build(),
 						Endpoint.Type.PROVIDED, s, c);
 				endpoints.add(endpoint);
 				endpoint.status.set(Endpoint.Status.CHECKING);
 				FxHelper.async(() -> check(endpoint));
 			})));
-			domain.getClusters().values().forEach(c->c.getDependencies().forEach(d->{
-				Endpoint endpoint = new Endpoint(d, Endpoint.Type.DEPENDENCY, null, c);
-				endpoints.add(endpoint);
-				endpoint.status.set(Endpoint.Status.CHECKING);
-				FxHelper.async(() -> check(endpoint));
-			}));
-			domain.getClusters().values().forEach(c->c.getProxies().forEach(p->{
-				Endpoint endpoint = new Endpoint(p, Endpoint.Type.PROXY, null, c);
-				endpoints.add(endpoint);
-				endpoint.status.set(Endpoint.Status.CHECKING);
-				FxHelper.async(() -> check(endpoint));
-			}));
+//			domain.getClusters().forEach(c->c.getDependencies().forEach(d->{
+//				Endpoint endpoint = new Endpoint(d, Endpoint.Type.DEPENDENCY, null, c);
+//				endpoints.add(endpoint);
+//				endpoint.status.set(Endpoint.Status.CHECKING);
+//				FxHelper.async(() -> check(endpoint));
+//			}));
+//			domain.getClusters().forEach(c->c.getProxies().forEach(p->{
+//				Endpoint endpoint = new Endpoint(p, Endpoint.Type.PROXY, null, c);
+//				endpoints.add(endpoint);
+//				endpoint.status.set(Endpoint.Status.CHECKING);
+//				FxHelper.async(() -> check(endpoint));
+//			}));
 			fxasync(() -> {
 				table.setItems(new FilteredList<>(endpoints, this::filter));
 				cluster.setCellValueFactory(new PropertyValueFactory<>("clusterName"));

@@ -27,4 +27,11 @@ public class Utils {
 		return sb.toString();
 	}
 
+	public static void runGuarded(Runnable r) {
+		try {
+			r.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

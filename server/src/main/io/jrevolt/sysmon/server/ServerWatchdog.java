@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import io.jrevolt.sysmon.common.*;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.DomainDef;
+
+import static io.jrevolt.sysmon.common.Utils.runGuarded;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -26,14 +29,18 @@ public class ServerWatchdog {
 
 	@Scheduled(initialDelay = 5000L, fixedRate = 10000L)
 	void checkAll() {
-		Instant lastChecked = Instant.now();
-		db.getAgents().values().stream().forEach(a->a.setLastChecked(lastChecked));
-		events.ping(null, null);
+		runGuarded(()->{
+			Instant lastChecked = Instant.now();
+			db.getAgents().values().stream().forEach(a->a.setLastChecked(lastChecked));
+			events.ping(null, null);
+		});
 	}
 
 	@Scheduled(fixedRate = 10000L)
 	public void checkCluster() {
-		domain.getClusters().parallelStream().forEach(c->events.checkCluster(c.getName(), c));
+		domain.getClusters().parallelStream().forEach(c-> runGuarded(() -> {
+			events.checkCluster(c.getName(), c);
+		}));
 	}
 
 

@@ -17,9 +17,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 
 import javax.ws.rs.client.WebTarget;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -69,8 +71,12 @@ public class AgentsView extends Base<BorderPane> {
 
 	@Override
 	protected void initialize() {
-		async(this::refresh);
-		updater = FxHelper.scheduler().scheduleAtFixedRate(this::update, 1, 5, TimeUnit.SECONDS);
+		pane.setCenter(new Text("Loading..."));
+		async(()-> {
+			refresh();
+			updater = FxHelper.scheduler().scheduleAtFixedRate(this::update, 1, 5, TimeUnit.SECONDS);
+			fxasync(() -> pane.setCenter(table));
+		});
 	}
 
 	@Override
@@ -150,8 +156,13 @@ public class AgentsView extends Base<BorderPane> {
 
 	//scheduled
 	void update() {
-		if (!pane.getParent().isVisible()) { return; }
+		if (!isVisible(pane)) { return; }
+
+		Instant now = Instant.now();
+		fxasync(() -> FxHelper.status().set("Updating..."));
 
 		rest.getAgentInfo().forEach(a -> uiagents.get(a.getServer()).update(a));
+
+		fxasync(()->FxHelper.status().set("Ready. Last update in "+Duration.between(now, Instant.now())));
 	}
 }

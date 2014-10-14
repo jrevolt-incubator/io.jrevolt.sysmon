@@ -20,8 +20,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Text;
 
 import java.net.URI;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -83,6 +87,7 @@ public class EndpointsView extends Base<BorderPane> {
 	}
 
 	void load() {
+		fxasync(()->pane.setCenter(new Text("Loading...")));
 		ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();
 		DomainDef domain = api.getDomainDef();
 		domain.getClusters().forEach(c -> c.getProvides().forEach(e -> {
@@ -95,10 +100,18 @@ public class EndpointsView extends Base<BorderPane> {
 			endpoints.add(endpoint);
 			endpointsByUri.put(endpoint.getUri(), endpoint);
 		}));
-		fxasync(() -> table.setItems(new FilteredList<>(endpoints, this::filter)));
+		fxasync(() -> {
+			table.setItems(new FilteredList<>(endpoints, this::filter));
+			pane.setCenter(table);
+		});
 	}
 
 	void update() {
+		if (!isVisible(pane)) { return; }
+
+		Instant now = Instant.now();
+		fxasync(() -> FxHelper.status().set("Updating..."));
+
 		DomainDef domain = api.getDomainDef();
 		fxasync(() -> {
 			domain.getClusters().forEach(c -> c.getServers().forEach(s -> c.getProvides().forEach(e -> {
@@ -109,6 +122,7 @@ public class EndpointsView extends Base<BorderPane> {
 			//http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items
 			status.setVisible(false);
 			status.setVisible(true);
+			FxHelper.status().set("Ready (updating every second). Last update in "+Duration.between(now, Instant.now()));
 		});
 	}
 

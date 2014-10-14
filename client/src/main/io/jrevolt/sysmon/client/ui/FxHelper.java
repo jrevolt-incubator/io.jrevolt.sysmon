@@ -1,7 +1,10 @@
 package io.jrevolt.sysmon.client.ui;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 
 import io.jrevolt.sysmon.common.Utils;
 import io.jrevolt.sysmon.model.SpringBootApp;
@@ -87,4 +90,14 @@ public class FxHelper {
 		return executor;
 	}
 
+	static private StringProperty status = new SimpleStringProperty();
+
+	static public StringProperty status() { return status; }
+
+	static public boolean isVisible(Node node) {
+		for (Node n = node; n != null; n = n.getParent()) {
+			if (!n.isVisible()) { return false; }
+		}
+		return true;
+	}
 }

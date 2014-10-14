@@ -76,6 +76,7 @@ public class ClientFrame extends Base<BorderPane> {
 	@Override
 	protected void initialize() {
 		super.initialize();
+		statusbar.textProperty().bindBidirectional(FxHelper.status());
 	}
 	
 	@FXML

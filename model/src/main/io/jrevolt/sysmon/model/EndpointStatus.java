@@ -3,9 +3,11 @@ package io.jrevolt.sysmon.model;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class RoutingDef {
+public enum EndpointStatus {
 
-
-
+	UNKNOWN,
+	OK,
+	UNAVAILABLE,
+	ERROR,
 
 }

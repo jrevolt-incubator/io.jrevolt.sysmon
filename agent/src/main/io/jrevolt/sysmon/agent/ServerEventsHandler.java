@@ -1,11 +1,14 @@
 package io.jrevolt.sysmon.agent;
 
+import io.jrevolt.sysmon.common.Utils;
 import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.JMSProperty;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
+import io.jrevolt.sysmon.model.EndpointDef;
+import io.jrevolt.sysmon.model.EndpointStatus;
 import io.jrevolt.sysmon.model.VersionInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +17,25 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -48,11 +68,98 @@ public class ServerEventsHandler implements ServerEvents {
 
 	@Override
 	public void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {
-//		try {
-//			events.serverChecked(clusterDef.getName(), InetAddress.getLocalHost().getHostName());
-//		} catch (Exception e) {
-//			throw new UnsupportedOperationException(e);
-//		}
+		clusterDef.getServers().parallelStream().forEach(s->checkServer(s, clusterDef));
+	}
+
+	@Override
+	public void checkServer(@JMSProperty String name, ClusterDef clusterDef) {
+		ForkJoinPool pool = new ForkJoinPool(50);
+		try {
+			pool.submit(()->{
+				List<EndpointDef> endpoints = new LinkedList<>();
+				endpoints.addAll(clusterDef.getProvides());
+				endpoints.addAll(clusterDef.getDependencies());
+				endpoints.parallelStream().forEach(this::checkEndpoint);
+				events.clusterStatus(clusterDef);
+			}).get();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		} catch (ExecutionException e) {
+			LOG.error("Unexpected", e);
+		}
+	}
+
+	void checkEndpoint(EndpointDef endpoint) {
+		if (endpoint.getUri().getScheme().equals("jdbc")) {
+			try {
+				DriverManager.getConnection(endpoint.getUri().toString());
+				endpoint.setStatus(EndpointStatus.OK);
+			} catch (SQLException e) {
+				String desc = Utils.getExceptionDesription(e);
+				LOG.error(desc);
+				endpoint.setStatus(EndpointStatus.ERROR);
+				endpoint.setComment(desc);
+			}
+		} else if (endpoint.getUri().getScheme().matches("https?")) {
+			try {
+				URL url = endpoint.getTest() == null
+						? endpoint.getUri().toURL()
+						: URI.create(endpoint.getUri().toString() + endpoint.getTest().toString()).toURL();
+				URLConnection con = url.openConnection();
+				if (con instanceof HttpURLConnection) {
+					if (endpoint.getUri().getFragment() != null) {
+						if (endpoint.getUri().getFragment().contains("post")) {
+							((HttpURLConnection) con).setRequestMethod("POST");
+						}
+						if (endpoint.getUri().getFragment().contains("method=")) {
+							((HttpURLConnection) con).setRequestMethod(
+									endpoint.getUri().getFragment().replaceFirst(".*method=([^;]+).*", "$1").toUpperCase());
+						}
+						if (endpoint.getUri().getFragment().contains("type=")) {
+							con.setRequestProperty("Content-Type",
+														  endpoint.getUri().getFragment().replaceFirst(".*type=([^;]+).*", "$1"));
+						}
+					}
+				}
+				int code = con instanceof HttpURLConnection ? ((HttpURLConnection) con).getResponseCode() : 0;
+
+				switch (code) {
+					case 200:
+					case 302:
+					case 401:
+						endpoint.setStatus(EndpointStatus.OK);
+						break;
+					case 404:
+						endpoint.setStatus(EndpointStatus.UNAVAILABLE);
+						break;
+					case 500:
+						endpoint.setStatus(EndpointStatus.ERROR);
+						break;
+				}
+
+				endpoint.setComment(String.format("HTTP %d", code));
+
+			} catch (ConnectException e) {
+				LOG.error(e.toString());
+				endpoint.setComment(e.toString());
+
+			} catch (IOException e) {
+				String desc = Utils.getExceptionDesription(e);
+				LOG.error(desc);
+				endpoint.setComment(desc);
+			}
+		} else {
+			try {
+				InetSocketAddress address = new InetSocketAddress(endpoint.getUri().getHost(), endpoint.getUri().getPort());
+				Socket socket = new Socket();
+				socket.connect(address, 2500);
+				endpoint.setStatus(EndpointStatus.OK);
+				endpoint.setComment("Connected!");
+			} catch (IOException e) {
+				endpoint.setStatus(EndpointStatus.ERROR);
+				endpoint.setComment(Utils.getExceptionDesription(e));
+			}
+		}
 	}
 
 	private AgentInfo createAgentInfo() {

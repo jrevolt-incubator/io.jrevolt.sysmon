@@ -118,13 +118,8 @@ public class AgentsView extends Base<BorderPane> {
 					}
 				}
 			});
-			Preferences prefs = Preferences.userNodeForPackage(AgentsView.class);
-			table.getColumns().forEach(c -> {
-				c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
-				c.widthProperty().addListener((observable, oldValue, newValue) -> {
-					prefs.putDouble(c.getId(), c.getWidth());
-				});
-			});
+
+			registerLayoutPersistor(AgentsView.class, table);
 		});
 	}
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.ClustersView">
+   <center>
+      <TreeTableView BorderPane.alignment="CENTER">
+         <columns>
+            <TreeTableColumn prefWidth="75.0" text="Group" />
+            <TreeTableColumn prefWidth="75.0" text="Cluster" />
+            <TreeTableColumn prefWidth="75.0" text="Description" />
+            <TreeTableColumn prefWidth="75.0" text="System" />
+            <TreeTableColumn prefWidth="75.0" text="Platform" />
+            <TreeTableColumn prefWidth="75.0" text="Servers" />
+            <TreeTableColumn prefWidth="75.0" text="Status">
+               <columns>
+                  <TreeTableColumn prefWidth="75.0" text="Agents" />
+                  <TreeTableColumn prefWidth="75.0" text="Deployments" />
+                  <TreeTableColumn prefWidth="75.0" text="Endpoints" />
+               </columns>
+            </TreeTableColumn>
+         </columns>
+      </TreeTableView>
+   </center>
+</BorderPane>

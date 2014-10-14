@@ -1,6 +1,8 @@
 package io.jrevolt.sysmon.jms;
 
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.ClusterDef;
+import io.jrevolt.sysmon.model.EndpointDef;
 import io.jrevolt.sysmon.model.NodeDef;
 
 import java.net.URI;
@@ -12,12 +14,17 @@ import java.util.List;
  */
 public interface AgentEvents {
 
-	@JMS
+	@JMS(timeToLive = 20000L)
 	default void started(AgentInfo info) {}
 
-	@JMS(timeToLive = 10*60000L)
+	@JMS(timeToLive = 60000L)
 	default void status(AgentInfo info) {}
 
-	@JMS(timeToLive = 15000L)
+	@JMS(timeToLive = 30000L)
 	default void restarting(AgentInfo info) {}
+
+	@JMS(timeToLive = 60000L)
+	default void clusterStatus(ClusterDef cluster) {}
+
+
 }

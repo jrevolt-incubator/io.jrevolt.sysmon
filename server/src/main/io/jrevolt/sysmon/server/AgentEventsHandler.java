@@ -2,6 +2,7 @@ package io.jrevolt.sysmon.server;
 
 import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.NodeDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,11 @@ public class AgentEventsHandler implements AgentEvents {
 	public void restarting(AgentInfo info) {
 		info.setLastUpdated(Instant.now());
 		db.updateAgent(info);
+	}
+
+	@Override
+	public void clusterStatus(ClusterDef cluster) {
+		db.updateCluster(cluster);
 	}
 
 

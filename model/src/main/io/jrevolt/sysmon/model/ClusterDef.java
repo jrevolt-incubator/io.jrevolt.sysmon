@@ -65,12 +65,34 @@ public class ClusterDef {
 
 	void init(DomainDef domain) {
 		Pattern p = Pattern.compile(".*\\."+domain.getName());
+
+		// expand list of servers; filter all but current domain
 		setServers(getServers().stream()
 							  .map(this::expand)
 							  .flatMap(l -> l.stream())
 							  .filter(s -> p.matcher(s).matches())
 							  .distinct()
 							  .collect(Collectors.toList()));
+
+		// expand list of provided endpoints, update hostname
+		List<EndpointDef> provides = getProvides().stream()
+				.map(e -> getServers().stream()
+						.map(s -> new EndpointDef(e, s))
+						.collect(Collectors.toList()))
+				.flatMap(l -> l.stream())
+				.distinct()
+				.collect(Collectors.toList());
+		setProvides(provides);
+
+		// set endpoint type (implicit in configuration)
+		getProvides().stream().filter(e -> {
+			e.setType(EndpointType.PROVIDED);
+			return true;
+		});
+		getDependencies().stream().filter(e -> {
+			e.setType(EndpointType.DEPENDENCY);
+			return true;
+		});
 	}
 
 	List<String> expand(String s) {
@@ -95,6 +117,16 @@ public class ClusterDef {
 
 	///
 
+	public void update(ClusterDef cluster) {
+		servers.clear();
+		servers.addAll(cluster.servers);
+		provides.clear();
+		provides.addAll(cluster.provides);
+		dependencies.clear();
+		dependencies.addAll(cluster.dependencies);
+		artifacts.clear();
+		artifacts.addAll(cluster.artifacts);
+	}
 
 	@Override
 	public String toString() {

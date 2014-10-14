@@ -6,11 +6,11 @@ domain:
 
    clusters:
 
-      -  name: iamc
-         group: IAM
-         description: OpenAM
-         system: Linux
-         platform: Tomcat
+      -  name:          iamc
+         group:         IAM
+         description:   OpenAM
+         system:        Linux
+         platform:      Tomcat
          servers:
             si1iamc01.dev.dcom.sk,
             st1iamc0[12].test.dcom.sk,

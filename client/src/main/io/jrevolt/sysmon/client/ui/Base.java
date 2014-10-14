@@ -7,12 +7,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import java.net.URL;
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -55,4 +57,13 @@ public abstract class Base<T extends Pane> {
 		return pane.getScene().getWindow();
 	}
 
+	protected void registerLayoutPersistor(Class<? extends Base> root, TableView<?> table) {
+		Preferences prefs = Preferences.userNodeForPackage(root);
+		table.getColumns().forEach(c-> {
+			c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
+			c.widthProperty().addListener((observable, oldValue, newValue) -> {
+				prefs.putDouble(c.getId(), c.getWidth());
+			});
+		});
+	}
 }

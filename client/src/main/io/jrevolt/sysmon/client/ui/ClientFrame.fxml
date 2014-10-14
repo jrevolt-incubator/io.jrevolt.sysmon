@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.ClientFrame">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.ClientFrame">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -17,8 +17,8 @@
                         <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#checkAll" text="Check all" />
-                  <MenuItem mnemonicParsing="false" onAction="#restartServer" text="Restart server" />
+                  <MenuItem mnemonicParsing="false" text="Check all" />
+                  <MenuItem mnemonicParsing="false" onAction="#restartAll" text="Restart server and all agents" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
@@ -44,55 +44,25 @@
       <TextField disable="true" editable="false" text="Status bar!" BorderPane.alignment="CENTER" />
    </bottom>
    <center>
-      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <BorderPane BorderPane.alignment="CENTER">
          <center>
-            <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
               <tabs>
-                  <Tab text="&lt;all&gt;">
-                     <content>
-                        <GridPane>
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                           <children>
-                              <TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
-                                <columns>
-                                  <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
-                                    <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
-                                    <TableColumn fx:id="endpoint" prefWidth="70.0" text="Endpoint">
-                                       <contextMenu>
-                                          <ContextMenu>
-                                            <items>
-                                              <MenuItem mnemonicParsing="false" onAction="#copyCellValue" text="copy" />
-                                            </items>
-                                          </ContextMenu>
-                                       </contextMenu></TableColumn>
-                                    <TableColumn fx:id="type" prefWidth="75.0" text="Type" />
-                                    <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
-                                    <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />
-                                </columns>
-                              </TableView>
-                           </children>
-                        </GridPane>
-                     </content>
-                  </Tab>
-                <Tab text="Clusters" />
-                  <Tab text="Proxies" />
+                  <Tab fx:id="groups" text="Groups" />
+                <Tab fx:id="clusters" text="Clusters" />
                 <Tab fx:id="servers" text="Servers" />
-                  <Tab text="Artifacts" />
-                  <Tab text="Endpoints" />
-                  <Tab text="Dependencies" />
-                  <Tab text="Management" />
+                  <Tab fx:id="artifacts" text="Artifacts" />
+                  <Tab fx:id="endpoints" text="Endpoints" />
+                  <Tab fx:id="dependencies" text="Dependencies" />
+                  <Tab fx:id="proxies" text="Proxies" />
+                  <Tab fx:id="ssl" text="SSL" />
+                  <Tab fx:id="dns" text="DNS" />
+                  <Tab fx:id="time" text="Time" />
+                  <Tab fx:id="management" text="Management" />
                   <Tab fx:id="agents" text="Agents" />
               </tabs>
             </TabPane>
          </center>
-         <bottom>
-            <TextField fx:id="filter" onAction="#onFilterUpdated" onKeyTyped="#onFilterUpdated" BorderPane.alignment="CENTER" />
-         </bottom>
       </BorderPane>
    </center>
 </BorderPane>

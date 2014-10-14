@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.SSLView">
+   <center>
+      <TreeTableView BorderPane.alignment="CENTER">
+         <columns>
+            <TreeTableColumn prefWidth="75.0" text="Hostname" />
+            <TreeTableColumn prefWidth="75.0" text="IP" />
+            <TreeTableColumn prefWidth="75.0" text="Port" />
+            <TreeTableColumn prefWidth="75.0" text="Status" />
+            <TreeTableColumn prefWidth="75.0" text="SSL">
+               <columns>
+                  <TreeTableColumn prefWidth="75.0" text="CN" />
+                  <TreeTableColumn prefWidth="75.0" text="SAN" />
+                  <TreeTableColumn prefWidth="75.0" text="Issuer" />
+                  <TreeTableColumn prefWidth="75.0" text="Valid From" />
+                  <TreeTableColumn prefWidth="75.0" text="Valid To" />
+               </columns></TreeTableColumn>
+            <TreeTableColumn prefWidth="75.0" text="Required By" />
+         </columns>
+      </TreeTableView>
+   </center>
+</BorderPane>

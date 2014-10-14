@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.ProxiesView">
+   <center>
+      <TreeTableView BorderPane.alignment="CENTER">
+         <columns>
+            <TreeTableColumn prefWidth="75.0" text="Hostname" />
+            <TreeTableColumn prefWidth="75.0" text="IP" />
+            <TreeTableColumn prefWidth="75.0" text="Port" />
+            <TreeTableColumn prefWidth="75.0" text="SSL" />
+            <TreeTableColumn prefWidth="75.0" text="Cluster" />
+            <TreeTableColumn prefWidth="75.0" text="Servers" />
+            <TreeTableColumn prefWidth="75.0" text="Routes" />
+            <TreeTableColumn prefWidth="75.0" text="Endpoints" />
+            <TreeTableColumn prefWidth="75.0" text="Status" />
+         </columns>
+      </TreeTableView>
+   </center>
+</BorderPane>

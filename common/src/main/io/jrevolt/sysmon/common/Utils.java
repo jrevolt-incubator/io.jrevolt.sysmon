@@ -18,4 +18,13 @@ public class Utils {
 		}
 	}
 
+	static public String getExceptionDesription(Throwable t) {
+		StringBuilder sb = new StringBuilder();
+		for (; t != null; t = t.getCause()) {
+			if (sb.length() > 0) { sb.append("Caused by "); }
+			sb.append(t.toString()).append("\n");
+		}
+		return sb.toString();
+	}
+
 }

@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.server;
 
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,14 @@ public class Database {
 	DomainDef domain;
 
 	private Map<String,AgentInfo> agents = new HashMap<>();
+	private Map<String,ClusterDef> clusters = new HashMap<>();
 
 	@PostConstruct
 	void init() {
-		domain.getClusters()
-				.forEach(c-> c.getServers()
-				.forEach(s-> agents.put(s, new AgentInfo(c.getName(), s, AgentInfo.Status.UNKNOWN, null, null))));
+		domain.getClusters().forEach(c -> clusters.put(c.getName(), c));
+		domain.getClusters().forEach(c -> c.getServers().forEach(s -> {
+			agents.put(s, new AgentInfo(c.getName(), s, AgentInfo.Status.UNKNOWN, null, null));
+		}));
 	}
 
 	@PreDestroy
@@ -46,6 +49,10 @@ public class Database {
 		return agents;
 	}
 
+	public ClusterDef getCluster(String name) {
+		return clusters.get(name);
+	}
+
 	public void updateAgent(AgentInfo info) {
 		AgentInfo our = getAgent(info.getServer());
 		if (our == null) { return; }
@@ -54,6 +61,10 @@ public class Database {
 
 		our.updateFrom(info);
 		fireUpdate(our.getServer());
+	}
+
+	public void updateCluster(ClusterDef cluster) {
+		clusters.get(cluster.getName()).update(cluster);
 	}
 
 	///

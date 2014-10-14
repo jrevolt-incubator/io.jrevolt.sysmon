@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.ClustersView">
+   <center>
+      <TreeTableView BorderPane.alignment="CENTER">
+         <columns>
+            <TreeTableColumn prefWidth="75.0" text="Server" />
+            <TreeTableColumn prefWidth="75.0" text="JMX" />
+            <TreeTableColumn prefWidth="75.0" text="Jolokia" />
+            <TreeTableColumn prefWidth="75.0" text="Hawtio" />
+         </columns>
+      </TreeTableView>
+   </center>
+</BorderPane>

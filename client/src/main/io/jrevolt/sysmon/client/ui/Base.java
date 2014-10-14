@@ -58,7 +58,7 @@ public abstract class Base<T extends Pane> {
 	}
 
 	protected void registerLayoutPersistor(Class<? extends Base> root, TableView<?> table) {
-		Preferences prefs = Preferences.userNodeForPackage(root);
+		Preferences prefs = Preferences.userRoot().node(root.getName());
 		table.getColumns().forEach(c-> {
 			c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
 			c.widthProperty().addListener((observable, oldValue, newValue) -> {

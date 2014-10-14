@@ -96,7 +96,7 @@ public class FxMain extends Application {
 	protected void customize() {}
 
 	public void saveStage() {
-		Preferences prefs = Preferences.userNodeForPackage(FxMain.class);
+		Preferences prefs = Preferences.userRoot().node(FxMain.class.getName());
 		prefs.putDouble("stage.x", stage().getX());
 		prefs.putDouble("stage.y", stage().getY());
 		prefs.putDouble("stage.width", stage().getWidth());
@@ -104,7 +104,7 @@ public class FxMain extends Application {
 	}
 
 	public void loadStage() {
-		Preferences prefs = Preferences.userNodeForPackage(FxMain.class);
+		Preferences prefs = Preferences.userRoot().node(FxMain.class.getName());
 		stage().setX(prefs.getDouble("stage.x", 0));
 		stage().setY(prefs.getDouble("stage.d", 0));
 		stage().setWidth(prefs.getDouble("stage.width", 1024));

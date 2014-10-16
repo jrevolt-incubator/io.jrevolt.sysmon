@@ -6,6 +6,7 @@
 /.gradle
 /.build
 /gradle.properties
+/gradle-app.setting
 /mybuild.sh
 
 # OTHER

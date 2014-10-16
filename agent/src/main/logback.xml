@@ -3,5 +3,5 @@
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
 	<logger name="org.springframework" level="WARN"/>
 	<logger name="org.springframework.boot" level="WARN"/>
-	<logger name="io.jrevolt" level="DEBUG"/>
+	<logger name="io.jrevolt" level="INFO"/>
 </configuration>

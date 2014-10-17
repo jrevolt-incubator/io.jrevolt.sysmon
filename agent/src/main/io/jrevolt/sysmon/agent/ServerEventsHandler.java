@@ -163,11 +163,13 @@ public class ServerEventsHandler implements ServerEvents {
 
 			} catch (ConnectException e) {
 				LOG.error(e.toString());
+				endpoint.setStatus(EndpointStatus.UNAVAILABLE);
 				endpoint.setComment(e.toString());
 
 			} catch (IOException e) {
 				String desc = Utils.getExceptionDesription(e);
 				LOG.error(desc);
+				endpoint.setStatus(EndpointStatus.ERROR);
 				endpoint.setComment(desc);
 			}
 		} else {

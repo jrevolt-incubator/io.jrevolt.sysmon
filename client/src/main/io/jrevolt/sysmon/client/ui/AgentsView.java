@@ -7,14 +7,24 @@ import io.jrevolt.sysmon.rest.ApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.Mnemonic;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -30,6 +40,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
+import java.util.regex.Pattern;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
 
@@ -53,6 +64,8 @@ public class AgentsView extends Base<BorderPane> {
 
 	@FXML TableColumn<UIAgentInfo, UIAgentInfo> actions;
 
+	@FXML TextField filter;
+
 	///
 
 	@Autowired
@@ -69,6 +82,13 @@ public class AgentsView extends Base<BorderPane> {
 
 	@Override
 	protected void initialize() {
+		if (updater != null) {
+			updater.cancel(true);
+			updater = null;
+		}
+
+		super.initialize();
+
 		pane.setCenter(new Text("Loading..."));
 		async(()-> {
 			refresh();
@@ -90,7 +110,6 @@ public class AgentsView extends Base<BorderPane> {
 		uiagents.clear();
 		agents.forEach(a -> uiagents.put(a.getServer(), new UIAgentInfo(a)));
 		fxasync(()->{
-			table.setItems(FXCollections.observableArrayList(uiagents.values()));
 			cluster.setCellValueFactory(new PropertyValueFactory<>("cluster"));
 			server.setCellValueFactory(new PropertyValueFactory<>("server"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
@@ -122,6 +141,22 @@ public class AgentsView extends Base<BorderPane> {
 			});
 
 			registerLayoutPersistor(AgentsView.class, table);
+
+
+			final ObservableList<UIAgentInfo> data = FXCollections.observableArrayList(uiagents.values());
+			final FilteredList<UIAgentInfo> filtered = new FilteredList<>(data, this::filter);
+			final SortedList<UIAgentInfo> sorted = new SortedList<>(filtered);
+			
+			sorted.comparatorProperty().bind(table.comparatorProperty());
+			
+			table.setItems(sorted);
+
+			filter.textProperty().addListener((observable, oldvalue, newvalue) -> {
+				filtered.setPredicate(this::filter);
+			});
+
+//			filter.getScene().addMnemonic(new Mnemonic(filter, new KeyCodeCombination(KeyCode.ESCAPE)));
+
 		});
 	}
 
@@ -166,4 +201,19 @@ public class AgentsView extends Base<BorderPane> {
 			fxasync(() -> FxHelper.status().set("Error: " + e.toString()));
 		}
 	}
+
+	@FXML
+	void onFilterUpdate() {
+		((FilteredList<UIAgentInfo>) table.getItems()).setPredicate(this::filter);
+	}
+
+	boolean filter(UIAgentInfo e) {
+		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
+		return filter.matcher(e.getCluster()).matches()
+				|| filter.matcher(e.getServer()).matches()
+				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
+				;
+
+	}
+
 }

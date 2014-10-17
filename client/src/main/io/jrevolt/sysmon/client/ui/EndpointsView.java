@@ -62,6 +62,12 @@ public class EndpointsView extends Base<BorderPane> {
 
 	@Override
 	protected void initialize() {
+
+		if (updater != null) {
+			updater.cancel(true);
+			updater = null;
+		}
+
 		super.initialize();
 
 		cluster.setCellValueFactory(new PropertyValueFactory<>("cluster"));
@@ -83,7 +89,7 @@ public class EndpointsView extends Base<BorderPane> {
 	@Override
 	protected void close() {
 		updater.cancel(true);
-		super.close(); // todo implement this
+		super.close();
 	}
 
 	void load() {
@@ -132,7 +138,7 @@ public class EndpointsView extends Base<BorderPane> {
 	}
 
 	boolean filter(Endpoint e) {
-		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
+		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
 		return e.getUri() != null && filter.matcher(e.getUri().toString()).matches()
 				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
 				|| e.getComment() != null && filter.matcher(e.getComment()).matches()

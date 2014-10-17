@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane prefHeight="400.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.jrevolt.sysmon.client.ui.AgentsView">
+
+<BorderPane prefHeight="400.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.AgentsView">
 	<center>
-		<TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true"
-		           BorderPane.alignment="CENTER">
+		<TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" BorderPane.alignment="CENTER">
 			<columns>
-				<TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" style="-fx-alignment: baseline-center"/>
-				<TableColumn fx:id="server" prefWidth="75.0" text="Server" style="-fx-alignment: baseline-right"/>
-				<TableColumn fx:id="status" prefWidth="75.0" text="Status" style="-fx-alignment: baseline-center"/>
-				<TableColumn fx:id="ping" prefWidth="75.0" text="Ping" style="-fx-alignment: baseline-right"/>
-				<TableColumn fx:id="lastModified" prefWidth="75.0" text="Last Modified" style="-fx-alignment: baseline-right"/>
-				<TableColumn fx:id="version" prefWidth="75.0" text="Version" style="-fx-alignment: baseline-center"/>
-				<TableColumn fx:id="built" prefWidth="75.0" text="Built" style="-fx-alignment: baseline-center"/>
-				<TableColumn fx:id="actions" prefWidth="75.0" text="Actions"/>
+				<TableColumn fx:id="cluster" prefWidth="75.0" style="-fx-alignment: baseline-center" text="Cluster" />
+				<TableColumn fx:id="server" prefWidth="75.0" style="-fx-alignment: baseline-right" text="Server" />
+				<TableColumn fx:id="status" prefWidth="75.0" style="-fx-alignment: baseline-center" text="Status" />
+				<TableColumn fx:id="ping" prefWidth="75.0" style="-fx-alignment: baseline-right" text="Ping" />
+				<TableColumn fx:id="lastModified" prefWidth="75.0" style="-fx-alignment: baseline-right" text="Last Modified" />
+				<TableColumn fx:id="version" prefWidth="75.0" style="-fx-alignment: baseline-center" text="Version" />
+				<TableColumn fx:id="built" prefWidth="75.0" style="-fx-alignment: baseline-center" text="Built" />
+				<TableColumn fx:id="actions" prefWidth="75.0" text="Actions" />
 			</columns>
 			<contextMenu>
 				<ContextMenu>
 					<items>
-						<MenuItem mnemonicParsing="false" onAction="#refresh" text="Refresh"/>
-						<MenuItem mnemonicParsing="false" onAction="#restartSelectedAgents" text="Restart selected agents"/>
+						<MenuItem mnemonicParsing="false" onAction="#refresh" text="Refresh" />
+						<MenuItem mnemonicParsing="false" onAction="#restartSelectedAgents" text="Restart selected agents" />
 					</items>
 				</ContextMenu>
 			</contextMenu>
 		</TableView>
 	</center>
+   <bottom>
+      <TextField fx:id="filter" BorderPane.alignment="CENTER" />
+   </bottom>
 </BorderPane>

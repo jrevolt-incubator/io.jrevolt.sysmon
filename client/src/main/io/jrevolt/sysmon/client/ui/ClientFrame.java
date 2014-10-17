@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import io.jrevolt.sysmon.model.AppCfg;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.SpringBootApp;
 import io.jrevolt.sysmon.rest.ApiService;
 
 import org.apache.commons.lang3.StringUtils;

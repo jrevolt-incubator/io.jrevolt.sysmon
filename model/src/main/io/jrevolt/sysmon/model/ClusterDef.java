@@ -77,7 +77,7 @@ public class ClusterDef {
 		// expand list of provided endpoints, update hostname
 		List<EndpointDef> provides = getProvides().stream()
 				.map(e -> getServers().stream()
-						.map(s -> new EndpointDef(e, s))
+						.map(s -> new EndpointDef(e, getName(), s, s))
 						.collect(Collectors.toList()))
 				.flatMap(l -> l.stream())
 				.distinct()

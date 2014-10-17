@@ -26,17 +26,17 @@ public class UIAgentInfo {
 	private StringProperty server = new SimpleStringProperty();
 
 	private ObjectProperty<Status> status = new SimpleObjectProperty<>();
-	private ObjectProperty<LocalDateTime> lastChecked= new SimpleObjectProperty<>();
-	private ObjectProperty<LocalDateTime> lastUpdated = new SimpleObjectProperty<>();
+	private ObjectProperty<Duration> lastChecked = new SimpleObjectProperty<>();
+	private ObjectProperty<Duration> lastUpdated = new SimpleObjectProperty<>();
 
-	private ObjectProperty<Duration> checked = new SimpleObjectProperty<>();
-	private ObjectProperty<Duration> ping = new SimpleObjectProperty<>();
+	private ObjectProperty<Duration> lastModified = new SimpleObjectProperty<>();
+	private ObjectProperty<Long> ping = new SimpleObjectProperty<>();
 
 	private StringProperty version = new SimpleStringProperty();
 	private ObjectProperty<LocalDateTime> built = new SimpleObjectProperty<>();
 
 	{
-//		lastChecked.addListener((observable, oldValue, newValue) -> checked.set(Duration.between(newValue, Instant.now())));
+//		lastChecked.addListener((observable, oldValue, newValue) -> lastChecked.set(Duration.between(newValue, Instant.now())));
 //		lastUpdated.addListener((observable, oldValue, newValue) -> ping.set(Duration.between(getLastChecked(), newValue)));
 	}
 
@@ -82,51 +82,51 @@ public class UIAgentInfo {
 		this.status.set(status);
 	}
 
-	public LocalDateTime getLastChecked() {
-		return lastChecked.get();
-	}
-
-	public ObjectProperty<LocalDateTime> lastCheckedProperty() {
-		return lastChecked;
-	}
-
-	public void setLastChecked(LocalDateTime lastChecked) {
-		this.lastChecked.set(lastChecked);
-	}
-
-	public LocalDateTime getLastUpdated() {
+	public Duration getLastUpdated() {
 		return lastUpdated.get();
 	}
 
-	public ObjectProperty<LocalDateTime> lastUpdatedProperty() {
+	public ObjectProperty<Duration> lastUpdatedProperty() {
 		return lastUpdated;
 	}
 
-	public void setLastUpdated(LocalDateTime lastUpdated) {
+	public void setLastUpdated(Duration lastUpdated) {
 		this.lastUpdated.set(lastUpdated);
 	}
 
-	public Duration getChecked() {
-		return checked.get();
+	public Duration getLastModified() {
+		return lastModified.get();
 	}
 
-	public ObjectProperty<Duration> checkedProperty() {
-		return checked;
+	public ObjectProperty<Duration> lastModifiedProperty() {
+		return lastModified;
 	}
 
-	public void setChecked(Duration checked) {
-		this.checked.set(checked);
+	public void setLastModified(Duration lastModified) {
+		this.lastModified.set(lastModified);
 	}
 
-	public Duration getPing() {
+	public Duration getLastChecked() {
+		return lastChecked.get();
+	}
+
+	public ObjectProperty<Duration> lastCheckedProperty() {
+		return lastChecked;
+	}
+
+	public void setLastChecked(Duration lastChecked) {
+		this.lastChecked.set(lastChecked);
+	}
+
+	public Long getPing() {
 		return ping.get();
 	}
 
-	public ObjectProperty<Duration> pingProperty() {
+	public ObjectProperty<Long> pingProperty() {
 		return ping;
 	}
 
-	public void setPing(Duration ping) {
+	public void setPing(Long ping) {
 		this.ping.set(ping);
 	}
 
@@ -158,6 +158,7 @@ public class UIAgentInfo {
 	///
 
 	public void update(AgentInfo a) {
+		final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		cluster.set(a.getCluster());
 		server.set(a.getServer());
 		version.set(nonNull(a.getVersion()) ? a.getVersion().getVersion() : null);
@@ -166,18 +167,21 @@ public class UIAgentInfo {
 							 : null);
 		status.set(a.getStatus());
 		lastChecked.set(nonNull(a.getLastChecked())
-									 ? LocalDateTime.from(a.getLastChecked().truncatedTo(ChronoUnit.SECONDS).atZone(ZoneId.systemDefault()))
-									 : null);
+				? Duration.between(now, a.getLastChecked().truncatedTo(ChronoUnit.SECONDS))
+				: null);
 		lastUpdated.set(nonNull(a.getLastUpdated())
-									 ? LocalDateTime.from(a.getLastUpdated().truncatedTo(ChronoUnit.SECONDS).atZone(ZoneId.systemDefault()))
-									 : null);
+				? Utils.friendlify(Duration.between(now, a.getLastUpdated().truncatedTo(ChronoUnit.SECONDS)))
+				: null);
+		lastModified.set(nonNull(a.getLastModified())
+				? Utils.friendlify(Duration.between(now.truncatedTo(ChronoUnit.SECONDS), a.getLastModified().truncatedTo(ChronoUnit.SECONDS)))
+				: null);
 
-		checked.set(nonNull(a.getLastChecked())
-								? Duration.between(Instant.now(), a.getLastChecked())
-								:null);
+		lastChecked.set(nonNull(a.getLastChecked())
+				? Duration.between(now.truncatedTo(ChronoUnit.SECONDS), a.getLastChecked().truncatedTo(ChronoUnit.SECONDS))
+				:null);
 		ping.set((nonNull(a.getLastChecked()) && nonNull(a.getLastUpdated()))
-							? Duration.between(a.getLastChecked(), a.getLastUpdated())
-							: null);
+				? Duration.between(a.getLastChecked(), a.getLastUpdated()).toMillis()
+				: null);
 	}
 
 

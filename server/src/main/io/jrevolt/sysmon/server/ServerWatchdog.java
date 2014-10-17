@@ -1,6 +1,8 @@
 package io.jrevolt.sysmon.server;
 
 import java.time.Instant;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,9 +40,15 @@ public class ServerWatchdog {
 
 	@Scheduled(fixedRate = 10000L)
 	public void checkCluster() {
-		domain.getClusters().parallelStream().forEach(c-> runGuarded(() -> {
-			events.checkCluster(c.getName(), c);
-		}));
+		new Thread("ShutdownOnDemand") {
+			@Override
+			public void run() {
+				domain.getClusters().parallelStream().forEach(c-> runGuarded(() -> {
+					events.checkCluster(c.getName(), c);
+				}));
+			}
+		}.run();
+		ForkJoinPool pool = new ForkJoinPool(30);
 	}
 
 

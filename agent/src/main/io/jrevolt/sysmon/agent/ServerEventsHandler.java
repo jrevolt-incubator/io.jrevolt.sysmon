@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -34,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -52,6 +55,26 @@ public class ServerEventsHandler implements ServerEvents {
 	@Autowired
 	AgentEvents events;
 
+	ForkJoinPool pool;
+
+	@PostConstruct
+	void init() {
+		pool = new ForkJoinPool(30);
+	}
+
+	@PreDestroy
+	void close() {
+		try {
+			pool.shutdown();
+			pool.awaitTermination(5, TimeUnit.SECONDS);
+			pool.shutdownNow();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		} finally {
+			pool = null;
+		}
+	}
+
 	@Override
 	public void ping(@JMSProperty String cluster, @JMSProperty String server) {
 		events.status(createAgentInfo());
@@ -60,33 +83,32 @@ public class ServerEventsHandler implements ServerEvents {
 	@Override
 	public void restart(@JMSProperty String cluster, @JMSProperty String server) {
 		events.restarting(createAgentInfo());
-		ForkJoinPool.commonPool().submit(() -> {
-			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
-			System.exit(7);
+		pool.submit(()->{
+			new Thread("ShutdownOnDemand") {
+				@Override
+				public void run() {
+					LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
+					System.exit(7);
+				}
+			}.run();
 		});
+		pool.shutdown();
 	}
 
 	@Override
 	public void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {
-		clusterDef.getServers().parallelStream().forEach(s->checkServer(s, clusterDef));
+		pool.submit(() -> clusterDef.getServers().parallelStream().forEach(s -> checkServer(s, clusterDef)));
 	}
 
 	@Override
 	public void checkServer(@JMSProperty String name, ClusterDef clusterDef) {
-		ForkJoinPool pool = new ForkJoinPool(50);
-		try {
-			pool.submit(()->{
-				List<EndpointDef> endpoints = new LinkedList<>();
-				endpoints.addAll(clusterDef.getProvides());
-				endpoints.addAll(clusterDef.getDependencies());
-				endpoints.parallelStream().forEach(this::checkEndpoint);
-				events.clusterStatus(clusterDef);
-			}).get();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		} catch (ExecutionException e) {
-			LOG.error("Unexpected", e);
-		}
+		pool.submit(() -> {
+			List<EndpointDef> endpoints = new LinkedList<>();
+			endpoints.addAll(clusterDef.getProvides());
+			endpoints.addAll(clusterDef.getDependencies());
+			endpoints.parallelStream().forEach(this::checkEndpoint);
+			events.clusterStatus(clusterDef);
+		});
 	}
 
 	void checkEndpoint(EndpointDef endpoint) {

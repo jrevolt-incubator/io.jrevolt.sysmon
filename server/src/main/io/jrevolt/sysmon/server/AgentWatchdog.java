@@ -1,6 +1,5 @@
 package io.jrevolt.sysmon.server;
 
-import io.jrevolt.sysmon.common.*;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
@@ -10,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static io.jrevolt.sysmon.common.Utils.runGuarded;
 
@@ -40,9 +40,30 @@ public class AgentWatchdog {
 	@Scheduled(initialDelay = 5000L, fixedRate = 10000L)
 	void pingAllAgents() {
 		runGuarded(()->{
-			Instant lastChecked = Instant.now();
-			db.getAgents().values().stream().forEach(a->a.setLastChecked(lastChecked));
-			events.ping(null, null);
+			synchronized (db) {
+				Instant now = Instant.now();
+				events.ping(null, null);
+				db.getAgents().values().forEach(a-> {
+					if (a.getStatus().equals(AgentInfo.Status.CHECKING)) { return; }
+					a.setLastChecked(now);
+				});
+			}
+		});
+	}
+
+	@Scheduled(initialDelay = 5000L, fixedRate = 10000L)
+	void checkTimeouts() {
+		runGuarded(()->{
+			synchronized (db) {
+				db.getAgents().values().forEach(a->{
+					boolean isTimeout = a.getLastChecked().until(Instant.now(), ChronoUnit.SECONDS) > 10;
+					if (isTimeout) {
+						a.setStatus(AgentInfo.Status.UNKNOWN);
+						a.setVersion(null);
+						a.setLastModified(Instant.now());
+					}
+				});
+			}
 		});
 	}
 

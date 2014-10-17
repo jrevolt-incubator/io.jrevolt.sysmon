@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.prefs.Preferences;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
@@ -44,11 +45,8 @@ public class AgentsView extends Base<BorderPane> {
 	@FXML TableColumn<UIAgentInfo, String> server;
 
 	@FXML TableColumn<UIAgentInfo, String> status;
-	@FXML TableColumn<UIAgentInfo, LocalDateTime> lastChecked;
-	@FXML TableColumn<UIAgentInfo, LocalDateTime> lastUpdated;
-
-	@FXML TableColumn<UIAgentInfo, Duration> checked;
 	@FXML TableColumn<UIAgentInfo, Duration> ping;
+	@FXML TableColumn<UIAgentInfo, Duration> lastModified;
 
 	@FXML TableColumn<UIAgentInfo, VersionInfo> version;
 	@FXML TableColumn<UIAgentInfo, LocalDateTime> built;
@@ -96,9 +94,7 @@ public class AgentsView extends Base<BorderPane> {
 			cluster.setCellValueFactory(new PropertyValueFactory<>("cluster"));
 			server.setCellValueFactory(new PropertyValueFactory<>("server"));
 			status.setCellValueFactory(new PropertyValueFactory<>("status"));
-			lastChecked.setCellValueFactory(new PropertyValueFactory<>("lastChecked"));
-			lastUpdated.setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
-			checked.setCellValueFactory(new PropertyValueFactory<>("checked"));
+			lastModified.setCellValueFactory(new PropertyValueFactory<>("lastModified"));
 			ping.setCellValueFactory(new PropertyValueFactory<>("ping"));
 			version.setCellValueFactory(new PropertyValueFactory<>("version"));
 			built.setCellValueFactory(new PropertyValueFactory<>("built"));
@@ -135,7 +131,7 @@ public class AgentsView extends Base<BorderPane> {
 
 	void restartSingle(UIAgentInfo info) {
 		fxasync(()->info.statusProperty().set(AgentInfo.Status.REQUESTED));
-		async(()->rest.restart(info.getCluster(), info.getServer()));
+		async(()->rest.restartAgent(info.getCluster(), info.getServer()));
 	}
 
 	void pingAgent(UIAgentInfo item) {
@@ -161,8 +157,13 @@ public class AgentsView extends Base<BorderPane> {
 		Instant now = Instant.now();
 		fxasync(() -> FxHelper.status().set("Updating..."));
 
-		rest.getAgentInfo().forEach(a -> uiagents.get(a.getServer()).update(a));
+		try {
+			rest.getAgentInfo().forEach(a -> uiagents.get(a.getServer()).update(a));
 
-		fxasync(()->FxHelper.status().set("Ready. Last update in "+Duration.between(now, Instant.now())));
+			fxasync(()->FxHelper.status().set("Ready. Last update in "+Duration.between(now, Instant.now())));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fxasync(() -> FxHelper.status().set("Error: " + e.toString()));
+		}
 	}
 }

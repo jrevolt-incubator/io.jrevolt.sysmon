@@ -29,12 +29,12 @@ public class AgentEventsHandler implements AgentEvents {
 
 	@Override
 	public void status(AgentInfo info) {
-		info.setLastUpdated(Instant.now());
 		db.updateAgent(info);
 	}
 
 	@Override
 	public void restarting(AgentInfo info) {
+		info.setStatus(AgentInfo.Status.RESTARTING);
 		info.setLastUpdated(Instant.now());
 		db.updateAgent(info);
 	}

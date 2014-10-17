@@ -89,8 +89,13 @@ public class ClientFrame extends Base<BorderPane> {
 	}
 
 	@FXML
-	void restartAll() {
-		api.restart("all", "all");
+	void restartServer() {
+		api.restart();
+	}
+
+	@FXML
+	void restartAgents() {
+		api.restartAgent("all", "all");
 	}
 
 }

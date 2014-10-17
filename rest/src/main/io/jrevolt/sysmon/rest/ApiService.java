@@ -26,8 +26,13 @@ public interface ApiService {
 	@GET @Path("status")
 	default StatusInfo status() { throw new UnsupportedOperationException(); }
 
-	@GET @Path("restart/{cluster}/{server}")
-	default Response restart(@PathParam("cluster") String cluster, @PathParam("server") String server) {
+	@GET @Path("restart")
+	default Response restart() {
+		throw new UnsupportedOperationException();
+	}
+
+	@GET @Path("restartAgent/{cluster}/{server}")
+	default Response restartAgent(@PathParam("cluster") String cluster, @PathParam("server") String server) {
 		throw new UnsupportedOperationException();
 	}
 

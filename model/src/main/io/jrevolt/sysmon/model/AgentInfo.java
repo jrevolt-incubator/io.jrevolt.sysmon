@@ -18,6 +18,7 @@ public class AgentInfo {
 
 	String cluster;
 	String server;
+
 	Status status;
 	VersionInfo version;
 
@@ -26,6 +27,9 @@ public class AgentInfo {
 
 	@XStreamConverter(value=InstantConverter.class)
 	Instant lastUpdated;
+
+	@XStreamConverter(value=InstantConverter.class)
+	Instant lastModified;
 
 	public AgentInfo() {
 	}
@@ -86,6 +90,14 @@ public class AgentInfo {
 		this.lastUpdated = lastUpdated;
 	}
 
+	public Instant getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Instant lastModified) {
+		this.lastModified = lastModified;
+	}
+
 	///
 
 	public void updateFrom(AgentInfo info) {
@@ -93,6 +105,7 @@ public class AgentInfo {
 		setVersion(info.getVersion());
 		setLastChecked(info.getLastChecked());
 		setLastUpdated(info.getLastUpdated());
+		setLastModified(info.getLastModified());
 	}
 
 	///

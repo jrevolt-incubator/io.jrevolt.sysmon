@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,10 +57,18 @@ public class Database {
 	public void updateAgent(AgentInfo info) {
 		AgentInfo our = getAgent(info.getServer());
 		if (our == null) { return; }
+		
+		boolean modified
+				= !Objects.equals(our.getStatus(), info.getStatus())
+				|| !Objects.equals(our.getVersion(), info.getVersion());
 
-		info.setLastChecked(our.getLastChecked());
+		our.setLastUpdated(info.getLastUpdated());
+		if (modified) {
+			our.setStatus(info.getStatus());
+			our.setVersion(info.getVersion());
+			our.setLastModified(info.getLastUpdated());
+		}
 
-		our.updateFrom(info);
 		fireUpdate(our.getServer());
 	}
 

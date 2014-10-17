@@ -16,8 +16,8 @@
                         <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Restart Server" />
-                  <MenuItem mnemonicParsing="false" onAction="#restartAll" text="Restart Agents" />
+                  <MenuItem mnemonicParsing="false" onAction="#restartServer" text="Restart Server" />
+                  <MenuItem mnemonicParsing="false" onAction="#restartAgents" text="Restart Agents" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Options" />

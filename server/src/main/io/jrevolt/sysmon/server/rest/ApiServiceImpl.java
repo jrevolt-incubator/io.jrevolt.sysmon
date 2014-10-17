@@ -62,16 +62,19 @@ public class ApiServiceImpl implements ApiService {
 	}
 
 	@Override
-	public Response restart(String cluster, String server) {
+	public Response restart() {
+		ForkJoinPool.commonPool().submit(() -> {
+			LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
+			System.exit(7);
+		});
+		return Response.accepted().build();
+	}
+
+	@Override
+	public Response restartAgent(String cluster, String server) {
 		if ("all".equals(cluster)) { cluster = null; }
 		if ("all".equals(server)) { server = null; }
 		events.restart(cluster, server);
-		if (cluster == null && server == null) {
-			ForkJoinPool.commonPool().submit(() -> {
-				LOG.info("Exiting on request. Setting error code to 7, service wrapper should restart us");
-				System.exit(7);
-			});
-		}
 		return Response.accepted().build();
 	}
 
@@ -114,10 +117,12 @@ public class ApiServiceImpl implements ApiService {
 
 	@Override
 	public AgentInfo ping(String server, int timeout, @Suspended AsyncResponse response) {
+		final AgentInfo agent = db.getAgents().get(server);
 		async(() -> {
-			Runnable action = () -> response.resume(db.getAgents().get(server));
+			Runnable action = () -> response.resume(agent);
 			response.setTimeout(timeout, TimeUnit.SECONDS);
 			response.setTimeoutHandler(r -> action.run());
+			agent.setStatus(AgentInfo.Status.CHECKING);
 			events.ping(null, server);
 			db.onUpdate(server, action::run);
 		});

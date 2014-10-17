@@ -23,9 +23,9 @@ public class EndpointDef {
 	public EndpointDef() {
 	}
 
-	public EndpointDef(EndpointDef src, String hostname) {
-		this.cluster = src.cluster;
-		this.server = src.server;
+	public EndpointDef(EndpointDef src, String cluster, String server, String hostname) {
+		this.cluster = cluster;
+		this.server = server;
 		this.jndi = src.jndi;
 		this.uri = UriBuilder.fromUri(src.uri).host(hostname).build();
 		this.type = src.type;

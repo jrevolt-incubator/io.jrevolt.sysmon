@@ -202,11 +202,6 @@ public class AgentsView extends Base<BorderPane> {
 		}
 	}
 
-	@FXML
-	void onFilterUpdate() {
-		((FilteredList<UIAgentInfo>) table.getItems()).setPredicate(this::filter);
-	}
-
 	boolean filter(UIAgentInfo e) {
 		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
 		return filter.matcher(e.getCluster()).matches()

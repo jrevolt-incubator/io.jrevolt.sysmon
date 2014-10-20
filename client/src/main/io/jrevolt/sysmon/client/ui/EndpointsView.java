@@ -11,9 +11,12 @@ import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -23,7 +26,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 
 import java.net.URI;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -80,6 +82,9 @@ public class EndpointsView extends Base<BorderPane> {
 
 		registerLayoutPersistor(EndpointsView.class, table);
 
+
+
+
 		async(() ->{
 			load();
 			updater = FxHelper.scheduler().scheduleAtFixedRate(this::update, 1, 1, TimeUnit.SECONDS);
@@ -94,7 +99,19 @@ public class EndpointsView extends Base<BorderPane> {
 
 	void load() {
 		fxasync(()->pane.setCenter(new Text("Loading...")));
-		ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();
+
+		final ObservableList<Endpoint> data = FXCollections.observableArrayList();
+		final FilteredList<Endpoint> filtered = new FilteredList<>(data);
+		final SortedList<Endpoint> sorted = new SortedList<>(filtered);
+
+		sorted.comparatorProperty().bind(table.comparatorProperty());
+		filter.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				filtered.setPredicate(e->filter(e));
+			}
+		});
+
 		DomainDef domain = api.getDomainDef();
 		domain.getClusters().forEach(c -> c.getProvides().forEach(e -> {
 			Endpoint endpoint = new Endpoint();
@@ -103,11 +120,12 @@ public class EndpointsView extends Base<BorderPane> {
 			endpoint.setUri(e.getUri());
 			endpoint.setStatus(e.getStatus());
 			endpoint.setComment(e.getComment());
-			endpoints.add(endpoint);
+			data.add(endpoint);
 			endpointsByUri.put(endpoint.getUri(), endpoint);
 		}));
+
 		fxasync(() -> {
-			table.setItems(new FilteredList<>(endpoints, this::filter));
+			table.setItems(sorted);
 			pane.setCenter(table);
 		});
 	}

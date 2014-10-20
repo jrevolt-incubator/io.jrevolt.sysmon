@@ -5,20 +5,20 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.EndpointsView">
-   <bottom>
-      <TextField fx:id="filter" onAction="#onFilterUpdate" BorderPane.alignment="CENTER" />
-   </bottom>
    <center>
-      <TableView fx:id="table" BorderPane.alignment="CENTER">
+      <TableView fx:id="table" BorderPane.alignment="CENTER" tableMenuButtonVisible="true">
         <columns>
-          <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
-          <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
+          <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" style="-fx-alignment: baseline-center"/>
+          <TableColumn fx:id="server" prefWidth="75.0" text="Server" style="-fx-alignment: baseline-center"/>
             <TableColumn fx:id="artifact" prefWidth="75.0" text="Artifact" />
             <TableColumn fx:id="uri" prefWidth="75.0" text="URI" />
-            <TableColumn fx:id="type" prefWidth="75.0" text="Type" />
-            <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
+            <TableColumn fx:id="type" prefWidth="75.0" text="Type" style="-fx-alignment: baseline-center"/>
+            <TableColumn fx:id="status" prefWidth="75.0" text="Status" style="-fx-alignment: baseline-center"/>
             <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />
         </columns>
       </TableView>
    </center>
+	<bottom>
+		<TextField fx:id="filter" BorderPane.alignment="CENTER" />
+	</bottom>
 </BorderPane>

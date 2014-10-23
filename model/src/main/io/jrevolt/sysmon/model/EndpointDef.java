@@ -28,6 +28,7 @@ public class EndpointDef {
 		this.server = server;
 		this.jndi = src.jndi;
 		this.uri = UriBuilder.fromUri(src.uri).host(hostname).build();
+		this.test = src.test;
 		this.type = src.type;
 		this.status = src.status;
 	}

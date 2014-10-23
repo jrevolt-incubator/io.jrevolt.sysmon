@@ -10,7 +10,7 @@ import org.springframework.boot.loader.util.UrlSupport;
  */
 public class ServerMain {
 	public static void main(String[] args) throws Exception {
-		UrlSupport.registerUrlProtocolHandlers();
+		UrlSupport.init();
 		SpringBootApp.run(Server.class, args);
 	}
 }

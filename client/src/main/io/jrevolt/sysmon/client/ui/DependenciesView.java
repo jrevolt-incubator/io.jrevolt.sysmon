@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Control;
 import javafx.scene.control.TableCell;
@@ -75,21 +76,22 @@ public class DependenciesView extends Base<BorderPane> {
 //			return cell;
 //		});
 
-		comment.setCellFactory(new Callback<TableColumn<Endpoint, String>, TableCell<Endpoint, String>>() {
-			@Override
-			public TableCell<Endpoint, String> call(TableColumn<Endpoint, String> param) {
-				return new TableCell<Endpoint, String>() {
-					@Override
-					protected void updateItem(String item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!empty) {
-							setText(item);
-							setTooltip(new Tooltip(item));
-						}
-					}
-				};
-			}
-		});
+// todo: disabled, as it interferes with sorting/filtering
+//		comment.setCellFactory(new Callback<TableColumn<Endpoint, String>, TableCell<Endpoint, String>>() {
+//			@Override
+//			public TableCell<Endpoint, String> call(TableColumn<Endpoint, String> param) {
+//				return new TableCell<Endpoint, String>() {
+//					@Override
+//					protected void updateItem(String item, boolean empty) {
+//						super.updateItem(item, empty);
+//						if (!empty) {
+//							setText(item);
+//							setTooltip(new Tooltip(item));
+//						}
+//					}
+//				};
+//			}
+//		});
 
 		registerLayoutPersistor(DependenciesView.class, table);
 
@@ -97,20 +99,31 @@ public class DependenciesView extends Base<BorderPane> {
 	}
 
 	void load() {
-		ObservableList<Endpoint> endpoints = FXCollections.observableArrayList();
-		DomainDef domain = api.getDomainDef();
-		domain.getClusters().forEach(c -> c.getDependencies().forEach(e -> {
-			Endpoint endpoint = new Endpoint();
-			endpoint.setCluster(c.getName());
-//			endpoint.setServer(e.get);
-			endpoint.setUri(e.getUri());
-			endpoint.setStatus(e.getStatus());
-			endpoint.setComment(e.getComment());
-			endpoints.add(endpoint);
-			endpointsByUri.put(endpoint.getUri(), endpoint);
-		}));
-		fxasync(() -> table.setItems(new FilteredList<>(endpoints, this::filter)));
+		final ObservableList<Endpoint> data = FXCollections.observableArrayList();
+		final FilteredList<Endpoint> filtered = new FilteredList<>(data, this::filter);
+		final SortedList<Endpoint> sorted = new SortedList<>(filtered);
 
+		DomainDef domain = api.getDomainDef();
+
+		fxasync(()->{
+			domain.getClusters().forEach(c -> c.getDependencies().forEach(e -> {
+				Endpoint endpoint = new Endpoint();
+				endpoint.setCluster(c.getName());
+//			endpoint.setServer(e.get);
+				endpoint.setUri(e.getUri());
+				endpoint.setStatus(e.getStatus());
+				endpoint.setComment(e.getComment());
+				data.add(endpoint);
+				endpointsByUri.put(endpoint.getUri(), endpoint);
+			}));
+
+			sorted.comparatorProperty().bind(table.comparatorProperty());
+			filter.textProperty().addListener((observable, oldvalue, newvalue) -> {
+				filtered.setPredicate(this::filter);
+			});
+
+			table.setItems(sorted);
+		});
 	}
 
 	@FXML

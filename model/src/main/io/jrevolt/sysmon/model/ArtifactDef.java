@@ -12,6 +12,7 @@ public class ArtifactDef {
 
 	private URI uri;
 	private List<EndpointDef> provides;
+	private List<EndpointDef> dependencies;
 
 	public URI getUri() {
 		return uri;
@@ -29,13 +30,11 @@ public class ArtifactDef {
 		this.provides = provides;
 	}
 
-	///
+	public List<EndpointDef> getDependencies() {
+		return dependencies;
+	}
 
-
-	@Override
-	public String toString() {
-		return new ToStringBuilder(this)
-				.append("uri", uri)
-				.toString();
+	public void setDependencies(List<EndpointDef> dependencies) {
+		this.dependencies = dependencies;
 	}
 }

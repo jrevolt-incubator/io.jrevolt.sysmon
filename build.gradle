@@ -27,7 +27,7 @@ ext {
 	commit = "$git rev-parse HEAD".execute().in.text.trim()
 	commitShort = commit.length() > 7 ? commit.substring(0, 7) : commit
 	tag = branch.matches("master") ? "$git describe --tags --exact-match".execute().in.text.trim() : null
-	gitDescribe = "$git describe --tags --always --long".execute().in.text.trim()
+	gitDescribe = "$git describe --always --dirty=-${System.properties['user.name']}".execute().in.text.trim()
 	snapshotVersion = "${branchShort}-SNAPSHOT"
 	releaseVersion = tag ? "${tag}-${commitShort}" : null
 	buildTimestamp = new Date()
@@ -93,7 +93,7 @@ subprojects {
 			}
 			attributes(
 				"Artifact-URI"					: "$project.group:$project.name:$project.version",
-				"Artifact-Version" 			: "$branchShort-$commitShort",
+				"Artifact-Version" 			: "$branchShort-$gitDescribe",
 				"Build-Timestamp" 			: buildTimestamp.format("yyyyMMdd-HHmmZ"),
 				"Build-Timestamp-Format"	: "yyyyMMdd-HHmmZ",
 			)

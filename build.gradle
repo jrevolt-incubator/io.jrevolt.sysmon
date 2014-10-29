@@ -8,11 +8,11 @@ buildscript {
 		activemqVersion = "5.10.0"
 	}
 	repositories {
-		mavenLocal()
+//		mavenLocal()
 		maven { url "$nexusUrl/content/groups/public/";
 			credentials { username="$nexusUser"; password="$nexusPassword"; }
 		}
-		mavenCentral()
+//		mavenCentral()
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -62,11 +62,11 @@ subprojects {
 	}
 
 	repositories {
-		mavenLocal()
+//		mavenLocal()
 		maven { url "$nexusUrl/content/groups/public/";
 			credentials { username="$nexusUser"; password="$nexusPassword"; }
 		}
-		mavenCentral()
+//		mavenCentral()
 	}
 
 	compileJava.doLast { task ->

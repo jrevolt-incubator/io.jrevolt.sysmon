@@ -21,7 +21,8 @@ dependencies {
 
 	compile("com.fasterxml.jackson.jaxrs:jackson-jaxrs-providers:2.4.3")
 
-	compile("org.jolokia:jolokia-core:1.2.2")
+//	compile("org.jolokia:jolokia-core:1.2.2")
+//	compile("com.googlecode.json-simple:json-simple:1.1.1")
 
 	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 //	testCompile("org.glassfish.jersey.test-framework:jersey-test-framework-core:2.12")

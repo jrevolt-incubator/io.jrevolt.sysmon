@@ -4,6 +4,7 @@ import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.StatusInfo;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,13 +15,14 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
-@Path("/api") @Produces("application/json")
+@Path("/api") @Consumes("application/json") @Produces("application/json")
 public interface ApiService {
 
 	@GET @Path("status")

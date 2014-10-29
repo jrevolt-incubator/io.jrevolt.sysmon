@@ -3,3 +3,7 @@ spring:
 
 spring.activemq:
       inMemory:   false
+
+sysmon.agent:
+      clusterName: ${cluster.name}
+      serverName: ${server.name}

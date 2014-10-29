@@ -133,7 +133,9 @@ public class DependenciesView extends Base<BorderPane> {
 
 	boolean filter(Endpoint e) {
 		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
-		return e.getServer() != null && filter.matcher(e.getServer()).matches()
+		return
+				e.getCluster() != null && filter.matcher(e.getCluster()).matches()
+				|| e.getServer() != null && filter.matcher(e.getServer()).matches()
 				|| e.getUri() != null && filter.matcher(e.getUri().toString()).matches()
 				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
 				|| e.getComment() != null && filter.matcher(e.getComment()).matches()

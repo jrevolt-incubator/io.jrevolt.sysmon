@@ -48,7 +48,7 @@ public class ServerWatchdog {
 				}));
 			}
 		}.run();
-		ForkJoinPool pool = new ForkJoinPool(30);
+//		ForkJoinPool pool = new ForkJoinPool(30);
 	}
 
 

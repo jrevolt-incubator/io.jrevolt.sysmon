@@ -8,7 +8,7 @@
    <center>
       <TableView fx:id="table" BorderPane.alignment="CENTER" tableMenuButtonVisible="true">
         <columns>
-          <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" style="-fx-alignment: baseline-center"/>
+          <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" style="-fx-alignment: baseline-left"/>
           <TableColumn fx:id="server" prefWidth="75.0" text="Server" style="-fx-alignment: baseline-center"/>
             <TableColumn fx:id="artifact" prefWidth="75.0" text="Artifact" />
             <TableColumn fx:id="uri" prefWidth="75.0" text="URI" />

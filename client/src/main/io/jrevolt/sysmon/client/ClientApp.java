@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.client;
 import io.jrevolt.sysmon.rest.ApiService;
 
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
+import org.glassfish.jersey.message.internal.HeaderUtils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -14,8 +15,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MultivaluedHashMap;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -35,7 +39,10 @@ public class ClientApp {
 
 	@Bean @ConditionalOnMissingBean
 	ApiService restService(Client client, ClientConfig cfg) {
-		return WebResourceFactory.newResource(ApiService.class, client.target(baseUrl));
+		final MultivaluedHashMap<String, Object> headers = new MultivaluedHashMap<>();
+		headers.add("Accept", "application/json");
+		return WebResourceFactory.newResource(
+				ApiService.class, client.target(baseUrl), false, headers, Collections.emptyList(), new Form());
 	}
 
 	@Bean

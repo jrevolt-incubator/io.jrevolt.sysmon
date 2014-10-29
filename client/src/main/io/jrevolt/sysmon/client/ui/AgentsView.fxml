@@ -13,7 +13,7 @@
 	<center>
 		<TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true" BorderPane.alignment="CENTER">
 			<columns>
-				<TableColumn fx:id="cluster" prefWidth="75.0" style="-fx-alignment: baseline-center" text="Cluster" />
+				<TableColumn fx:id="cluster" prefWidth="75.0" style="-fx-alignment: baseline-left" text="Cluster" />
 				<TableColumn fx:id="server" prefWidth="75.0" style="-fx-alignment: baseline-right" text="Server" />
 				<TableColumn fx:id="status" prefWidth="75.0" style="-fx-alignment: baseline-center" text="Status" />
 				<TableColumn fx:id="ping" prefWidth="75.0" style="-fx-alignment: baseline-right" text="Ping" />

@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class ProxyDef {
 
+	static public enum Type { INTERNAL, INTRANET, PUBLIC }
+
 	private String name;
 	private InetAddress address;
 	private List<RoutingDef> routing;

@@ -22,5 +22,5 @@ dependencies {
 	compile("com.fasterxml.jackson.jaxrs:jackson-jaxrs-providers:2.4.3")
 
 	compile("com.jcraft:jsch:0.1.51")
-	compile("org.jolokia:jolokia-client-java:1.2.2")
+//	compile("org.jolokia:jolokia-client-java:1.2.2")
 }

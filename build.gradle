@@ -100,10 +100,10 @@ subprojects {
 		}
 	}
 
-	jar.doLast { task ->
-		["jarsigner", "-keystore", "${keyStoreFile}", "-storepass", "${keyStorePassword}", "-keypass", "${keyPassword}",
-		 task.archivePath, "${keyAlias}"].execute()
-	}
+//	jar.doLast { task ->
+//		["jarsigner", "-keystore", "${keyStoreFile}", "-storepass", "${keyStorePassword}", "-keypass", "${keyPassword}",
+//		 task.archivePath, "${keyAlias}"].execute()
+//	}
 
 	uploadArchives {
 		repositories {

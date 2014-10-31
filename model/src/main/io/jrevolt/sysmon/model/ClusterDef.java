@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class ClusterDef {
 
-	private String name;
+	private String clusterName;
 	private List<String> servers = new LinkedList<>();
 	private List<EndpointDef> provides = new LinkedList<>();
 	private List<EndpointDef> dependencies = new LinkedList<>();
@@ -21,12 +21,12 @@ public class ClusterDef {
 
 	///
 
-	public String getName() {
-		return name;
+	public String getClusterName() {
+		return clusterName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setClusterName(String clusterName) {
+		this.clusterName = clusterName;
 	}
 
 	public List<String> getServers() {
@@ -77,7 +77,7 @@ public class ClusterDef {
 		// expand list of provided endpoints, update hostname
 		List<EndpointDef> provides = getProvides().stream()
 				.map(e -> getServers().stream()
-						.map(s -> new EndpointDef(e, getName(), s, s))
+						.map(s -> new EndpointDef(e, getClusterName(), s, s))
 						.collect(Collectors.toList()))
 				.flatMap(l -> l.stream())
 				.distinct()
@@ -131,7 +131,7 @@ public class ClusterDef {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this)
-				.append("name", name)
+				.append("name", clusterName)
 				.toString();
 	}
 }

@@ -115,7 +115,7 @@ public class EndpointsView extends Base<BorderPane> {
 		DomainDef domain = api.getDomainDef();
 		domain.getClusters().forEach(c -> c.getProvides().forEach(e -> {
 			Endpoint endpoint = new Endpoint();
-			endpoint.setCluster(c.getName());
+			endpoint.setCluster(c.getClusterName());
 //			endpoint.setServer(e.);
 			endpoint.setUri(e.getUri());
 			endpoint.setStatus(e.getStatus());

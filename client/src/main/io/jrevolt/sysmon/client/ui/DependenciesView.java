@@ -2,7 +2,6 @@ package io.jrevolt.sysmon.client.ui;
 
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.EndpointStatus;
-import io.jrevolt.sysmon.model.EndpointType;
 import io.jrevolt.sysmon.rest.ApiService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +14,11 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Control;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
-import javafx.util.Callback;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
@@ -108,7 +102,7 @@ public class DependenciesView extends Base<BorderPane> {
 		fxasync(()->{
 			domain.getClusters().forEach(c -> c.getDependencies().forEach(e -> {
 				Endpoint endpoint = new Endpoint();
-				endpoint.setCluster(c.getName());
+				endpoint.setCluster(c.getClusterName());
 //			endpoint.setServer(e.get);
 				endpoint.setUri(e.getUri());
 				endpoint.setStatus(e.getStatus());

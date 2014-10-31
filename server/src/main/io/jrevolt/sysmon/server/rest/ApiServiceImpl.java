@@ -106,7 +106,7 @@ public class ApiServiceImpl implements ApiService {
 	@Override
 	public void checkAll() {
 		domainDef.getClusters().parallelStream().forEach(c->{
-			events.checkCluster(c.getName(), c);
+			events.checkCluster(c.getClusterName(), c);
 		});
 	}
 

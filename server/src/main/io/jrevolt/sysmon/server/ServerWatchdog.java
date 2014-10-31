@@ -1,14 +1,11 @@
 package io.jrevolt.sysmon.server;
 
 import java.time.Instant;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import io.jrevolt.sysmon.common.*;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.DomainDef;
 
@@ -44,7 +41,7 @@ public class ServerWatchdog {
 			@Override
 			public void run() {
 				domain.getClusters().parallelStream().forEach(c-> runGuarded(() -> {
-					events.checkCluster(c.getName(), c);
+					events.checkCluster(c.getClusterName(), c);
 				}));
 			}
 		}.run();

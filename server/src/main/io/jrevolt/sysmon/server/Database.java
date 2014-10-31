@@ -5,7 +5,6 @@ import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -32,9 +31,9 @@ public class Database {
 
 	@PostConstruct
 	void init() {
-		domain.getClusters().forEach(c -> clusters.put(c.getName(), c));
+		domain.getClusters().forEach(c -> clusters.put(c.getClusterName(), c));
 		domain.getClusters().forEach(c -> c.getServers().forEach(s -> {
-			agents.put(s, new AgentInfo(c.getName(), s, AgentInfo.Status.UNKNOWN, null, null));
+			agents.put(s, new AgentInfo(c.getClusterName(), s, AgentInfo.Status.UNKNOWN, null, null));
 		}));
 	}
 
@@ -73,7 +72,7 @@ public class Database {
 	}
 
 	public void updateCluster(ClusterDef cluster) {
-		clusters.get(cluster.getName()).update(cluster);
+		clusters.get(cluster.getClusterName()).update(cluster);
 	}
 
 	///

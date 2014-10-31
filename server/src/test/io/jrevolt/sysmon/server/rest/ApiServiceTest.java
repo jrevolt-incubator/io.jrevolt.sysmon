@@ -8,6 +8,7 @@ import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
@@ -24,7 +25,8 @@ import java.net.URI;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Server.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port=0", "spring.profiles=unittest"})
+@ActiveProfiles("unittest")
+@IntegrationTest
 public class ApiServiceTest {
 
 	@Autowired

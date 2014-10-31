@@ -1,20 +1,2 @@
 domain:
    name: test.jrevolt.io
-   nodes:
-      si1crms01:
-         type: jboss
-         deployments:
-            - sk.dcom.crm.web=/crm
-            - sk.dcom.servio.web=/servio
-            - agentapp.war=/agentapp
-            - jolokia.war=/jolokia
-         provides:
-            - http://$hostname:8080/agentapp
-            - http://$hostname:8080/crm
-            - http://$hostname:8080/servio
-         depends:
-            - https://lbcrm.intra.dcom.sk/crm
-            - https://lbcrm.intra.dcom.sk/servio
-            - https://crm.intra.dcom.sk/servio
-         requires:
-            - https://lbsoa.intra.dcom.sk/

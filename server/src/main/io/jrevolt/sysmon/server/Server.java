@@ -46,12 +46,9 @@ import java.util.concurrent.ScheduledExecutorService;
 @EnableConfigurationProperties(DomainDef.class)
 public class Server {
 
-	@Value("${sysmon.server.baseUrl}")
-	URL baseUrl;
-
 	@Bean
-	public ServletRegistrationBean jerseyServlet() {
-		String mapping = baseUrl.getPath().replaceFirst("/*$", "/*");
+	public ServletRegistrationBean jerseyServlet(ServerCfg cfg) {
+		String mapping = cfg.getBaseUrl().getPath().replaceFirst("/*$", "/*");
 		ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), mapping);
 		registration.addInitParameter(ServletProperties.JAXRS_APPLICATION_CLASS, JerseyConfig.class.getName());
 		return registration;
@@ -71,10 +68,10 @@ public class Server {
 		return new JmsReceiver(AgentEvents.class);
 	}
 
-	@Autowired
-	ServerEvents events;
+//	@Autowired
+//	ServerEvents events;
 
-	@Autowired DomainDef domain;
+//	@Autowired DomainDef domain;
 
 	@Bean @Profile("ssl")
 	EmbeddedServletContainerCustomizer containerCustomizer() {

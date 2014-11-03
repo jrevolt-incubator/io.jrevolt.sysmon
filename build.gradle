@@ -49,9 +49,18 @@ subprojects {
 
 	buildDir = "${rootProject.projectDir}/.build/${project.name}"
 
+	// allow resources in java sources
 	sourceSets {
-		main { [java, resources]*.srcDir 'src/main'; }
-		test { [java, resources]*.srcDir 'src/test'; }
+		main {
+			java.srcDirs = ['src/main/java']
+			resources.srcDirs = ['src/main/java', 'src/main/resources']
+			resources.exclude("**/*.java")
+		}
+		test {
+			java.srcDirs = ['src/test/java']
+			resources.srcDirs = ['src/test/java', 'src/test/resources']
+			resources.exclude("**/*.java")
+		}
 	}
 
 	dependencies {

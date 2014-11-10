@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.server;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.NetworkInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,12 +11,15 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -28,6 +32,7 @@ public class Database {
 
 	private Map<String,AgentInfo> agents = new HashMap<>();
 	private Map<String,ClusterDef> clusters = new HashMap<>();
+	private Map<String,List<NetworkInfo>> networkByServer = new HashMap<>();
 
 	@PostConstruct
 	void init() {
@@ -52,6 +57,14 @@ public class Database {
 	public ClusterDef getCluster(String name) {
 		return clusters.get(name);
 	}
+
+	public List<NetworkInfo> getNetworkInfo() {
+		return domain.getClusters().stream().flatMap(c->c.getNetwork().stream()).collect(Collectors.toList());
+	}
+
+
+
+	///
 
 	public void updateAgent(AgentInfo info) {
 		AgentInfo our = getAgent(info.getServer());

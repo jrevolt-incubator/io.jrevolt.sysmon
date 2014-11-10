@@ -2,6 +2,7 @@ package io.jrevolt.sysmon.rest;
 
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.NetworkInfo;
 import io.jrevolt.sysmon.model.StatusInfo;
 
 import javax.ws.rs.Consumes;
@@ -67,4 +68,8 @@ public interface ApiService {
 	@GET @Path("ping/{server}")
 	default AgentInfo ping(@PathParam("server") String server, @QueryParam("timeout") int timeout, @Suspended AsyncResponse response) { throw new UnsupportedOperationException(); }
 
+	/// UI
+
+	@GET @Path("/network")
+	default List<NetworkInfo> getNetworkInfo() { throw new UnsupportedOperationException(); }
 }

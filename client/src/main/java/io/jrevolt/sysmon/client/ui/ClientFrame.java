@@ -58,12 +58,13 @@ public class ClientFrame extends Base<BorderPane> {
 	@FXML Tab groups;
 	@FXML Tab clusters;
 	@FXML Tab servers;
+	@FXML Tab dns;
+	@FXML Tab network;
 	@FXML Tab artifacts;
 	@FXML Tab endpoints;
 	@FXML Tab dependencies;
 	@FXML Tab proxies;
 	@FXML Tab ssl;
-	@FXML Tab dns;
 	@FXML Tab time;
 	@FXML Tab management;
 	@FXML Tab agents;
@@ -83,6 +84,7 @@ public class ClientFrame extends Base<BorderPane> {
 	@FXML
 	void refresh() {
 		fxasync(() -> {
+			network.setContent(FxHelper.load(NetworkView.class).pane);
 			endpoints.setContent(FxHelper.load(EndpointsView.class).pane);
 			dependencies.setContent(FxHelper.load(DependenciesView.class).pane);
 			agents.setContent(FxHelper.load(AgentsView.class).pane);
@@ -99,4 +101,8 @@ public class ClientFrame extends Base<BorderPane> {
 		api.restartAgent("all", "all");
 	}
 
+	@FXML
+	void checkAllClusters() {
+		async(api::checkAll);
+	}
 }

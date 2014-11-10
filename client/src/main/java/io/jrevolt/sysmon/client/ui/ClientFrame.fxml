@@ -16,6 +16,11 @@
                         <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#checkAllClusters" text="Check all clusters">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="F5" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
                   <MenuItem mnemonicParsing="false" onAction="#restartServer" text="Restart Server" />
                   <MenuItem mnemonicParsing="false" onAction="#restartAgents" text="Restart Agents" />
             </items>
@@ -40,12 +45,13 @@
                   <Tab fx:id="groups" text="Groups" />
                 <Tab fx:id="clusters" text="Clusters" />
                 <Tab fx:id="servers" text="Servers" />
+                  <Tab fx:id="proxies" text="Proxies" />
+                  <Tab fx:id="dns" text="DNS" />
+                  <Tab fx:id="network" text="Network" />
                   <Tab fx:id="artifacts" text="Artifacts" />
                   <Tab fx:id="endpoints" text="Endpoints" />
                   <Tab fx:id="dependencies" text="Dependencies" />
-                  <Tab fx:id="proxies" text="Proxies" />
                   <Tab fx:id="ssl" text="SSL" />
-                  <Tab fx:id="dns" text="DNS" />
                   <Tab fx:id="time" text="Time" />
                   <Tab fx:id="management" text="Management" />
                   <Tab fx:id="agents" text="Agents" />

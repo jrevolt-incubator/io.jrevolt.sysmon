@@ -2,6 +2,7 @@ package io.jrevolt.sysmon.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,6 +19,7 @@ public class ClusterDef {
 	private List<EndpointDef> provides = new LinkedList<>();
 	private List<EndpointDef> dependencies = new LinkedList<>();
 	private List<ArtifactDef> artifacts = new LinkedList<>();
+	private List<NetworkInfo> network = new LinkedList<>();
 
 	///
 
@@ -61,7 +63,15 @@ public class ClusterDef {
 		this.artifacts = artifacts;
 	}
 
-///
+	public List<NetworkInfo> getNetwork() {
+		return network;
+	}
+
+	public void setNetwork(List<NetworkInfo> network) {
+		this.network = network;
+	}
+
+	///
 
 	void init(DomainDef domain) {
 		Pattern p = Pattern.compile(".*\\."+domain.getName());
@@ -126,6 +136,8 @@ public class ClusterDef {
 		dependencies.addAll(cluster.dependencies);
 		artifacts.clear();
 		artifacts.addAll(cluster.artifacts);
+		network.clear();
+		network.addAll(cluster.getNetwork());
 	}
 
 	@Override

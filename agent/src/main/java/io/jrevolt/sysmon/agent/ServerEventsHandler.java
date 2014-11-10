@@ -9,6 +9,7 @@ import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.EndpointDef;
 import io.jrevolt.sysmon.model.EndpointStatus;
+import io.jrevolt.sysmon.model.NetworkInfo;
 import io.jrevolt.sysmon.model.VersionInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +20,24 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NoRouteToHostException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Connection;
+import java.net.UnknownHostException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -107,6 +106,7 @@ public class ServerEventsHandler implements ServerEvents {
 			endpoints.addAll(clusterDef.getProvides());
 			endpoints.addAll(clusterDef.getDependencies());
 			endpoints.parallelStream().forEach(this::checkEndpoint);
+			checkNetwork(clusterDef, name, clusterDef.getDependencies());
 			events.clusterStatus(clusterDef);
 		});
 	}
@@ -184,6 +184,41 @@ public class ServerEventsHandler implements ServerEvents {
 				endpoint.setComment(Utils.getExceptionDesription(e));
 			}
 		}
+	}
+
+	void checkNetwork(ClusterDef cluster, String serverName, List<EndpointDef> dependencies) {
+		cluster.getNetwork().clear();
+		dependencies.parallelStream()
+				.map(d -> checkNetwork(new NetworkInfo(
+						cluster.getClusterName(), serverName, d.getUri().getHost(), Utils.resolvePort(d.getUri()))))
+				.forEach(item -> cluster.getNetwork().add(item));
+	}
+
+	NetworkInfo checkNetwork(NetworkInfo net) {
+		try {
+			InetAddress src = InetAddress.getByName(net.getServer());
+			net.setSrcAddress(src.getHostAddress());
+
+			InetAddress dst = InetAddress.getByName(net.getDestination());
+			net.setDstAddress(dst.getHostAddress());
+
+			Socket socket = new Socket(dst, net.getPort());
+			net.setStatus(socket.isConnected() ? NetworkInfo.Status.CONNECTED : NetworkInfo.Status.UNKNOWN);
+			
+		} catch (UnknownHostException e) {
+			net.setStatus(NetworkInfo.Status.UNRESOLVED);
+			net.setComment(Utils.getExceptionDesription(e));
+		} catch (NoRouteToHostException e) {
+			net.setStatus(NetworkInfo.Status.UNREACHABLE);
+			net.setComment(Utils.getExceptionDesription(e));
+		} catch (ConnectException e) {
+			net.setStatus(NetworkInfo.Status.REFUSED);
+			net.setComment(Utils.getExceptionDesription(e));
+		} catch (IOException e) {
+			net.setStatus(NetworkInfo.Status.ERROR);
+			net.setComment(Utils.getExceptionDesription(e));
+		}
+		return net;
 	}
 
 	private AgentInfo createAgentInfo() {

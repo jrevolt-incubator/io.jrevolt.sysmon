@@ -4,6 +4,7 @@ import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.NetworkInfo;
 import io.jrevolt.sysmon.model.StatusInfo;
 import io.jrevolt.sysmon.rest.ApiService;
 import io.jrevolt.sysmon.model.AppCfg;
@@ -127,5 +128,10 @@ public class ApiServiceImpl implements ApiService {
 			db.onUpdate(server, action::run);
 		});
 		return null;
+	}
+
+	@Override
+	public List<NetworkInfo> getNetworkInfo() {
+		return db.getNetworkInfo();
 	}
 }

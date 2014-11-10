@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.common;
 
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,6 +18,24 @@ public class Utils {
 		} catch (UnknownHostException e) {
 			throw new UnsupportedOperationException(e);
 		}
+	}
+
+	static public InetAddress getInetAddress(byte[] address) {
+		try {
+			return InetAddress.getByAddress(null, address);
+		} catch (UnknownHostException never) {
+			throw new AssertionError(never);
+		}
+	}
+
+	static public int resolvePort(URI uri) {
+		int port = uri.getPort();
+		if (port != -1) { return port; }
+
+		port = uri.getScheme().equals("http") ? 80
+				: uri.getScheme().equals("https") ? 443
+				: 0;
+		return port;
 	}
 
 	static public String getExceptionDesription(Throwable t) {

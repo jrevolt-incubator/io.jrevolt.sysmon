@@ -21,6 +21,8 @@ dependencies {
 
 	compile("com.fasterxml.jackson.jaxrs:jackson-jaxrs-providers:2.4.3")
 
+	compile("javax.mail:mail:1.5.0-b01")
+
 //	compile("org.jolokia:jolokia-core:1.2.2")
 //	compile("com.googlecode.json-simple:json-simple:1.1.1")
 

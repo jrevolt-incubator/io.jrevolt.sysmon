@@ -26,7 +26,7 @@ public class ServerWatchdog {
 	@Autowired
 	ServerEvents events;
 
-	@Scheduled(initialDelay = 5000L, fixedRate = 10000L)
+//	@Scheduled(initialDelay = 5000L, fixedRate = 10000L)
 	void checkAll() {
 		runGuarded(()->{
 			Instant lastChecked = Instant.now();
@@ -35,7 +35,7 @@ public class ServerWatchdog {
 		});
 	}
 
-	@Scheduled(fixedRate = 10000L)
+//	@Scheduled(fixedRate = 10000L)
 	public void checkCluster() {
 		new Thread("ShutdownOnDemand") {
 			@Override

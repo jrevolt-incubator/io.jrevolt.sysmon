@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.NetworkView">
+   <center>
+      <TableView fx:id="table" BorderPane.alignment="CENTER">
+        <columns>
+            <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" style="-fx-alignment: baseline-center"/>
+            <TableColumn fx:id="server" prefWidth="75.0" text="Server" style="-fx-alignment: baseline-right"/>
+            <TableColumn fx:id="destination" prefWidth="75.0" text="Destination" style="-fx-alignment: baseline-right"/>
+            <TableColumn fx:id="port" prefWidth="75.0" text="Port" style="-fx-alignment: baseline-right"/>
+            <TableColumn fx:id="sourceIP" prefWidth="75.0" text="Source IP" style="-fx-alignment: baseline-right"/>
+            <TableColumn fx:id="destinationIP" prefWidth="75.0" text="Destination IP" style="-fx-alignment: baseline-right" />
+            <TableColumn fx:id="status" prefWidth="75.0" text="Status" style="-fx-alignment: baseline-center"/>
+            <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />
+        </columns>
+      </TableView>
+   </center>
+   <bottom>
+      <TextField fx:id="filter" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>

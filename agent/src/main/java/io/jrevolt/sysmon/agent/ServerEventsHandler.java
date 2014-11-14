@@ -111,6 +111,14 @@ public class ServerEventsHandler implements ServerEvents {
 		});
 	}
 
+	@Override
+	public void setClusterAccess(@JMSProperty String clusterName, boolean isAllowAccess) {
+
+
+
+
+	}
+
 	void checkEndpoint(EndpointDef endpoint) {
 		if (endpoint.getUri().getScheme().equals("jdbc")) {
 			try {
@@ -202,7 +210,8 @@ public class ServerEventsHandler implements ServerEvents {
 			InetAddress dst = InetAddress.getByName(net.getDestination());
 			net.setDstAddress(dst.getHostAddress());
 
-			Socket socket = new Socket(dst, net.getPort());
+			Socket socket = new Socket();
+			socket.connect(new InetSocketAddress(dst, net.getPort()), 1000);
 			net.setStatus(socket.isConnected() ? NetworkInfo.Status.CONNECTED : NetworkInfo.Status.UNKNOWN);
 			
 		} catch (UnknownHostException e) {

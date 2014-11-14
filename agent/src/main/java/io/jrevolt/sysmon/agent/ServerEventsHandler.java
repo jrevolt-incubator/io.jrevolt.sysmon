@@ -137,6 +137,7 @@ public class ServerEventsHandler implements ServerEvents {
 						: URI.create(endpoint.getUri().toString() + endpoint.getTest().toString()).toURL();
 				URLConnection con = url.openConnection();
 				con.setConnectTimeout(2500);
+				con.setReadTimeout(5000);
 				if (con instanceof HttpURLConnection) {
 					if (endpoint.getUri().getFragment() != null) {
 						if (endpoint.getUri().getFragment().contains("post")) {

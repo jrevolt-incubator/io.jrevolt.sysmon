@@ -4,5 +4,5 @@ dependencies {
 	compile project(":io.jrevolt.sysmon.model")
 
 	compile("javax.ws.rs:javax.ws.rs-api:2.0")
-	compile("org.springframework:spring-web:4.1.1.RELEASE")
+	compile("org.springframework:spring-web:${springVersion}")
 }

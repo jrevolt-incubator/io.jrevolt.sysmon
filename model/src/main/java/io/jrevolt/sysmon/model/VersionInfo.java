@@ -3,7 +3,8 @@ package io.jrevolt.sysmon.model;
 import io.jrevolt.sysmon.common.InstantConverter;
 import io.jrevolt.sysmon.common.Version;
 
-import org.springframework.boot.loader.mvn.MvnArtifact;
+
+import org.springframework.boot.launcher.mvn.MvnArtifact;
 
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 
@@ -24,7 +25,7 @@ public class VersionInfo {
 	}
 
 	public VersionInfo(Version src) {
-		this.artifact = src.isUnknown() ? src.getArtifactUri() : MvnArtifact.parse(src.getArtifactUri()).getArtifactId();
+		this.artifact = src.isUnknown() ? src.getArtifactUri() : new MvnArtifact(src.getArtifactUri()).getArtifactId();
 		this.version = src.getArtifactVersion();
 		this.buildTimestamp = src.getTimestamp();
 	}

@@ -103,6 +103,9 @@ public class ClientFrame extends Base<BorderPane> {
 
 	@FXML
 	void checkAllClusters() {
-		async(api::checkAll);
+		async(() -> {
+			api.checkAll();
+			fxasync(()->status().setValue("Sent request for checking all clusters..."));
+		});
 	}
 }

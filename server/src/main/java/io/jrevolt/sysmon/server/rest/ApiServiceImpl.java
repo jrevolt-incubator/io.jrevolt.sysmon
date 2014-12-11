@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.server.rest;
 import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.ServerEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.NetworkInfo;
 import io.jrevolt.sysmon.model.StatusInfo;
@@ -82,6 +83,11 @@ public class ApiServiceImpl implements ApiService {
 	@Override
 	public DomainDef getDomainDef() {
 		return domainDef;
+	}
+
+	@Override
+	public ClusterDef getClusterDef(String name) {
+		return db.getCluster(name);
 	}
 
 	@Override

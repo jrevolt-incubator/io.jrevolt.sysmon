@@ -82,12 +82,9 @@ public class EndpointsView extends Base<BorderPane> {
 
 		registerLayoutPersistor(EndpointsView.class, table);
 
-
-
-
 		async(() ->{
 			load();
-			updater = FxHelper.scheduler().scheduleAtFixedRate(this::update, 1, 1, TimeUnit.SECONDS);
+//			updater = FxHelper.scheduler().scheduleAtFixedRate(this::update, 1, 1, TimeUnit.SECONDS);
 		});
 	}
 

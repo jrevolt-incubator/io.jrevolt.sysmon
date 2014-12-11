@@ -61,9 +61,9 @@ public abstract class Base<T extends Pane> {
 		Preferences prefs = Preferences.userRoot().node(root.getName());
 		table.getColumns().forEach(c-> {
 			c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
-			c.widthProperty().addListener((observable, oldValue, newValue) -> {
+			c.widthProperty().addListener((observable, oldValue, newValue) -> FxHelper.async(() -> {
 				prefs.putDouble(c.getId(), c.getWidth());
-			});
+			}));
 		});
 	}
 }

@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.rest;
 
 import io.jrevolt.sysmon.model.AgentInfo;
+import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.NetworkInfo;
 import io.jrevolt.sysmon.model.StatusInfo;
@@ -43,6 +44,11 @@ public interface ApiService {
 
 	@GET @Path("domain")
 	default DomainDef getDomainDef() {
+		throw new UnsupportedOperationException();
+	}
+
+	@GET @Path("cluster/{name}")
+	default ClusterDef getClusterDef(@PathParam("name") String name) {
 		throw new UnsupportedOperationException();
 	}
 

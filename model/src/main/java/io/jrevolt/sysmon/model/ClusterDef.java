@@ -20,6 +20,7 @@ public class ClusterDef {
 	private List<EndpointDef> dependencies = new LinkedList<>();
 	private List<ArtifactDef> artifacts = new LinkedList<>();
 	private List<NetworkInfo> network = new LinkedList<>();
+	private boolean isAccessAllowed;
 
 	///
 
@@ -69,6 +70,14 @@ public class ClusterDef {
 
 	public void setNetwork(List<NetworkInfo> network) {
 		this.network = network;
+	}
+
+	public boolean isAccessAllowed() {
+		return isAccessAllowed;
+	}
+
+	public void setAccessAllowed(boolean isAccessAllowed) {
+		this.isAccessAllowed = isAccessAllowed;
 	}
 
 	///

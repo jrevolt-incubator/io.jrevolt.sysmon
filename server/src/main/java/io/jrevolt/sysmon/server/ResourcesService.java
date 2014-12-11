@@ -1,9 +1,8 @@
 package io.jrevolt.sysmon.server;
 
-import org.springframework.boot.loader.MvnLauncher;
+import org.springframework.boot.launcher.mvn.MvnArtifact;
+import org.springframework.boot.launcher.mvn.MvnLauncher;
 import org.springframework.boot.loader.archive.Archive;
-import org.springframework.boot.loader.mvn.MvnArtifact;
-import org.springframework.boot.loader.mvn.MvnRepositoryConnector;
 import org.springframework.boot.loader.util.UrlSupport;
 import org.springframework.util.ClassUtils;
 
@@ -84,27 +83,27 @@ public class ResourcesService {
 		}
 	}
 
-	@GET @Path("classpath") @Produces("application/json")
-	public Classpath classpath() {
-		final List<Archive> archives = new ArrayList<>();
-		MvnLauncher l = new MvnLauncher() {
-			@Override
-			protected List<Archive> getClassPathArchives(MvnArtifact mvnartifact, List<MvnArtifact> ext) throws Exception {
-				archives.addAll(super.getClassPathArchives(mvnartifact, ext));
-				return archives;
-			}
-		};
-		l.resolve(MvnArtifact.parse("io.jrevolt.sysmon:io.jrevolt.sysmon.client:integration-SNAPSHOT"), null);
-		try {
-			final List<URL> urls = new ArrayList<>();
-			for (Archive archive : archives) {
-				urls.add(archive.getUrl());
-			}
-			return new Classpath(urls);
-		} catch (MalformedURLException e) {
-			throw new UnsupportedOperationException(e);
-		}
-	}
+//	@GET @Path("classpath") @Produces("application/json")
+//	public Classpath classpath() {
+//		final List<Archive> archives = new ArrayList<>();
+//		MvnLauncher l = new MvnLauncher() {
+//			@Override
+//			protected List<Archive> getClassPathArchives(MvnArtifact mvnartifact, List<MvnArtifact> ext) throws Exception {
+//				archives.addAll(super.getClassPathArchives(mvnartifact, ext));
+//				return archives;
+//			}
+//		};
+//		l.resolve(MvnArtifact.parse("io.jrevolt.sysmon:io.jrevolt.sysmon.client:integration-SNAPSHOT"), null);
+//		try {
+//			final List<URL> urls = new ArrayList<>();
+//			for (Archive archive : archives) {
+//				urls.add(archive.getUrl());
+//			}
+//			return new Classpath(urls);
+//		} catch (MalformedURLException e) {
+//			throw new UnsupportedOperationException(e);
+//		}
+//	}
 
 
 //	@GET @Path("{path}")

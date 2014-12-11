@@ -54,6 +54,10 @@ public class Database {
 		return agents;
 	}
 
+	public List<ClusterDef> getClusters() {
+		return clusters.values().stream().collect(Collectors.toList());
+	}
+
 	public ClusterDef getCluster(String name) {
 		return clusters.get(name);
 	}

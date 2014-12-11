@@ -23,4 +23,8 @@ public interface ServerEvents {
 	@JMS(timeToLive = 60000L)
 	@JMSSelector("name='${sysmon.agent.serverName}'")
 	default void checkServer(@JMSProperty String name, ClusterDef clusterDef) {}
+
+	@JMS
+	@JMSSelector("clusterName='${sysmon.agent.clusterName}'")
+	default void setClusterAccess(@JMSProperty String clusterName, boolean isAllowAccess) {}
 }

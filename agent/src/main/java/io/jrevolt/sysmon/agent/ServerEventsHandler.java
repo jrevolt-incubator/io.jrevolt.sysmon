@@ -184,7 +184,7 @@ public class ServerEventsHandler implements ServerEvents {
 			}
 		} else {
 			try {
-				InetSocketAddress address = new InetSocketAddress(endpoint.getUri().getHost(), endpoint.getUri().getPort());
+				InetSocketAddress address = new InetSocketAddress(Utils.resolveHost(endpoint.getUri()), Utils.resolvePort(endpoint.getUri()));
 				Socket socket = new Socket();
 				socket.connect(address, 2500);
 				endpoint.setStatus(EndpointStatus.OK);
@@ -200,7 +200,7 @@ public class ServerEventsHandler implements ServerEvents {
 		cluster.getNetwork().clear();
 		dependencies.parallelStream()
 				.map(d -> checkNetwork(new NetworkInfo(
-						cluster.getClusterName(), serverName, d.getUri().getHost(), Utils.resolvePort(d.getUri()))))
+						cluster.getClusterName(), serverName, Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri()))))
 				.forEach(item -> cluster.getNetwork().add(item));
 	}
 

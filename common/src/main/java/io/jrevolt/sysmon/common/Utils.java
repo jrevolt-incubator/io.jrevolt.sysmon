@@ -28,9 +28,19 @@ public class Utils {
 		}
 	}
 
+	static public String resolveHost(URI uri) {
+		return (uri.getHost() != null)
+				? uri.getHost()
+				: resolveHost(URI.create(uri.getSchemeSpecificPart()));
+	}
+
 	static public int resolvePort(URI uri) {
 		int port = uri.getPort();
 		if (port != -1) { return port; }
+
+		if (uri.getHost() == null) {
+			return resolvePort(URI.create(uri.getSchemeSpecificPart()));
+		}
 
 		port = uri.getScheme().equals("http") ? 80
 				: uri.getScheme().equals("https") ? 443

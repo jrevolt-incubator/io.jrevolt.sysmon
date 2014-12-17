@@ -10,11 +10,13 @@ import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.EndpointDef;
 import io.jrevolt.sysmon.model.EndpointStatus;
 import io.jrevolt.sysmon.model.NetworkInfo;
+import io.jrevolt.sysmon.model.ServerDef;
 import io.jrevolt.sysmon.model.VersionInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,27 +98,34 @@ public class ServerEventsHandler implements ServerEvents {
 
 	@Override
 	public void checkCluster(@JMSProperty String name, ClusterDef clusterDef) {
-		pool.submit(() -> clusterDef.getServers().parallelStream().forEach(s -> checkServer(s, clusterDef)));
+		System.out.println("### checkCluster "+name);
+		ServerDef server = clusterDef.getServers().stream()
+				.filter(s -> s.getName().equals(cfg.getServerName()))
+				.findFirst().get();
+		pool.submit(() -> checkServer(server));
 	}
 
 	@Override
-	public void checkServer(@JMSProperty String name, ClusterDef clusterDef) {
-		pool.submit(() -> {
-			List<EndpointDef> endpoints = new LinkedList<>();
-			endpoints.addAll(clusterDef.getProvides());
-			endpoints.addAll(clusterDef.getDependencies());
-			endpoints.parallelStream().forEach(this::checkEndpoint);
-			checkNetwork(clusterDef, name, clusterDef.getDependencies());
-			events.clusterStatus(clusterDef);
-		});
+	public void checkServer(@JMSProperty String name, ServerDef server) {
+		System.out.println("### checkServer "+name);
+		checkServer(server);
 	}
 
 	@Override
 	public void setClusterAccess(@JMSProperty String clusterName, boolean isAllowAccess) {
+	}
 
-
-
-
+	void checkServer(ServerDef server) {
+		System.out.println("### checkServer " + server.getName());
+		pool.submit(Utils.guarded(() -> {
+			List<EndpointDef> endpoints = new LinkedList<>();
+			endpoints.addAll(server.getProvides());
+			endpoints.addAll(server.getDependencies());
+			endpoints.parallelStream().forEach(this::checkEndpoint);
+			checkNetwork(server);
+			events.serverStatus(server);
+		}));
+		System.out.println("## leaving checkServer()");
 	}
 
 	void checkEndpoint(EndpointDef endpoint) {
@@ -126,9 +135,14 @@ public class ServerEventsHandler implements ServerEvents {
 				endpoint.setStatus(EndpointStatus.OK);
 			} catch (SQLException e) {
 				String desc = Utils.getExceptionDesription(e);
-				LOG.error(desc);
-				endpoint.setStatus(EndpointStatus.ERROR);
-				endpoint.setComment(desc);
+				if (desc.contains("Login failed")) {
+					endpoint.setStatus(EndpointStatus.OK);
+					endpoint.setComment(desc);
+				} else {
+					LOG.error(desc);
+					endpoint.setStatus(EndpointStatus.ERROR);
+					endpoint.setComment(desc);
+				}
 			}
 		} else if (endpoint.getUri().getScheme().matches("https?")) {
 			try {
@@ -172,13 +186,14 @@ public class ServerEventsHandler implements ServerEvents {
 				endpoint.setComment(String.format("HTTP %d", code));
 
 			} catch (ConnectException e) {
-				LOG.error(e.toString());
+				String desc = Utils.getExceptionDesription(e);
+				LOG.error("{} : {}", endpoint.getUri(), desc);
 				endpoint.setStatus(EndpointStatus.UNAVAILABLE);
-				endpoint.setComment(e.toString());
+				endpoint.setComment(desc);
 
 			} catch (IOException e) {
 				String desc = Utils.getExceptionDesription(e);
-				LOG.error(desc);
+				LOG.error("{} : {}", endpoint.getUri(), desc);
 				endpoint.setStatus(EndpointStatus.ERROR);
 				endpoint.setComment(desc);
 			}
@@ -190,18 +205,20 @@ public class ServerEventsHandler implements ServerEvents {
 				endpoint.setStatus(EndpointStatus.OK);
 				endpoint.setComment("Connected!");
 			} catch (IOException e) {
+				String desc = Utils.getExceptionDesription(e);
+				LOG.error("{} : {}", endpoint.getUri(), desc);
 				endpoint.setStatus(EndpointStatus.ERROR);
-				endpoint.setComment(Utils.getExceptionDesription(e));
+				endpoint.setComment(desc);
 			}
 		}
 	}
 
-	void checkNetwork(ClusterDef cluster, String serverName, List<EndpointDef> dependencies) {
-		cluster.getNetwork().clear();
-		dependencies.parallelStream()
+	void checkNetwork(ServerDef server) {
+		server.getNetwork().clear();
+		server.getDependencies().parallelStream()
 				.map(d -> checkNetwork(new NetworkInfo(
-						cluster.getClusterName(), serverName, Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri()))))
-				.forEach(item -> cluster.getNetwork().add(item));
+						server.getCluster(), server.getName(), Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri()))))
+				.forEach(item -> server.getNetwork().add(item));
 	}
 
 	NetworkInfo checkNetwork(NetworkInfo net) {

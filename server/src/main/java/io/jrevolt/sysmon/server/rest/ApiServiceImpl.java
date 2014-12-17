@@ -6,6 +6,7 @@ import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.NetworkInfo;
+import io.jrevolt.sysmon.model.ServerDef;
 import io.jrevolt.sysmon.model.StatusInfo;
 import io.jrevolt.sysmon.rest.ApiService;
 import io.jrevolt.sysmon.model.AppCfg;
@@ -91,9 +92,16 @@ public class ApiServiceImpl implements ApiService {
 	}
 
 	@Override
+	public List<ServerDef> getServerDefs(String name) {
+		return db.getClusters().stream().flatMap(c -> c.getServers().stream())
+				.filter(s -> s.getName().matches(name))
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public List<String> getServers() {
 		List<String> servers = domainDef.getClusters().stream()
-				.flatMap(c -> c.getServers().stream())
+				.flatMap(c -> c.toServerNames().stream())
 				.collect(Collectors.toList());
 		return servers;
 	}

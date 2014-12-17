@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
 import java.net.URI;
 
 /**
@@ -23,11 +24,24 @@ public class EndpointDef {
 	public EndpointDef() {
 	}
 
+	public EndpointDef(EndpointDef src, ServerDef server) {
+		this.cluster = server.getCluster();
+		this.server = server.getName();
+		this.jndi = src.jndi;
+		this.uri = src.uri;
+		this.test = src.test;
+		this.type = src.type;
+		this.status = src.status;
+	}
+
 	public EndpointDef(EndpointDef src, String cluster, String server, String hostname) {
 		this.cluster = cluster;
 		this.server = server;
 		this.jndi = src.jndi;
-		this.uri = UriBuilder.fromUri(src.uri).host(hostname).build();
+		this.uri = src.uri;
+		if (hostname != null) {
+			this.uri = UriBuilder.fromUri(src.uri).host(hostname).build();
+		}
 		this.test = src.test;
 		this.type = src.type;
 		this.status = src.status;

@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -15,11 +16,10 @@ import java.util.stream.Collectors;
 public class ClusterDef {
 
 	private String clusterName;
-	private List<String> servers = new LinkedList<>();
+	private List<ServerDef> servers = new LinkedList<>();
 	private List<EndpointDef> provides = new LinkedList<>();
 	private List<EndpointDef> dependencies = new LinkedList<>();
 	private List<ArtifactDef> artifacts = new LinkedList<>();
-	private List<NetworkInfo> network = new LinkedList<>();
 	private boolean isAccessAllowed;
 
 	///
@@ -32,11 +32,11 @@ public class ClusterDef {
 		this.clusterName = clusterName;
 	}
 
-	public List<String> getServers() {
+	public List<ServerDef> getServers() {
 		return servers;
 	}
 
-	public void setServers(List<String> servers) {
+	public void setServers(List<ServerDef> servers) {
 		this.servers = servers;
 	}
 
@@ -64,14 +64,6 @@ public class ClusterDef {
 		this.artifacts = artifacts;
 	}
 
-	public List<NetworkInfo> getNetwork() {
-		return network;
-	}
-
-	public void setNetwork(List<NetworkInfo> network) {
-		this.network = network;
-	}
-
 	public boolean isAccessAllowed() {
 		return isAccessAllowed;
 	}
@@ -82,36 +74,58 @@ public class ClusterDef {
 
 	///
 
+	public void setServerNames(List<String> servers) {
+		this.servers.clear();
+		this.servers.addAll(servers.stream()
+				.map(this::expand).flatMap(Collection::stream)
+				.map(ServerDef::new).collect(Collectors.toList()));
+
+		// just the server list, all other attributes are empty -> relying on init()
+	}
+
+	public List<String> toServerNames() {
+		return getServers().stream().map(ServerDef::getName).collect(Collectors.toList());
+	}
+
+
+
 	void init(DomainDef domain) {
+
+		// fill in the implicit attributes
+		getServers().forEach(s -> s.setCluster(getClusterName()));
+		getProvides().forEach(e -> e.setType(EndpointType.PROVIDED));
+		getDependencies().forEach(e -> e.setType(EndpointType.DEPENDENCY));
+
+		// filter the server list: only domain members are accepted
 		Pattern p = Pattern.compile(".*\\."+domain.getName());
-
-		// expand list of servers; filter all but current domain
-		setServers(getServers().stream()
-							  .map(this::expand)
-							  .flatMap(l -> l.stream())
-							  .filter(s -> p.matcher(s).matches())
-							  .distinct()
-							  .collect(Collectors.toList()));
-
-		// expand list of provided endpoints, update hostname
-		List<EndpointDef> provides = getProvides().stream()
-				.map(e -> getServers().stream()
-						.map(s -> new EndpointDef(e, getClusterName(), s, s))
-						.collect(Collectors.toList()))
-				.flatMap(l -> l.stream())
+		List<ServerDef> servers = getServers().stream()
+				.filter(s -> p.matcher(s.getName()).matches())
 				.distinct()
 				.collect(Collectors.toList());
-		setProvides(provides);
+		getServers().clear();
+		getServers().addAll(servers);
 
-		// set endpoint type (implicit in configuration)
-		getProvides().stream().filter(e -> {
-			e.setType(EndpointType.PROVIDED);
-			return true;
+
+		// populate server provided endpoints based on cluster configured template
+		// replace the server hostname template with actual server host name
+		getServers().stream().forEach(s -> {
+			s.getProvides().clear();
+			s.getProvides().addAll(getProvides().stream()
+					.map(e -> new EndpointDef(e, s.getCluster(), s.getName(), s.getName()))
+					.collect(Collectors.toList()));
 		});
-		getDependencies().stream().filter(e -> {
-			e.setType(EndpointType.DEPENDENCY);
-			return true;
+
+		// populate server dependencies using cluster templates
+		getServers().stream().forEach(s -> {
+			s.getDependencies().clear();
+			s.getDependencies().addAll(getDependencies().stream()
+					.map(e -> new EndpointDef(e, s))
+					.collect(Collectors.toList()));
 		});
+
+		// and clean initial configuration values that have been replicated into servers
+		provides = null;
+		dependencies = null;
 	}
 
 	List<String> expand(String s) {
@@ -145,8 +159,6 @@ public class ClusterDef {
 		dependencies.addAll(cluster.dependencies);
 		artifacts.clear();
 		artifacts.addAll(cluster.artifacts);
-		network.clear();
-		network.addAll(cluster.getNetwork());
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import io.jrevolt.sysmon.jms.AgentEvents;
 import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.NodeDef;
+import io.jrevolt.sysmon.model.ServerDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,5 +45,9 @@ public class AgentEventsHandler implements AgentEvents {
 		db.updateCluster(cluster);
 	}
 
-
+	@Override
+	public void serverStatus(ServerDef server) {
+		System.out.println("### serverStatus "+ server.getName());
+		db.updateServer(server);
+	}
 }

@@ -98,11 +98,8 @@ public class NetworkView extends Base<BorderPane> {
 		final SortedList<NetworkItem> sorted = new SortedList<>(filtered);
 
 		sorted.comparatorProperty().bind(table.comparatorProperty());
-		filter.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				filtered.setPredicate(e->filter(e));
-			}
+		filter.textProperty().addListener((observable, oldValue, newValue) -> {
+			filtered.setPredicate(e->filter(e));
 		});
 
 		List<NetworkInfo> network = api.getNetworkInfo();
@@ -135,10 +132,13 @@ public class NetworkView extends Base<BorderPane> {
 	}
 
 	boolean filter(NetworkItem e) {
-		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
+		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
+													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 		return filter.matcher(e.getCluster()).matches()
 				|| filter.matcher(e.getServer()).matches()
+				|| (e.getDestination() == null || filter.matcher(e.getDestination()).matches())
 				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
+				|| e.getComment() != null && filter.matcher(e.getComment()).matches()
 				;
 	}
 }

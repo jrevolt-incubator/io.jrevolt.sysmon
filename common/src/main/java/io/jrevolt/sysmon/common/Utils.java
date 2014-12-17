@@ -3,9 +3,6 @@ package io.jrevolt.sysmon.common;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -29,23 +26,32 @@ public class Utils {
 	}
 
 	static public String resolveHost(URI uri) {
-		return (uri.getHost() != null)
-				? uri.getHost()
-				: resolveHost(URI.create(uri.getSchemeSpecificPart()));
+		if (uri.getHost() != null) { return uri.getHost(); }
+
+		return address(uri).getHost();
 	}
 
 	static public int resolvePort(URI uri) {
 		int port = uri.getPort();
 		if (port != -1) { return port; }
 
-		if (uri.getHost() == null) {
-			return resolvePort(URI.create(uri.getSchemeSpecificPart()));
+		if (uri.getHost() != null) {
+			port = uri.getScheme().equals("http") ? 80
+					: uri.getScheme().equals("https") ? 443
+					: 0;
+			return port;
 		}
 
-		port = uri.getScheme().equals("http") ? 80
-				: uri.getScheme().equals("https") ? 443
-				: 0;
-		return port;
+		return address(uri).getPort();
+	}
+
+	static private URI address(URI uri) {
+		if (uri.getHost() != null) { return uri; }
+
+		URI tmp = URI.create("tcp://"+uri.toASCIIString().replaceFirst(
+				"^(?:\\p{Alnum}+:)+//(?:[^@]*@)?([^:]+)(?::(\\p{Digit}+))?.*",
+				"$1:$2"));
+		return tmp;
 	}
 
 	static public String getExceptionDesription(Throwable t) {
@@ -58,11 +64,18 @@ public class Utils {
 	}
 
 	public static void runGuarded(Runnable r) {
-		try {
-			r.run();
-		} catch (Exception e) {
-			Log.debug(r, e.toString());
-		}
+		guarded(r).run();
+	}
+
+	static public Runnable guarded(Runnable r) {
+		return () -> {
+			try {
+				r.run();
+			} catch (Exception e) {
+				e.printStackTrace();
+				Log.debug(r, e.toString());
+			}
+		};
 	}
 
 }

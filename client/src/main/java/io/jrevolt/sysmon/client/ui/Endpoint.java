@@ -107,4 +107,33 @@ public class Endpoint {
 	public void setComment(String comment) {
 		this.comment.set(comment);
 	}
+
+	///
+
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Endpoint endpoint = (Endpoint) o;
+
+		if (artifact != null ? !artifact.equals(endpoint.artifact) : endpoint.artifact != null) return false;
+		if (!cluster.equals(endpoint.cluster)) return false;
+		if (!server.equals(endpoint.server)) return false;
+		if (!type.equals(endpoint.type)) return false;
+		if (!uri.equals(endpoint.uri)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = cluster.hashCode();
+		result = 31 * result + server.hashCode();
+		result = 31 * result + (artifact != null ? artifact.hashCode() : 0);
+		result = 31 * result + uri.hashCode();
+		result = 31 * result + type.hashCode();
+		return result;
+	}
 }

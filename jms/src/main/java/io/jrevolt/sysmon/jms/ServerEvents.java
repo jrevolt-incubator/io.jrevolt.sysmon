@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.jms;
 
 import io.jrevolt.sysmon.model.ClusterDef;
+import io.jrevolt.sysmon.model.ServerDef;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -22,7 +23,7 @@ public interface ServerEvents {
 
 	@JMS(timeToLive = 60000L)
 	@JMSSelector("name='${sysmon.agent.serverName}'")
-	default void checkServer(@JMSProperty String name, ClusterDef clusterDef) {}
+	default void checkServer(@JMSProperty String name, ServerDef server) {}
 
 	@JMS
 	@JMSSelector("clusterName='${sysmon.agent.clusterName}'")

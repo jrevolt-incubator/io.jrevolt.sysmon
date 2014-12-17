@@ -11,4 +11,8 @@ public class Log {
 		LoggerFactory.getLogger(source.getClass()).debug(message, args);
 	}
 	
+	static public void warn(Object source, String message, Object ... args) {
+		LoggerFactory.getLogger(source.getClass()).warn(message, args);
+	}
+
 }

@@ -47,7 +47,7 @@ public class DependenciesView extends Base<BorderPane> {
 	@Autowired
 	ApiService api;
 
-	Map<URI, Endpoint> endpointsByUri = new LinkedHashMap<>();
+//	Map<URI, Endpoint> endpointsByUri = new LinkedHashMap<>();
 
 
 	@Override
@@ -100,16 +100,18 @@ public class DependenciesView extends Base<BorderPane> {
 		DomainDef domain = api.getDomainDef();
 
 		fxasync(()->{
-			domain.getClusters().forEach(c -> c.getDependencies().forEach(e -> {
-				Endpoint endpoint = new Endpoint();
-				endpoint.setCluster(c.getClusterName());
-//			endpoint.setServer(e.get);
-				endpoint.setUri(e.getUri());
-				endpoint.setStatus(e.getStatus());
-				endpoint.setComment(e.getComment());
-				data.add(endpoint);
-				endpointsByUri.put(endpoint.getUri(), endpoint);
-			}));
+			domain.getClusters().stream()
+					.flatMap(c -> c.getServers().stream())
+					.flatMap(s -> s.getDependencies().stream())
+					.forEach(e -> {
+						Endpoint endpoint = new Endpoint();
+						endpoint.setCluster(e.getCluster());
+						endpoint.setServer(e.getServer());
+						endpoint.setUri(e.getUri());
+						endpoint.setStatus(e.getStatus());
+						endpoint.setComment(e.getComment());
+						data.add(endpoint);
+					});
 
 			sorted.comparatorProperty().bind(table.comparatorProperty());
 			filter.textProperty().addListener((observable, oldvalue, newvalue) -> {
@@ -126,7 +128,8 @@ public class DependenciesView extends Base<BorderPane> {
 	}
 
 	boolean filter(Endpoint e) {
-		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
+		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
+													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 		return
 				e.getCluster() != null && filter.matcher(e.getCluster()).matches()
 				|| e.getServer() != null && filter.matcher(e.getServer()).matches()

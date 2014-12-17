@@ -102,24 +102,24 @@ public class EndpointsView extends Base<BorderPane> {
 		final SortedList<Endpoint> sorted = new SortedList<>(filtered);
 
 		sorted.comparatorProperty().bind(table.comparatorProperty());
-		filter.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				filtered.setPredicate(e->filter(e));
-			}
+		filter.textProperty().addListener((observable, oldValue, newValue) -> {
+			filtered.setPredicate(this::filter);
 		});
 
 		DomainDef domain = api.getDomainDef();
-		domain.getClusters().forEach(c -> c.getProvides().forEach(e -> {
-			Endpoint endpoint = new Endpoint();
-			endpoint.setCluster(c.getClusterName());
-//			endpoint.setServer(e.);
-			endpoint.setUri(e.getUri());
-			endpoint.setStatus(e.getStatus());
-			endpoint.setComment(e.getComment());
-			data.add(endpoint);
-			endpointsByUri.put(endpoint.getUri(), endpoint);
-		}));
+		domain.getClusters().stream()
+				.flatMap(c -> c.getServers().stream())
+				.flatMap(s -> s.getProvides().stream())
+				.forEach(e -> {
+					Endpoint endpoint = new Endpoint();
+					endpoint.setCluster(e.getCluster());
+					endpoint.setServer(e.getServer());
+					endpoint.setUri(e.getUri());
+					endpoint.setStatus(e.getStatus());
+					endpoint.setComment(e.getComment());
+					data.add(endpoint);
+					endpointsByUri.put(endpoint.getUri(), endpoint);
+				});
 
 		fxasync(() -> {
 			table.setItems(sorted);
@@ -153,7 +153,8 @@ public class EndpointsView extends Base<BorderPane> {
 	}
 
 	boolean filter(Endpoint e) {
-		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
+		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
+													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 		return e.getUri() != null && filter.matcher(e.getUri().toString()).matches()
 				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
 				|| e.getComment() != null && filter.matcher(e.getComment()).matches()

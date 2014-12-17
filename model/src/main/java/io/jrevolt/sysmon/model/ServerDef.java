@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.model;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -9,8 +10,17 @@ public class ServerDef {
 
 	private String name;
 	private String cluster;
-	private List<EndpointDef> provides;
-	private List<EndpointDef> dependencies;
+	private List<EndpointDef> provides = new LinkedList<>();
+	private List<EndpointDef> dependencies = new LinkedList<>();
+	private List<ArtifactDef> artifacts = new LinkedList<>();
+	private List<NetworkInfo> network = new LinkedList<>();
+
+	public ServerDef() {
+	}
+
+	public ServerDef(String name) {
+		this.name = name;
+	}
 
 	public String getName() {
 		return name;
@@ -42,5 +52,64 @@ public class ServerDef {
 
 	public void setDependencies(List<EndpointDef> dependencies) {
 		this.dependencies = dependencies;
+	}
+
+	public List<ArtifactDef> getArtifacts() {
+		return artifacts;
+	}
+
+	public void setArtifacts(List<ArtifactDef> artifacts) {
+		this.artifacts = artifacts;
+	}
+
+	public List<NetworkInfo> getNetwork() {
+		return network;
+	}
+
+	public void setNetwork(List<NetworkInfo> network) {
+		this.network = network;
+	}
+
+	///
+
+	public void update(ServerDef server) {
+		provides.clear();
+		provides.addAll(server.getProvides());
+		dependencies.clear();
+		dependencies.addAll(server.getDependencies());
+		network.clear();
+		network.addAll(server.getNetwork());
+	}
+
+	///
+
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ServerDef serverDef = (ServerDef) o;
+
+		if (!cluster.equals(serverDef.cluster)) return false;
+		if (!name.equals(serverDef.name)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = name.hashCode();
+		result = 31 * result + cluster.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("ServerDef{");
+		sb.append("name='").append(name).append('\'');
+		sb.append(", cluster='").append(cluster).append('\'');
+		sb.append('}');
+		return sb.toString();
 	}
 }

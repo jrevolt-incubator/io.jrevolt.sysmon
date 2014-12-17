@@ -28,7 +28,7 @@ public class ManagementServiceImpl implements ManagementService {
 	@Override
 	public List<ClusterAccess> getClusterAccess(String cluster) {
 		return db.getClusters().stream()
-				.map(c->new ClusterAccess(c.getClusterName(), c.getServers(), c.isAccessAllowed()))
+				.map(c->new ClusterAccess(c.getClusterName(), c.toServerNames(), c.isAccessAllowed()))
 				.collect(Collectors.toList());
 	}
 }

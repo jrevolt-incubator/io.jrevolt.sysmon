@@ -1,5 +1,9 @@
 package io.jrevolt.sysmon.model;
 
+import org.apache.commons.lang3.Validate;
+
+import static org.apache.commons.lang3.Validate.notNull;
+
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
@@ -23,9 +27,9 @@ public class NetworkInfo {
 	}
 
 	public NetworkInfo(String cluster, String server, String destination, int port) {
-		this.cluster = cluster;
-		this.server = server;
-		this.destination = destination;
+		this.cluster = notNull(cluster);
+		this.server = notNull(server);
+		this.destination = notNull(destination);
 		this.port = port;
 	}
 

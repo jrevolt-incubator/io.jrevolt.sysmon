@@ -4,6 +4,7 @@ import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.EndpointDef;
 import io.jrevolt.sysmon.model.NodeDef;
+import io.jrevolt.sysmon.model.ServerDef;
 
 import java.net.URI;
 import java.util.List;
@@ -25,6 +26,9 @@ public interface AgentEvents {
 
 	@JMS(timeToLive = 60000L)
 	default void clusterStatus(ClusterDef cluster) {}
+
+	@JMS(timeToLive = 60000L)
+	default void serverStatus(ServerDef server) {}
 
 
 }

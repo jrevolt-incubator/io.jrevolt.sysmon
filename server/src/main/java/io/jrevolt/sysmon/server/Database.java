@@ -4,6 +4,7 @@ import io.jrevolt.sysmon.model.AgentInfo;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.NetworkInfo;
+import io.jrevolt.sysmon.model.ServerDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,13 +33,14 @@ public class Database {
 
 	private Map<String,AgentInfo> agents = new HashMap<>();
 	private Map<String,ClusterDef> clusters = new HashMap<>();
-	private Map<String,List<NetworkInfo>> networkByServer = new HashMap<>();
+	private Map<String,ServerDef> servers = new HashMap<>();
 
 	@PostConstruct
 	void init() {
 		domain.getClusters().forEach(c -> clusters.put(c.getClusterName(), c));
 		domain.getClusters().forEach(c -> c.getServers().forEach(s -> {
-			agents.put(s, new AgentInfo(c.getClusterName(), s, AgentInfo.Status.UNKNOWN, null, null));
+			agents.put(s.getName(), new AgentInfo(c.getClusterName(), s.getName(), AgentInfo.Status.UNKNOWN, null, null));
+			servers.put(s.getName(), s);
 		}));
 	}
 
@@ -63,7 +65,10 @@ public class Database {
 	}
 
 	public List<NetworkInfo> getNetworkInfo() {
-		return domain.getClusters().stream().flatMap(c->c.getNetwork().stream()).collect(Collectors.toList());
+		return domain.getClusters().stream()
+				.flatMap(c -> c.getServers().stream())
+				.flatMap(s -> s.getNetwork().stream())
+				.collect(Collectors.toList());
 	}
 
 
@@ -90,6 +95,10 @@ public class Database {
 
 	public void updateCluster(ClusterDef cluster) {
 		clusters.get(cluster.getClusterName()).update(cluster);
+	}
+
+	public void updateServer(ServerDef server) {
+		servers.get(server.getName()).update(server);
 	}
 
 	///

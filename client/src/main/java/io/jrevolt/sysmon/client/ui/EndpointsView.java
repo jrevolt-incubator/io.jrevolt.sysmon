@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -155,10 +156,12 @@ public class EndpointsView extends Base<BorderPane> {
 	boolean filter(Endpoint e) {
 		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
 													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-		return e.getUri() != null && filter.matcher(e.getUri().toString()).matches()
-				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
-				|| e.getComment() != null && filter.matcher(e.getComment()).matches()
-				;
-
+		String s = new StringBuilder()
+				.append(Objects.toString(e.getUri(), "")).append("\t")
+				.append(Objects.toString(e.getServer(), "")).append("\t")
+				.append(Objects.toString(e.getStatus(), "")).append("\t")
+				.append(Objects.toString(e.getComment(), "")).append("\t")
+				.toString();
+		return filter.matcher(s).matches();
 	}
 }

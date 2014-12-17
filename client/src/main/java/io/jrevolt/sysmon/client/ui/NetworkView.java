@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.client.ui;
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -134,11 +135,14 @@ public class NetworkView extends Base<BorderPane> {
 	boolean filter(NetworkItem e) {
 		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
 													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-		return filter.matcher(e.getCluster()).matches()
-				|| filter.matcher(e.getServer()).matches()
-				|| (e.getDestination() == null || filter.matcher(e.getDestination()).matches())
-				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
-				|| e.getComment() != null && filter.matcher(e.getComment()).matches()
-				;
+		String s = new StringBuilder()
+				.append(Objects.toString(e.getCluster())).append("\t")
+				.append(Objects.toString(e.getServer())).append("\t")
+				.append(Objects.toString(e.getDestination(), "")).append("\t")
+				.append(Objects.toString(e.getDestinationIP(), "")).append("\t")
+				.append(Objects.toString(e.getStatus(), "")).append("\t")
+				.append(Objects.toString(e.getComment(), "")).append("\t")
+				.toString();
+		return filter.matcher(s).matches();
 	}
 }

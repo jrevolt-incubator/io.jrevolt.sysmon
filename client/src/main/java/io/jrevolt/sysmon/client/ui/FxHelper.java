@@ -58,6 +58,7 @@ public class FxHelper {
 //			loader.setController(controller);
 			loader.setControllerFactory(aClass -> controller);
 			controller.pane = loader.load();
+//			controller.pane.getStylesheets().add(String.format("@%s.css", cls.getSimpleName()));
 			controller.initialize();
 			return controller;
 		} catch (IOException e) {

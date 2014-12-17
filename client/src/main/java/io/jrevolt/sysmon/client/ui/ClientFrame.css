@@ -1,0 +1,7 @@
+.center {
+    -fx-alignment: baseline-center;
+}
+
+.error {
+    -fx-background-color: palevioletred;
+}

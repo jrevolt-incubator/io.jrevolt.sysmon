@@ -30,6 +30,8 @@ public abstract class Base<T extends Pane> {
 
 //	@FXML
 	protected void initialize() {
+//		final URL url = getClass().getResource(getClass().getSimpleName() + ".css");
+//		if (url != null) { pane.getStylesheets().add(url.toString()); }
 	}
 
 	public void show() {
@@ -38,9 +40,11 @@ public abstract class Base<T extends Pane> {
 
 	public void show(Stage stage) {
 		Scene scene = new Scene(pane);
-//        URL css = getClass().getResource(getClass().getSimpleName() + ".css");
-//        scene.getStylesheets().add(css.toExternalForm());
 		stage.setScene(scene);
+
+//		URL url = getClass().getResource(getClass().getSimpleName() + ".css");
+//		if (url != null) { scene.getStylesheets().add(url.toString()); }
+
 		stage.show();
 		getWindow().setOnCloseRequest(e -> {
 			close();

@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -203,12 +204,14 @@ public class AgentsView extends Base<BorderPane> {
 	}
 
 	boolean filter(UIAgentInfo e) {
-		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*");
-		return filter.matcher(e.getCluster()).matches()
-				|| filter.matcher(e.getServer()).matches()
-				|| e.getStatus() != null && filter.matcher(e.getStatus().name()).matches()
-				;
-
+		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
+													Pattern.CASE_INSENSITIVE + Pattern.DOTALL);
+		String s = new StringBuilder()
+				.append(Objects.toString(e.getCluster())).append("\t")
+				.append(Objects.toString(e.getServer())).append("\t")
+				.append(Objects.toString(e.getStatus(), "")).append("\t")
+				.toString();
+		return filter.matcher(s).matches();
 	}
 
 }

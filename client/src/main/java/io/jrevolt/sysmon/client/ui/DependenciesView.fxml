@@ -4,23 +4,16 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.DependenciesView">
+<BorderPane stylesheets="@DeploymentView.css" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.DependenciesView">
    <center>
       <TableView fx:id="table" BorderPane.alignment="CENTER">
          <columns>
             <TableColumn fx:id="cluster" prefWidth="75.0" text="Cluster" />
             <TableColumn fx:id="server" prefWidth="75.0" text="Server" />
             <TableColumn fx:id="uri" prefWidth="75.0" text="URI" />
-            <TableColumn fx:id="status" prefWidth="75.0" text="Status" />
+            <TableColumn fx:id="status" prefWidth="75.0" text="Status" styleClass="center"/>
             <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />
          </columns>
-         <contextMenu>
-            <ContextMenu>
-              <items>
-                <MenuItem mnemonicParsing="false" text="Unspecified Action" />
-              </items>
-            </ContextMenu>
-         </contextMenu>
       </TableView>
    </center>
    <bottom>

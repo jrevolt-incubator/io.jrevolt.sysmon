@@ -123,6 +123,9 @@ public class ClusterDef {
 					.collect(Collectors.toList()));
 		});
 
+		// and finally, delegate init()
+		getServers().forEach(ServerDef::init);
+
 		// and clean initial configuration values that have been replicated into servers
 		provides = null;
 		dependencies = null;

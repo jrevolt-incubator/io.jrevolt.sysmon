@@ -6,22 +6,21 @@
 
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.jrevolt.sysmon.client.ui.SSLView">
    <center>
-      <TreeTableView BorderPane.alignment="CENTER">
+      <TableView fx:id="table" BorderPane.alignment="CENTER">
          <columns>
-            <TreeTableColumn prefWidth="75.0" text="Hostname" />
-            <TreeTableColumn prefWidth="75.0" text="IP" />
-            <TreeTableColumn prefWidth="75.0" text="Port" />
-            <TreeTableColumn prefWidth="75.0" text="Status" />
-            <TreeTableColumn prefWidth="75.0" text="SSL">
-               <columns>
-                  <TreeTableColumn prefWidth="75.0" text="CN" />
-                  <TreeTableColumn prefWidth="75.0" text="SAN" />
-                  <TreeTableColumn prefWidth="75.0" text="Issuer" />
-                  <TreeTableColumn prefWidth="75.0" text="Valid From" />
-                  <TreeTableColumn prefWidth="75.0" text="Valid To" />
-               </columns></TreeTableColumn>
-            <TreeTableColumn prefWidth="75.0" text="Required By" />
+            <TableColumn fx:id="hostname" prefWidth="75.0" text="Hostname" />
+            <TableColumn fx:id="ip" prefWidth="75.0" text="IP" />
+            <TableColumn fx:id="port" prefWidth="75.0" text="Port" />
+            <TableColumn prefWidth="75.0" text="Status" />
+            <TableColumn fx:id="commonName" prefWidth="75.0" text="CN" />
+            <TableColumn fx:id="subjectAlternativeName" prefWidth="75.0" text="SAN" />
+            <TableColumn fx:id="issuer" prefWidth="75.0" text="Issuer" />
+            <TableColumn fx:id="validFrom" prefWidth="75.0" text="Valid From" />
+            <TableColumn fx:id="validTo" prefWidth="75.0" text="Valid To" />
          </columns>
-      </TreeTableView>
+      </TableView>
    </center>
+   <bottom>
+      <TextField fx:id="filter" BorderPane.alignment="CENTER" />
+   </bottom>
 </BorderPane>

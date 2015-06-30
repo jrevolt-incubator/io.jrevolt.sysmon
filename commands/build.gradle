@@ -1,8 +1,7 @@
-apply plugin: 'spring-boot'
+
 
 springBoot {
 	mainClass = "io.jrevolt.sysmon.commands.CommandsMain"
-	layout = "MAVEN"
 }
 
 dependencies {

@@ -82,6 +82,12 @@ public class ApiServiceImpl implements ApiService {
 	}
 
 	@Override
+	public Response checkServer(String server) {
+		events.checkServer(server, db.getServer(server));
+		return Response.accepted().build();
+	}
+
+	@Override
 	public DomainDef getDomainDef() {
 		return domainDef;
 	}

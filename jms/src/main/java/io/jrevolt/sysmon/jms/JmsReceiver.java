@@ -17,6 +17,7 @@ import org.springframework.util.StringValueResolver;
 
 import javax.annotation.PostConstruct;
 import javax.jms.MessageListener;
+import javax.jms.TextMessage;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;

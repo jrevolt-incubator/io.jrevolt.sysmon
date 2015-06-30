@@ -1,7 +1,10 @@
 package io.jrevolt.sysmon.model;
 
+import io.jrevolt.sysmon.common.Utils;
+
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -14,6 +17,7 @@ public class ServerDef {
 	private List<EndpointDef> dependencies = new LinkedList<>();
 	private List<ArtifactDef> artifacts = new LinkedList<>();
 	private List<NetworkInfo> network = new LinkedList<>();
+	private List<SSLInfo> ssl = new LinkedList<>();
 
 	public ServerDef() {
 	}
@@ -70,7 +74,23 @@ public class ServerDef {
 		this.network = network;
 	}
 
+	public List<SSLInfo> getSsl() {
+		return ssl;
+	}
+
+	public void setSsl(List<SSLInfo> ssl) {
+		this.ssl = ssl;
+	}
+
 	///
+
+	void init() {
+		network.clear();
+		network.addAll(getDependencies().stream()
+				.map(d -> new NetworkInfo(d.getCluster(), d.getServer(), Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri())))
+				.distinct()
+				.collect(Collectors.toList()));
+	}
 
 	public void update(ServerDef server) {
 		provides.clear();
@@ -79,6 +99,8 @@ public class ServerDef {
 		dependencies.addAll(server.getDependencies());
 		network.clear();
 		network.addAll(server.getNetwork());
+		ssl.clear();
+		ssl.addAll(server.getSsl());
 	}
 
 	///

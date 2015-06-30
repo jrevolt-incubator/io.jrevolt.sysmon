@@ -64,6 +64,10 @@ public class Database {
 		return clusters.get(name);
 	}
 
+	public ServerDef getServer(String name) {
+		return servers.get(name);
+	}
+
 	public List<NetworkInfo> getNetworkInfo() {
 		return domain.getClusters().stream()
 				.flatMap(c -> c.getServers().stream())

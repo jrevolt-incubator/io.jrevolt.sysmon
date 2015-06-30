@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -32,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
@@ -81,7 +78,7 @@ public class EndpointsView extends Base<BorderPane> {
 		status.setCellValueFactory(new PropertyValueFactory<>("status"));
 		comment.setCellValueFactory(new PropertyValueFactory<>("comment"));
 
-		registerLayoutPersistor(EndpointsView.class, table);
+		registerLayoutPersistor(table);
 
 		async(() ->{
 			load();
@@ -154,8 +151,7 @@ public class EndpointsView extends Base<BorderPane> {
 	}
 
 	boolean filter(Endpoint e) {
-		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
-													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*", Pattern.DOTALL);
 		String s = new StringBuilder()
 				.append(Objects.toString(e.getUri(), "")).append("\t")
 				.append(Objects.toString(e.getServer(), "")).append("\t")

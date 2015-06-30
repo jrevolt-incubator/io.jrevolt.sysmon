@@ -1,8 +1,7 @@
-apply plugin: 'spring-boot'
+
 
 springBoot {
 	mainClass = "io.jrevolt.sysmon.browser.BrowserMain"
-	layout = "MAVEN"
 }
 
 dependencies {

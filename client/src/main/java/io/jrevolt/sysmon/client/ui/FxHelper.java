@@ -5,7 +5,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 
+import io.jrevolt.sysmon.common.SysmonException;
 import io.jrevolt.sysmon.common.Utils;
 import io.jrevolt.sysmon.model.SpringBootApp;
 
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
-import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -51,18 +53,19 @@ public class FxHelper {
 		}), 1000, 500, TimeUnit.MILLISECONDS);
 	}};
 
-	static public <T extends Base> T load(Class<T> cls) {
+	static public <C extends Base<P>, P extends Pane> C load(Class<C> cls) {
+		URL url = null;
 		try {
-			T controller = SpringBootApp.instance().lookup(cls);
-			FXMLLoader loader = new FXMLLoader(cls.getResource(cls.getSimpleName() + ".fxml"));
-//			loader.setController(controller);
-			loader.setControllerFactory(aClass -> controller);
-			controller.pane = loader.load();
-//			controller.pane.getStylesheets().add(String.format("@%s.css", cls.getSimpleName()));
+			url = cls.getResource(cls.getSimpleName() + ".fxml");
+			FXMLLoader loader = new FXMLLoader(url);
+			loader.setControllerFactory(param -> (C) SpringBootApp.instance().lookup(cls));
+			P pane = loader.load();
+			C controller = loader.getController();
+			controller.pane = pane;
 			controller.initialize();
 			return controller;
-		} catch (IOException e) {
-			throw new UnsupportedOperationException(e);
+		} catch (Exception e) {
+			throw new SysmonException(e, "Cannot load %s, %s", cls.getSimpleName(), url);
 		}
 	}
 

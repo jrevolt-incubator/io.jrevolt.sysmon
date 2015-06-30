@@ -51,6 +51,7 @@ public class Server {
 		String mapping = cfg.getBaseUrl().getPath().replaceFirst("/*$", "/*");
 		ServletRegistrationBean registration = new ServletRegistrationBean(new ServletContainer(), mapping);
 		registration.addInitParameter(ServletProperties.JAXRS_APPLICATION_CLASS, JerseyConfig.class.getName());
+		registration.addInitParameter("jersey.config.server.wadl.disableWadl", "true");
 		return registration;
 	}
 

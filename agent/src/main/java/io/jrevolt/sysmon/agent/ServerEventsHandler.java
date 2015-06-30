@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.agent;
 
+import io.jrevolt.sysmon.common.Log;
 import io.jrevolt.sysmon.common.Utils;
 import io.jrevolt.sysmon.common.Version;
 import io.jrevolt.sysmon.jms.JMSProperty;
@@ -22,17 +23,36 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -116,7 +136,6 @@ public class ServerEventsHandler implements ServerEvents {
 	}
 
 	void checkServer(ServerDef server) {
-		System.out.println("### checkServer " + server.getName());
 		pool.submit(Utils.guarded(() -> {
 			List<EndpointDef> endpoints = new LinkedList<>();
 			endpoints.addAll(server.getProvides());
@@ -214,14 +233,12 @@ public class ServerEventsHandler implements ServerEvents {
 	}
 
 	void checkNetwork(ServerDef server) {
-		server.getNetwork().clear();
-		server.getDependencies().parallelStream()
-				.map(d -> checkNetwork(new NetworkInfo(
-						server.getCluster(), server.getName(), Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri()))))
-				.forEach(item -> server.getNetwork().add(item));
+		System.out.println(ToStringBuilder.reflectionToString(server.getNetwork()));
+		server.getNetwork().forEach(this::checkNetwork);
 	}
 
 	NetworkInfo checkNetwork(NetworkInfo net) {
+		long timeout = 7000;
 		try {
 			InetAddress src = InetAddress.getByName(net.getServer());
 			net.setSrcAddress(src.getHostAddress());
@@ -229,10 +246,29 @@ public class ServerEventsHandler implements ServerEvents {
 			InetAddress dst = InetAddress.getByName(net.getDestination());
 			net.setDstAddress(dst.getHostAddress());
 
+			long started = System.currentTimeMillis();
 			Socket socket = new Socket();
-			socket.connect(new InetSocketAddress(dst, net.getPort()), 1000);
+			socket.connect(new InetSocketAddress(dst, net.getPort()), (int) timeout);
+			long elapsed = System.currentTimeMillis() - started;
+
 			net.setStatus(socket.isConnected() ? NetworkInfo.Status.CONNECTED : NetworkInfo.Status.UNKNOWN);
-			
+			net.setComment(socket.isConnected() ? null : "not connected?");
+			net.setTime(elapsed);
+
+//			SSLSocket sslsocket = (SSLSocket) ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(
+//					socket,
+//					socket.getInetAddress().getHostAddress(),
+//					socket.getPort(), true);
+//			sslsocket.addHandshakeCompletedListener(event -> {
+//				try {
+//					javax.security.cert.X509Certificate[] chain = event.getPeerCertificateChain();
+//				} catch (SSLPeerUnverifiedException e) {
+//					throw new UnsupportedOperationException(e);
+//				}
+//			});
+//			sslsocket.startHandshake();
+//			sslsocket.getSession().isValid();
+
 		} catch (UnknownHostException e) {
 			net.setStatus(NetworkInfo.Status.UNRESOLVED);
 			net.setComment(Utils.getExceptionDesription(e));
@@ -242,10 +278,19 @@ public class ServerEventsHandler implements ServerEvents {
 		} catch (ConnectException e) {
 			net.setStatus(NetworkInfo.Status.REFUSED);
 			net.setComment(Utils.getExceptionDesription(e));
+		} catch (SocketTimeoutException e) {
+			net.setStatus(NetworkInfo.Status.TIMEOUT);
+			net.setComment(Utils.getExceptionDesription(e));
+			net.setTime(timeout);
+		} catch (SSLHandshakeException e) {
+			net.setComment(e.toString());
 		} catch (IOException e) {
 			net.setStatus(NetworkInfo.Status.ERROR);
 			net.setComment(Utils.getExceptionDesription(e));
 		}
+
+		System.out.println(ToStringBuilder.reflectionToString(net));
+
 		return net;
 	}
 
@@ -256,4 +301,92 @@ public class ServerEventsHandler implements ServerEvents {
 				Instant.now()
 		);
 	}
+
+	void checkSsl(ServerDef server) {
+		server.getDependencies().parallelStream().forEach(e -> {
+			try {
+				final URI uri = Utils.address(e.getUri());
+				TrustManagerFactory tmf = initTrustManagerFactory();
+				X509TrustManager defaultTrustManager = (X509TrustManager) tmf.getTrustManagers()[0];
+				SavingTrustManager tm = new SavingTrustManager(defaultTrustManager, new Host(uri.getHost()));
+				SSLContext context = SSLContext.getInstance("TLS");
+				context.init(null, new TrustManager[]{tm}, null);
+				
+			} catch (NoSuchAlgorithmException e1) {
+				throw new UnsupportedOperationException(e1);
+			} catch (KeyManagementException e1) {
+				throw new UnsupportedOperationException(e1);
+			}
+		});
+	}
+
+	TrustManagerFactory initTrustManagerFactory() {
+		try {
+			File dflt = new File(System.getProperty("java.home"), "lib/security/cacerts");
+			File file = new File(System.getProperty("javax.net.ssl.keyStore", dflt.getAbsolutePath()));
+			InputStream in = new FileInputStream(file);
+			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+			ks.load(in, "changeit".toCharArray());
+			in.close();
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(ks);
+			return tmf;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private class SavingTrustManager implements X509TrustManager {
+
+		private final X509TrustManager tm;
+		Host host;
+
+		SavingTrustManager(X509TrustManager tm, Host host) {
+			this.tm = tm;
+			this.host = host;
+		}
+
+		public X509Certificate[] getAcceptedIssuers() {
+			return tm.getAcceptedIssuers();
+		}
+
+		public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+//			tm.checkClientTrusted(chain, authType);
+		}
+
+		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			host.certificate = chain[0];
+			host.rootCA = chain[chain.length-1];
+			//tm.checkServerTrusted(chain, authType);
+		}
+	}
+
+	static class Host {
+		String name;
+		InetAddress address;
+		List<Endpoint> endpoints = new LinkedList<>();
+
+		Boolean trusted;
+		X509Certificate certificate;
+		X509Certificate rootCA;
+		Exception certError;
+
+		public Host(String name) {
+			this.name = name;
+		}
+	}
+
+	static class Endpoint {
+		Host host;
+		Integer port;
+		Boolean open;
+
+		Endpoint(Host host, Integer port) {
+			this.host = host;
+			this.port = port;
+		}
+	}
+
+
+
 }

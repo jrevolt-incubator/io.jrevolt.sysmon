@@ -56,7 +56,7 @@ public class AgentWatchdog {
 		runGuarded(()->{
 			synchronized (db) {
 				db.getAgents().values().forEach(a->{
-					boolean isTimeout = a.getLastChecked().until(Instant.now(), ChronoUnit.SECONDS) > 10;
+					boolean isTimeout = a.getLastChecked() != null && a.getLastChecked().until(Instant.now(), ChronoUnit.SECONDS) > 10;
 					if (isTimeout) {
 						a.setStatus(AgentInfo.Status.UNKNOWN);
 						a.setVersion(null);

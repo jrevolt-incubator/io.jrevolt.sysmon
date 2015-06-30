@@ -14,6 +14,7 @@
             <TableColumn fx:id="port" prefWidth="75.0" text="Port" style="-fx-alignment: baseline-right"/>
             <TableColumn fx:id="sourceIP" prefWidth="75.0" text="Source IP" style="-fx-alignment: baseline-right"/>
             <TableColumn fx:id="destinationIP" prefWidth="75.0" text="Destination IP" style="-fx-alignment: baseline-right" />
+            <TableColumn fx:id="time" prefWidth="75.0" text="Time" style="-fx-alignment: baseline-right" />
             <TableColumn fx:id="status" prefWidth="75.0" text="Status" style="-fx-alignment: baseline-center"/>
             <TableColumn fx:id="comment" prefWidth="75.0" text="Comment" />
         </columns>

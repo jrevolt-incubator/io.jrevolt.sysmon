@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
+import javax.jms.TextMessage;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

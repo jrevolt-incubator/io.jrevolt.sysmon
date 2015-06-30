@@ -20,6 +20,7 @@ public class NetworkItem {
 	private IntegerProperty port = new SimpleIntegerProperty();
 	private StringProperty sourceIP = new SimpleStringProperty();
 	private StringProperty destinationIP = new SimpleStringProperty();
+	private SimpleObjectProperty<Long> time = new SimpleObjectProperty<>();
 	private ObjectProperty<NetworkInfo.Status> status = new SimpleObjectProperty<>();
 	private StringProperty comment = new SimpleStringProperty();
 
@@ -93,6 +94,18 @@ public class NetworkItem {
 
 	public void setPort(int port) {
 		this.port.set(port);
+	}
+
+	public Long getTime() {
+		return time.get();
+	}
+
+	public SimpleObjectProperty<Long> timeProperty() {
+		return time;
+	}
+
+	public void setTime(Long time) {
+		this.time.set(time);
 	}
 
 	public NetworkInfo.Status getStatus() {

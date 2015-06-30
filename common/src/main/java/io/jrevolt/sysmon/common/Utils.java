@@ -45,7 +45,7 @@ public class Utils {
 		return address(uri).getPort();
 	}
 
-	static private URI address(URI uri) {
+	static public URI address(URI uri) {
 		if (uri.getHost() != null) { return uri; }
 
 		URI tmp = URI.create("tcp://"+uri.toASCIIString().replaceFirst(

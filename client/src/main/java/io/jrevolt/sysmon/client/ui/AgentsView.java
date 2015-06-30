@@ -21,10 +21,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.Mnemonic;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -39,8 +35,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
@@ -129,11 +123,14 @@ public class AgentsView extends Base<BorderPane> {
 						Button bRestart = new Button("restart");
 						bRestart.setOnAction(e->restartSingle(item));
 
-						Button bCheck  = new Button("ping");
-						bCheck.setOnAction(e->pingAgent(item));
+						Button bPing = new Button("ping");
+						bPing.setOnAction(e->pingAgent(item));
+
+						Button bCheck  = new Button("check");
+						bCheck.setOnAction(e->checkServer(item));
 
 						HBox box = new HBox();
-						box.getChildren().addAll(bRestart, bCheck);
+						box.getChildren().addAll(bRestart, bPing, bCheck);
 
 						setGraphic(box);
 						setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -141,7 +138,7 @@ public class AgentsView extends Base<BorderPane> {
 				}
 			});
 
-			registerLayoutPersistor(AgentsView.class, table);
+			registerLayoutPersistor(table);
 
 
 			final ObservableList<UIAgentInfo> data = FXCollections.observableArrayList(uiagents.values());
@@ -186,6 +183,12 @@ public class AgentsView extends Base<BorderPane> {
 		});
 	}
 
+	void checkServer(UIAgentInfo item) {
+		async(() -> {
+			rest.checkServer(item.getServer());
+		});
+	}
+
 	//scheduled
 	void update() {
 		if (!isVisible(pane)) { return; }
@@ -204,8 +207,7 @@ public class AgentsView extends Base<BorderPane> {
 	}
 
 	boolean filter(UIAgentInfo e) {
-		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
-													Pattern.CASE_INSENSITIVE + Pattern.DOTALL);
+		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*", Pattern.DOTALL);
 		String s = new StringBuilder()
 				.append(Objects.toString(e.getCluster())).append("\t")
 				.append(Objects.toString(e.getServer())).append("\t")

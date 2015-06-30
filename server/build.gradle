@@ -1,8 +1,7 @@
-apply plugin: 'spring-boot'
+
 
 springBoot {
 	mainClass = "io.jrevolt.sysmon.server.ServerMain"
-	layout = "MAVEN"
 	customConfiguration = "runtime"
 }
 

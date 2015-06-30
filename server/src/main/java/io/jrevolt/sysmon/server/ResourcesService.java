@@ -1,37 +1,14 @@
 package io.jrevolt.sysmon.server;
 
-import org.springframework.boot.launcher.mvn.MvnArtifact;
-import org.springframework.boot.launcher.mvn.MvnLauncher;
-import org.springframework.boot.loader.archive.Archive;
-import org.springframework.boot.loader.util.UrlSupport;
-import org.springframework.util.ClassUtils;
-
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>

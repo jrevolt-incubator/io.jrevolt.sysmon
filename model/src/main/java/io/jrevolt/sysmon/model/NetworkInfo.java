@@ -20,6 +20,8 @@ public class NetworkInfo {
 	private String srcAddress;
 	private String dstAddress;
 
+	private long time;
+
 	private Status status;
 	private String comment;
 
@@ -81,6 +83,14 @@ public class NetworkInfo {
 		this.dstAddress = dstAddress;
 	}
 
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
 	public Status getStatus() {
 		return status;
 	}
@@ -99,6 +109,30 @@ public class NetworkInfo {
 
 	///
 
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		NetworkInfo that = (NetworkInfo) o;
+
+		if (port != that.port) return false;
+		if (!destination.equals(that.destination)) return false;
+		if (!server.equals(that.server)) return false;
+		if (!cluster.equals(that.cluster)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = cluster.hashCode();
+		result = 31 * result + server.hashCode();
+		result = 31 * result + destination.hashCode();
+		result = 31 * result + port;
+		return result;
+	}
 
 	@Override
 	public String toString() {

@@ -8,8 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -47,6 +46,7 @@ public class NetworkView extends Base<BorderPane> {
 	@FXML TableColumn<NetworkItem, Integer> port;
 	@FXML TableColumn<NetworkItem, String> sourceIP;
 	@FXML TableColumn<NetworkItem, String> destinationIP;
+	@FXML TableColumn<NetworkItem, Long> time;
 
 	@FXML TableColumn<NetworkItem, NetworkInfo.Status> status;
 	@FXML TableColumn<NetworkItem, String> comment;
@@ -74,10 +74,11 @@ public class NetworkView extends Base<BorderPane> {
 		port.setCellValueFactory(new PropertyValueFactory<>("port"));
 		sourceIP.setCellValueFactory(new PropertyValueFactory<>("sourceIP"));
 		destinationIP.setCellValueFactory(new PropertyValueFactory<>("destinationIP"));
+		time.setCellValueFactory(new PropertyValueFactory<>("time"));
 		status.setCellValueFactory(new PropertyValueFactory<>("status"));
 		comment.setCellValueFactory(new PropertyValueFactory<>("comment"));
 
-		registerLayoutPersistor(NetworkView.class, table);
+		registerLayoutPersistor(table);
 
 		async(() ->{
 			load();
@@ -112,6 +113,7 @@ public class NetworkView extends Base<BorderPane> {
 			item.setPort(n.getPort());
 			item.setSourceIP(n.getSrcAddress());
 			item.setDestinationIP(n.getDstAddress());
+			item.setTime(n.getTime());
 			item.setStatus(n.getStatus());
 			item.setComment(n.getComment());
 			data.add(item);
@@ -133,12 +135,13 @@ public class NetworkView extends Base<BorderPane> {
 	}
 
 	boolean filter(NetworkItem e) {
-		Pattern filter = Pattern.compile("(?i).*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
-													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*", Pattern.DOTALL);
 		String s = new StringBuilder()
 				.append(Objects.toString(e.getCluster())).append("\t")
 				.append(Objects.toString(e.getServer())).append("\t")
 				.append(Objects.toString(e.getDestination(), "")).append("\t")
+				.append(Objects.toString(e.getPort(), "")).append("\t")
+				.append(Objects.toString(e.getSourceIP(), "")).append("\t")
 				.append(Objects.toString(e.getDestinationIP(), "")).append("\t")
 				.append(Objects.toString(e.getStatus(), "")).append("\t")
 				.append(Objects.toString(e.getComment(), "")).append("\t")

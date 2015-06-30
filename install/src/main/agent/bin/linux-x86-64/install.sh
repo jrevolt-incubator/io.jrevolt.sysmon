@@ -25,5 +25,6 @@ shortcut="$(echo ~sysmon)/bin/$name"
 sudo -u sysmon ln -sv $dir/$name $shortcut
 
 [ -d ~sysmon/log ] || sudo -u sysmon mkdir ~sysmon/log
+[ -f ~sysmon/log/wrapper.log ] && sudo rm ~sysmon/log/wrapper.log
 
 service $name start

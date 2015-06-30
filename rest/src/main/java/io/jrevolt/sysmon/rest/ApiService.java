@@ -41,6 +41,11 @@ public interface ApiService {
 		throw new UnsupportedOperationException();
 	}
 
+	@GET @Path("checkServer/{server}")
+	default Response checkServer(@PathParam("server") String server) {
+		throw new UnsupportedOperationException();
+	}
+
 	/// domain info ///
 
 	@GET @Path("domain")

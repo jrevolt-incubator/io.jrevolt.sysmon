@@ -1,51 +1,30 @@
 package io.jrevolt.sysmon.client.ui;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.event.Event;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.StandardEnvironment;
 import org.springframework.stereotype.Component;
 
-import io.jrevolt.sysmon.model.AppCfg;
-import io.jrevolt.sysmon.model.ClusterDef;
-import io.jrevolt.sysmon.model.DomainDef;
-import io.jrevolt.sysmon.model.SpringBootApp;
 import io.jrevolt.sysmon.rest.ApiService;
 
-import org.apache.commons.lang3.StringUtils;
+import javax.imageio.ImageIO;
 
-import javax.ws.rs.core.UriBuilder;
-
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.prefs.Preferences;
-import java.util.regex.Pattern;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 import static io.jrevolt.sysmon.client.ui.FxHelper.*;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -88,6 +67,7 @@ public class ClientFrame extends Base<BorderPane> {
 			endpoints.setContent(FxHelper.load(EndpointsView.class).pane);
 			dependencies.setContent(FxHelper.load(DependenciesView.class).pane);
 			agents.setContent(FxHelper.load(AgentsView.class).pane);
+			ssl.setContent(FxHelper.load(SSLView.class).pane);
 		});
 	}
 
@@ -107,5 +87,22 @@ public class ClientFrame extends Base<BorderPane> {
 			api.checkAll();
 			fxasync(()->status().setValue("Sent request for checking all clusters..."));
 		});
+	}
+
+	@FXML
+	void copyImage() throws IOException {
+		Tab tab = tabs.getTabs().stream().filter(Tab::isSelected).findFirst().get();
+		Node content = tab.getContent();
+		if (content instanceof BorderPane) {
+			content = ((BorderPane) content).getCenter();
+		}
+
+
+		WritableImage snapshot = content.snapshot(new SnapshotParameters(), null);
+		ClipboardContent clip = new ClipboardContent();
+		clip.putImage(snapshot);
+		Clipboard.getSystemClipboard().setContent(clip);
+//		BufferedImage image = SwingFXUtils.fromFXImage(snapshot, null);
+//		ImageIO.write(image, "png", new File("c:/users/patrik/out.png"));
 	}
 }

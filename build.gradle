@@ -1,11 +1,11 @@
-import java.text.SimpleDateFormat
 
 buildscript {
 	ext {
-		springVersion = "4.1.2.RELEASE"
-		springBootVersion = "1.2.0.BUILD-SNAPSHOT"
-		jerseyVersion="2.13"
-		activemqVersion = "5.10.0"
+		springVersion = "4.1.6.RELEASE"
+		springBootVersion = "1.3.0.BUILD-SNAPSHOT"
+		jerseyVersion="2.14"
+		activemqVersion = "5.11.1"
+		jettyVersion = "9.2.9.v20150224"
 	}
 	repositories {
 //		mavenLocal()
@@ -22,7 +22,7 @@ buildscript {
 
 ext {
 	branch = "$git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
-//	branch = "integration"
+	branch = "test"
 	branchShort = branch.replaceFirst(".*/", "")
 	commit = "$git rev-parse HEAD".execute().in.text.trim()
 	commitShort = commit.length() > 7 ? commit.substring(0, 7) : commit
@@ -37,6 +37,8 @@ subprojects {
 
 	apply plugin: 'java'
 	apply plugin: 'maven'
+	apply plugin: 'distribution'
+	apply plugin: org.springframework.boot.gradle.SpringBootPlugin
 
 	group = "io.jrevolt.sysmon"
 	version = "${releaseVersion ?: snapshotVersion}"
@@ -61,6 +63,12 @@ subprojects {
 			resources.srcDirs = ['src/test/java', 'src/test/resources']
 			resources.exclude("**/*.java")
 		}
+	}
+
+	springBoot {
+		layout = "NULL"
+		backupSource = false
+		mainClassName = "UNDEFINED"
 	}
 
 	dependencies {
@@ -106,6 +114,15 @@ subprojects {
 				"Build-Timestamp" 			: buildTimestamp.format("yyyyMMdd-HHmmZ"),
 				"Build-Timestamp-Format"	: "yyyyMMdd-HHmmZ",
 			)
+		}
+	}
+
+	// FIXME QDH don't know yet how to get rid of distZip and distTar artifacts
+	configurations.archives.artifacts.with { archives ->
+		new ArrayList(archives).each {
+			if (it.file.name.matches('.*(zip|tar)$')) {
+				remove(it)
+			}
 		}
 	}
 

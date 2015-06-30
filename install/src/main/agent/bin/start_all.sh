@@ -16,6 +16,6 @@ $(echo st1sts{01,02})
 #$(echo st1ccas{01,02,03,04})
 
 for i in $test; do
-echo "## $i ##"
-./deploy.sh $i
+	echo "## $i ##"
+	ssh $i sudo service sysmon-agent restart
 done

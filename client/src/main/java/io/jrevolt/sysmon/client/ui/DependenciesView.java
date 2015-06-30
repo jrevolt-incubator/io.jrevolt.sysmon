@@ -8,24 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -33,8 +27,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -112,7 +104,7 @@ public class DependenciesView extends Base<BorderPane> {
 //			}
 //		});
 
-		registerLayoutPersistor(DependenciesView.class, table);
+		registerLayoutPersistor(table);
 
 		async((Runnable) this::load);
 	}
@@ -193,8 +185,7 @@ public class DependenciesView extends Base<BorderPane> {
 	}
 
 	boolean filter(Endpoint e) {
-		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*",
-													Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		Pattern filter = Pattern.compile(".*" + StringUtils.trimToEmpty(this.filter.getText()) + ".*", Pattern.DOTALL);
 		String s = new StringBuilder()
 				.append(Objects.toString(e.getCluster())).append("\t")
 				.append(Objects.toString(e.getServer())).append("\t")

@@ -1,17 +1,13 @@
 package io.jrevolt.sysmon.client.ui;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotResult;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.prefs.Preferences;
@@ -51,7 +47,7 @@ public abstract class Base<T extends Pane> {
 		});
 	}
 
-	protected <T extends Base> T load(Class<T> cls) {
+	protected <C extends Base<P>, P extends Pane> C load(Class<C> cls) {
 		return FxHelper.load(cls);
 	}
 
@@ -61,9 +57,10 @@ public abstract class Base<T extends Pane> {
 		return pane.getScene().getWindow();
 	}
 
-	protected void registerLayoutPersistor(Class<? extends Base> root, TableView<?> table) {
-		Preferences prefs = Preferences.userRoot().node(root.getName());
+	protected void registerLayoutPersistor(TableView<?> table) {
+		Preferences prefs = Preferences.userRoot().node(getClass().getName());
 		table.getColumns().forEach(c-> {
+			if (c.getId() == null) { return; }
 			c.prefWidthProperty().set(prefs.getDouble(c.getId(), 70));
 			c.widthProperty().addListener((observable, oldValue, newValue) -> FxHelper.async(() -> {
 				prefs.putDouble(c.getId(), c.getWidth());

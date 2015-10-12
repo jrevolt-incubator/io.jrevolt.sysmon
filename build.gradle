@@ -22,7 +22,7 @@ buildscript {
 
 ext {
 	branch = "$git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
-	branch = "test"
+	branch = "prod"
 	branchShort = branch.replaceFirst(".*/", "")
 	commit = "$git rev-parse HEAD".execute().in.text.trim()
 	commitShort = commit.length() > 7 ? commit.substring(0, 7) : commit

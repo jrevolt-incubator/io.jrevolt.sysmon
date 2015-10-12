@@ -1,6 +1,7 @@
 # IDEA
 /.idea
 *.iml
+/atlassian-ide-plugin.xml
 
 # GRADLE
 /.gradle
@@ -12,6 +13,7 @@
 # OTHER
 rebel.xml
 /.keystore
+/.soapui
 
 # DCOM
 /*-dcom.sk.yaml

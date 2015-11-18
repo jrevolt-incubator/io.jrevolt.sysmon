@@ -1,14 +1,27 @@
 package io.jrevolt.sysmon.model;
 
+import io.jrevolt.launcher.mvn.Artifact;
+import io.jrevolt.sysmon.common.Utils;
+
+import org.springframework.util.Assert;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static io.jrevolt.sysmon.common.Utils.with;
+import static java.lang.String.format;
+import static org.springframework.util.Assert.isTrue;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -21,6 +34,8 @@ public class ClusterDef {
 	private List<EndpointDef> dependencies = new LinkedList<>();
 	private List<ArtifactDef> artifacts = new LinkedList<>();
 	private boolean isAccessAllowed;
+
+	private MonitoringDef monitoring = new MonitoringDef();
 
 	///
 
@@ -72,6 +87,14 @@ public class ClusterDef {
 		this.isAccessAllowed = isAccessAllowed;
 	}
 
+	public MonitoringDef getMonitoring() {
+		return monitoring;
+	}
+
+	public void setMonitoring(MonitoringDef monitoring) {
+		this.monitoring = monitoring;
+	}
+
 	///
 
 	public void setServerNames(List<String> servers) {
@@ -105,6 +128,69 @@ public class ClusterDef {
 		getServers().clear();
 		getServers().addAll(servers);
 
+		String groupName = format("cluster-%s", getClusterName());
+
+		// register cluster host group
+		with(domain.getMonitoring(), m -> m.getGroups().add(groupName));
+
+		// define cluster template
+		domain.getMonitoring().getTemplates().add(with(new MonitoringTemplate(), t->{
+			t.setName(format("cluster-%s", getClusterName()));
+			t.getTemplates().addAll(getMonitoring().getTemplates());
+			t.getGroups().addAll(domain.getAllTemplateDeps(t));
+			t.getGroups().addAll(getMonitoring().getGroups());
+			t.getGroups().add("Templates");
+
+			getMonitoring().getGroups().clear();
+			getMonitoring().getGroups().addAll(t.getGroups());
+
+			// reset cluster templates, replace all with this one
+			getMonitoring().getTemplates().clear();
+			getMonitoring().getTemplates().add(t.getName());
+
+
+			// if "deployment" domain monitoring template is defined,
+			// configure cluster monitoring item for every artifact in cluster artifact list
+			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("deployment")).distinct().forEach(i->{
+				getArtifacts().stream().forEach(a->{
+					String artifactId = Artifact.parse(a.getUri().getSchemeSpecificPart()).getArtifactId();
+					t.getItems().add(with(new MonitoringItem(i), m->{
+						m.setName(m.getName().replace("$name", artifactId));
+						m.setCommand(m.getCommand().replace("$name", artifactId));
+						m.init(t);
+					}));
+				});
+			});
+		}));
+
+		// define cluster template
+		if (false) domain.getMonitoring().getTemplates().add(with(new MonitoringTemplate(), t->{
+			t.setName(format("cluster-%s", getClusterName()));
+			t.getGroups().add("Templates");
+			t.getGroups().add(t.getName());
+//			t.getGroups().addAll(domain.getAllTemplateDeps(t));
+			t.getTemplates().addAll(getMonitoring().getTemplates());
+			with(getMonitoring(), m -> {
+				t.getTemplates().addAll(m.getTemplates());
+				t.getGroups().addAll(m.getTemplates());
+			});
+
+			// if "deployment" domain monitoring template is defined,
+			// configure cluster monitoring item for every artifact in cluster artifact list
+			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("deployment")).distinct().forEach(i->{
+				getArtifacts().stream().forEach(a->{
+					String artifactId = Artifact.parse(a.getUri().getSchemeSpecificPart()).getArtifactId();
+					t.getItems().add(with(new MonitoringItem(i), m->{
+						m.setName(m.getName().replace("$name", artifactId));
+						m.setCommand(m.getCommand().replace("$name", artifactId));
+						m.init(t);
+					}));
+				});
+			});
+
+			getMonitoring().getGroups().addAll(domain.getAllTemplateDeps(t));
+		}));
+
 
 		// populate server provided endpoints based on cluster configured template
 		// replace the server hostname template with actual server host name
@@ -123,8 +209,8 @@ public class ClusterDef {
 					.collect(Collectors.toList()));
 		});
 
-		// and finally, delegate init()
-		getServers().forEach(ServerDef::init);
+		// and finally, delegate to init()
+		getServers().forEach(s->s.init(this));
 
 		// and clean initial configuration values that have been replicated into servers
 		provides = null;
@@ -145,7 +231,7 @@ public class ClusterDef {
 		String suffix = m.group(3);
 
 		for (char c : sequence) {
-			result.add(String.format("%s%s%s", prefix, c, suffix));
+			result.add(format("%s%s%s", prefix, c, suffix));
 		}
 
 		return result;

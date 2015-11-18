@@ -1,6 +1,6 @@
 
 
-springBoot {
+ext {
 	mainClass = "io.jrevolt.sysmon.client.ClientMain"
 }
 

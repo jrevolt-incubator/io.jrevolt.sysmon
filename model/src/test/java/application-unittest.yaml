@@ -1,0 +1,19 @@
+domain:
+   name: test.jrevolt.io
+   clusters:
+      -  clusterName: one
+      -  clusterName: two
+         monitoring:
+            template: cluster two
+            services: service1, service2
+            items:
+               -  name: item1
+                  command: MyUserParameter[check item1]
+               -  name: item2
+                  command: MyUserParameter[check item2]
+                  trigger:
+                     name: $item.name is unavailable
+                     expression: last()<>1
+                     severity: WARNING
+
+

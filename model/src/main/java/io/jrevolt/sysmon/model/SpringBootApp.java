@@ -1,6 +1,9 @@
 package io.jrevolt.sysmon.model;
 
+import io.jrevolt.launcher.vault.VaultConfiguration;
+
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.env.EnumerableCompositePropertySource;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContext;
@@ -21,7 +24,12 @@ public class SpringBootApp extends SpringApplication {
 	static private SpringBootApp INSTANCE;
 
 	static public ConfigurableApplicationContext run(Object source, String... args) {
-		return new SpringBootApp(source).run(args);
+		return new SpringApplicationBuilder()
+				.sources(source)
+				.environment(VaultConfiguration.initStandardEnvironment())
+				.main(SpringBootApp.class)
+				.run(args);
+//		return new SpringBootApp(source).run(args);
 	}
 
 	static public SpringBootApp instance() {

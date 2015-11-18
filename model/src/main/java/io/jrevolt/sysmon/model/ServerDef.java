@@ -19,6 +19,8 @@ public class ServerDef {
 	private List<NetworkInfo> network = new LinkedList<>();
 	private List<SSLInfo> ssl = new LinkedList<>();
 
+	private ClusterDef clusterDef;
+
 	public ServerDef() {
 	}
 
@@ -82,9 +84,18 @@ public class ServerDef {
 		this.ssl = ssl;
 	}
 
+	public ClusterDef getClusterDef() {
+		return clusterDef;
+	}
+
+	public void setClusterDef(ClusterDef clusterDef) {
+		this.clusterDef = clusterDef;
+	}
+
 	///
 
-	void init() {
+	void init(ClusterDef clusterDef) {
+		this.clusterDef = clusterDef;
 		network.clear();
 		network.addAll(getDependencies().stream()
 				.map(d -> new NetworkInfo(d.getCluster(), d.getServer(), Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri())))

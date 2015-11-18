@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.common;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -76,6 +77,15 @@ public class Utils {
 				Log.debug(r, e.toString());
 			}
 		};
+	}
+
+	static public <T> T with(T t, Consumer<T> consumer) {
+		if (t != null) { consumer.accept(t); }
+		return t;
+	}
+
+	static public void doif(boolean condition, Runnable action) {
+		if (condition) { action.run(); }
 	}
 
 }

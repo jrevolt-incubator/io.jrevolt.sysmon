@@ -1,8 +1,5 @@
-package io.jrevolt.sysmon.server.rest;
+package io.jrevolt.sysmon.model;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,23 +7,27 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import io.jrevolt.sysmon.model.DomainDef;
-import io.jrevolt.sysmon.server.Server;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DomainDefTest.App.class)
-@WebAppConfiguration
+@SpringApplicationConfiguration(classes = ModelTest.App.class)
 @ActiveProfiles("unittest")
-public class DomainDefTest {
+public class ModelTest {
+
+	@SpringBootApplication
+	@Configuration
+	@EnableAutoConfiguration
+	@ComponentScan("io.jrevolt.sysmon")
+	@EnableConfigurationProperties(DomainDef.class)
+	static public class App {}
 
 	@Autowired
 	DomainDef domain;
@@ -35,13 +36,6 @@ public class DomainDefTest {
 	public void test() throws Exception {
 		System.out.println();
 	}
-
-	@SpringBootApplication
-	@Configuration
-	@EnableAutoConfiguration
-	@ComponentScan("io.jrevolt.sysmon")
-	@EnableConfigurationProperties(DomainDef.class)
-	static public class App {}
 
 
 }

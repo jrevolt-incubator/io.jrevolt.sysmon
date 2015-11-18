@@ -1,0 +1,83 @@
+# command line shortcuts
+reset: true
+configure: true
+threads: 24
+clusterInclude: .*
+clusterExclude: UNDEFINED
+
+skipHosts: false
+skipItems: false
+skipTriggers: false
+
+io.jrevolt.sysmon.zabbix:
+   reset: ${reset}
+   configure: ${configure}
+   threads: ${threads}
+   clusterInclude: ${clusterInclude}
+   clusterExclude: ${clusterExclude}
+   skipHosts: ${skipHosts}
+   skipItems: ${skipItems}
+   skipTriggers: ${skipTriggers}
+
+---
+
+spring.profiles: gcentos
+io.jrevolt.sysmon.zabbix:
+   url: http://gcentos/zabbix/api_jsonrpc.php
+   user: Admin
+   password: zabbix
+
+---
+
+spring.profiles: intra.dcom.sk
+io.jrevolt.sysmon.zabbix:
+   dnsServer: 10.231.160.11
+
+---
+
+spring.profiles: prodzabbix
+io.jrevolt.sysmon.zabbix:
+   url: https://sp1mons11.intra.dcom.sk/zabbix/api_jsonrpc.php
+   user: beno_a
+   password: ${beno_a@sp1mons11.password}
+
+---
+
+spring.profiles: test.dcom.sk
+io.jrevolt.sysmon.zabbix:
+   dnsServer: 10.231.118.10
+
+---
+
+spring.profiles: testzabbix
+io.jrevolt.sysmon.zabbix:
+   url: https://st1mons11.test.dcom.sk/zabbix/api_jsonrpc.php
+   user: beno_a
+   password: ${beno_a@st1mons11.password}
+
+---
+
+spring.profiles: dev.dcom.sk
+io.jrevolt.sysmon.zabbix:
+   dnsServer: 10.231.79.10
+
+---
+
+spring.profiles: intzabbix
+io.jrevolt.sysmon.zabbix:
+   url: http://si1mons11.dev.dcom.sk/zabbix/api_jsonrpc.php
+   user: psm.beno
+   password: ${psm.beno@si1mons11.password}
+
+---
+
+spring.profiles: customlog
+spring.main.show-banner: false
+logging:
+   pattern.console:  "%clr(%d{HH:mm:ss}){faint} %clr(%p){green} %clr(%t){blue} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"
+   pattern.file:     "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %5p %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"
+   path:             "${user.home}/.io.jrevolt.sysmon"
+   file:             "${logging.path}/zabbix.log"
+   level:
+      root: WARN
+      io.jrevolt.sysmon: DEBUG

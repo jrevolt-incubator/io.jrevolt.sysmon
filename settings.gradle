@@ -2,6 +2,7 @@ rootProject.name = 'io.jrevolt.sysmon'
 
 include 'common'
 include 'model'
+include 'zabbix'
 include 'jms'
 include 'rest'
 include 'server'

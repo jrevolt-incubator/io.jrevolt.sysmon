@@ -4,11 +4,11 @@ dependencies {
 	compile project(":io.jrevolt.sysmon.common")
 
 	compile("org.springframework:spring-context:${springVersion}")
-	compile("org.springframework.boot:spring-boot-launcher:${springBootVersion}")
+	compile("io.jrevolt.launcher:io.jrevolt.launcher:0.1.0-SNAPSHOT")
 	compile("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
 	compile("commons-io:commons-io:2.4")
 	compile("org.apache.commons:commons-lang3:3.2")
-	compile("ch.qos.logback:logback-classic:1.1.2")
+	//compile("ch.qos.logback:logback-classic:1.1.2")
 	compile("javax.ws.rs:javax.ws.rs-api:2.0")
 	compile("com.thoughtworks.xstream:xstream:1.4.7")
 }

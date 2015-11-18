@@ -1,9 +1,5 @@
 
 
-springBoot {
-	mainClass = "io.jrevolt.sysmon.commands.CommandsMain"
-}
-
 dependencies {
 	compile("org.apache.commons:commons-exec:1.3")
 }

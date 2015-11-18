@@ -1,0 +1,40 @@
+
+dependencies {
+	compile project(":io.jrevolt.sysmon.common")
+	compile project(":io.jrevolt.sysmon.model")
+//	compile project(":io.jrevolt.sysmon.rest")
+
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+//	compile("org.springframework:spring-web:${springVersion}")
+
+	compile("com.zabbix4j:com.zabbix4j:${zabbix4jVersion}") {
+		exclude group: 'ch.qos.logback'
+	}
+
+	compile("org.dnsjava:dnsjava:${dnsjavaVersion}")
+
+//	compile("org.glassfish.jersey.core:jersey-client:${jerseyVersion}")
+//	compile("org.glassfish.jersey.ext:jersey-bean-validation:${jerseyVersion}")
+//	compile("org.glassfish.jersey.ext:jersey-proxy-client:${jerseyVersion}")
+//	compile("org.glassfish.jersey.ext:jersey-spring3:${jerseyVersion}")
+//	compile("org.glassfish.jersey.ext:jersey-spring3:${jerseyVersion}")
+//	compile("org.glassfish.jersey.media:jersey-media-json-jackson:${jerseyVersion}")
+
+//	compile("javax.json:javax.json-api:1.0")
+//	compile("com.google.code.gson:gson:2.4")
+//	runtime("org.glassfish:javax.json:1.0.4")
+
+//	compile("javax.ws.rs:javax.ws.rs-api:2.0.1")
+//	runtime("org.glassfish.jersey.core:jersey-client:2.22.1")
+//	runtime("org.glassfish.jersey.media:jersey-media-json-processing:2.22.1")
+
+//	compile("com.fasterxml.jackson.jaxrs:jackson-jaxrs-providers:2.4.3")
+
+	compile("io.jrevolt.launcher:io.jrevolt.launcher:0.1.0.RELEASE")
+
+	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+
+	runtime("org.yaml:snakeyaml:${snakeyamlVersion}")
+	runtime("javax.servlet:servlet-api:${servletApiVersion}")
+	runtime("org.glassfish.jersey.core:jersey-client:${jerseyVersion}")
+}

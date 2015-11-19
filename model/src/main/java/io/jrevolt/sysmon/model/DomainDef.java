@@ -66,7 +66,7 @@ public class DomainDef {
 	void init() {
 
 		// QDH filter
-		//clusters.removeIf(c -> !c.getClusterName().matches(".*epod0.*"));
+		clusters.removeIf(c -> !c.getClusterName().matches(".*soa.*"));
 
 		// replicate template hierarchy into host groups (a template is also a group)
 		Utils.with(monitoring, m->{

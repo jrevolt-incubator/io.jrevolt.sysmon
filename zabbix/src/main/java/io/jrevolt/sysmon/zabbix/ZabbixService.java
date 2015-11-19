@@ -18,7 +18,6 @@ import com.zabbix4j.GetRequestCommonParams;
 import com.zabbix4j.ZabbixApi;
 import com.zabbix4j.application.ApplicationCreateRequest;
 import com.zabbix4j.application.ApplicationGetRequest;
-import com.zabbix4j.application.ApplicationGetResponse;
 import com.zabbix4j.application.ApplicationObject;
 import com.zabbix4j.configuration.ConfigurationExportRequest;
 import com.zabbix4j.configuration.ConfigurationExportResponse;
@@ -48,12 +47,9 @@ import com.zabbix4j.trigger.TriggerObject;
 
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.Assert.isTrue;
@@ -188,6 +184,12 @@ public class ZabbixService {
 			t.getParams().setType(mi.getType().ordinal());
 			t.getParams().setValue_type(mi.getValueType().ordinal());
 			t.getParams().setData_type(mi.getDataType().ordinal());
+			t.getParams().setParams(mi.getParams());
+			t.getParams().setUnits(mi.getUnits());
+			if (nonNull(mi.getFormula())) {
+				t.getParams().setFormula(mi.getFormula().floatValue());
+				t.getParams().setMultiplier(1);
+			}
 			t.getParams().setApplications(singletonList(applicationId));
 			t.getParams().setDelay(60);
 		}));

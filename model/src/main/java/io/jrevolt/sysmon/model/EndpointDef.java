@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriBuilderException;
@@ -45,6 +46,10 @@ public class EndpointDef {
 		this.test = src.test;
 		this.type = src.type;
 		this.status = src.status;
+	}
+
+	public EndpointDef(String uri) {
+		this.uri = URI.create(uri);
 	}
 
 	///
@@ -118,7 +123,7 @@ public class EndpointDef {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this)
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 				.append("uri", uri)
 				.toString();
 	}

@@ -3,7 +3,7 @@ package io.jrevolt.sysmon.model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.util.Objects;
+import java.math.BigDecimal;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
@@ -13,7 +13,10 @@ import static java.util.Objects.nonNull;
  */
 public class MonitoringItem {
 
-	public enum Type { AGENT }
+	public enum Type {
+		AGENT, SNMP1, TRAPPER, SIMPLE, SNMP2, INTERNAL, SNMP3, AGENT_ACTIVE, AGGREGATE, WEB, EXTERNAL, DB, IPMI,
+		SSH, TELNET, CALCULATED, JMX, SNMP_TRAP
+	}
 
 	public enum ValueType { FLOAT, CHAR, LOG, INTEGER, TEXT }
 
@@ -26,6 +29,9 @@ public class MonitoringItem {
 	private String command; // key
 	private ValueType valueType = ValueType.INTEGER;
 	private DataType dataType = DataType.DECIMAL; // for valueType=INTEGER only
+	private String params;
+	private String units;
+	private BigDecimal formula;
 	private String application;
 	private MonitoringTrigger trigger;
 
@@ -90,6 +96,30 @@ public class MonitoringItem {
 
 	public void setDataType(DataType dataType) {
 		this.dataType = dataType;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
+	}
+
+	public String getUnits() {
+		return units;
+	}
+
+	public void setUnits(String units) {
+		this.units = units;
+	}
+
+	public BigDecimal getFormula() {
+		return formula;
+	}
+
+	public void setFormula(BigDecimal formula) {
+		this.formula = formula;
 	}
 
 	public String getApplication() {

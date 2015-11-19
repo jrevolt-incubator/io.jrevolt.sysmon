@@ -1,20 +1,12 @@
 package io.jrevolt.sysmon.model;
 
 import io.jrevolt.launcher.mvn.Artifact;
-import io.jrevolt.sysmon.common.Utils;
-
-import org.springframework.util.Assert;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -152,14 +144,16 @@ public class ClusterDef {
 			// if "deployment" domain monitoring template is defined,
 			// configure cluster monitoring item for every artifact in cluster artifact list
 			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("deployment")).distinct().forEach(i->{
-				getArtifacts().stream().forEach(a->{
+				getArtifacts().forEach(a->{
 					String artifactId = Artifact.parse(a.getUri().getSchemeSpecificPart()).getArtifactId();
-					t.getItems().add(with(new MonitoringItem(i), m->{
-						m.setName(m.getName().replace("$name", artifactId));
-						m.setCommand(m.getCommand().replace("$name", artifactId));
-						m.init(t);
-					}));
+					copyItem(artifactId, t, i);
 				});
+			});
+
+			// if "endpoint" template is defined,
+			// configure cluster monitoring item for every provided endpoint
+			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("endpoint")).distinct().forEach(i->{
+				getArtifacts().forEach(a-> a.getProvides().forEach(e-> copyItem(e.getUri().toString(), t, i)));
 			});
 		}));
 
@@ -215,6 +209,14 @@ public class ClusterDef {
 		// and clean initial configuration values that have been replicated into servers
 		provides = null;
 		dependencies = null;
+	}
+
+	private void copyItem(String name, MonitoringTemplate dst, MonitoringItem src) {
+		dst.getItems().add(with(new MonitoringItem(src), m->{
+			m.setName(m.getName().replace("$name", name));
+			m.setCommand(m.getCommand().replace("$name", name));
+			m.init(dst);
+		}));
 	}
 
 	List<String> expand(String s) {

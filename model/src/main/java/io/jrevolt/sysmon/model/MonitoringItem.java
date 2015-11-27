@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.math.BigDecimal;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -151,6 +152,10 @@ public class MonitoringItem {
 	void init(MonitoringTemplate template) {
 		setTemplate(template);
 		if (trigger != null) { trigger.init(this); }
+
+		if ("%".equals(units) && isNull(formula) && valueType.equals(ValueType.FLOAT)) {
+			formula = new BigDecimal(100);
+		}
 	}
 
 

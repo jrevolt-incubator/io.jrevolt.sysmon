@@ -37,9 +37,9 @@ io.jrevolt.sysmon.zabbix:
 
 spring.profiles: prodzabbix
 io.jrevolt.sysmon.zabbix:
-   url: https://sp1mons11.intra.dcom.sk/zabbix/api_jsonrpc.php
-   user: beno_a
-   password: ${beno_a@sp1mons11.password}
+   url: https://monitor.intra.dcom.sk/api_jsonrpc.php
+   user: psm.beno_a
+   password: ${psm.beno_a@sp1mons11.password}
 
 ---
 

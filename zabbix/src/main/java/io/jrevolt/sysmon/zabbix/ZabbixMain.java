@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
 import com.zabbix4j.ZabbixApi;
 import com.zabbix4j.ZabbixApiException;
 
@@ -32,8 +33,8 @@ public class ZabbixMain {
 
 
 	static public void main(String[] args) {
-		SpringBootApp.run(ZabbixMain.class, args)
-				.getBean(ZabbixConfigurator.class).configure();
+		((LoggerContext) LoggerFactory.getILoggerFactory()).reset();
+		SpringBootApp.run(ZabbixMain.class, args).getBean(ZabbixConfigurator.class).configure();
 	}
 
 	@Bean

@@ -2,6 +2,7 @@ package io.jrevolt.sysmon.model;
 
 import io.jrevolt.sysmon.common.Utils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -33,6 +34,9 @@ public class DomainDef {
 	private String name;
 	private List<ClusterDef> clusters = new LinkedList<>();
 	private Monitoring monitoring;
+
+	@Autowired
+	transient ModelCfg cfg;
 
 	///
 
@@ -66,7 +70,7 @@ public class DomainDef {
 	void init() {
 
 		// QDH filter
-		clusters.removeIf(c -> !c.getClusterName().matches(".*soa.*"));
+		clusters.removeIf(c -> !cfg.getClusterFilter().matcher(c.getClusterName()).matches());
 
 		// replicate template hierarchy into host groups (a template is also a group)
 		Utils.with(monitoring, m->{

@@ -1,5 +1,6 @@
 package io.jrevolt.sysmon.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,9 @@ public class AppCfg {
 	String name;
 	String pid;
 	UUID instance = UUID.randomUUID();
+
+	@Autowired
+	ModelCfg modelCfg;
 
 	public String getId() {
 		return id;
@@ -51,4 +55,11 @@ public class AppCfg {
 		this.instance = instance;
 	}
 
+	public ModelCfg getModelCfg() {
+		return modelCfg;
+	}
+
+	public void setModelCfg(ModelCfg modelCfg) {
+		this.modelCfg = modelCfg;
+	}
 }

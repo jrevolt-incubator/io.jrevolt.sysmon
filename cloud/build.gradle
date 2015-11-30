@@ -1,0 +1,12 @@
+
+dependencies {
+	compile project(":io.jrevolt.sysmon.model")
+
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+
+	compile("javax.ws.rs:javax.ws.rs-api:${jaxrsVersion}")
+	compile("commons-codec:commons-codec:1.10")
+	compile("com.google.code.gson:gson:2.4")
+
+	runtime("org.glassfish.jersey.core:jersey-client:2.22.1")
+}

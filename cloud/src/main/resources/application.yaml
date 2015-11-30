@@ -1,0 +1,21 @@
+
+spring.profiles.include: customlog
+
+io.jrevolt.sysmon.cloud:
+   baseUrl:
+   apiKey:
+   secretKey:
+
+---
+
+spring.profiles: customlog
+spring.main.show-banner: false
+logging:
+   pattern.console:  "%clr(%d{HH:mm:ss}){faint} %clr(%p){green} %clr(%t){blue} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"
+   pattern.file:     "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %5p %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%rEx}"
+   path:             "${user.home}/.io.jrevolt.sysmon"
+   file:             "${logging.path}/cloud.log"
+   level:
+      root: WARN
+      io.jrevolt.sysmon: DEBUG
+

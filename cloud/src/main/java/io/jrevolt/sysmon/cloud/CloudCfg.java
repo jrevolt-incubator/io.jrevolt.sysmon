@@ -4,6 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -13,11 +16,9 @@ import java.net.URI;
 public class CloudCfg {
 
 	private URI baseUrl;
-
 	private String apiKey;
-
 	private String secretKey;
-
+	private Map<String,String> tagFilter = new LinkedHashMap<>();
 
 	public URI getBaseUrl() {
 		return baseUrl;
@@ -41,5 +42,13 @@ public class CloudCfg {
 
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
+	}
+
+	public Map<String, String> getTagFilter() {
+		return tagFilter;
+	}
+
+	public void setTagFilter(Map<String, String> tagFilter) {
+		this.tagFilter = tagFilter;
 	}
 }

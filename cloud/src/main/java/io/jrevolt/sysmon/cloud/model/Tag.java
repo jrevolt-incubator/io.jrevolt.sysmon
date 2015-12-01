@@ -5,8 +5,6 @@ package io.jrevolt.sysmon.cloud.model;
  */
 public class Tag extends ApiObject {
 
-	public enum Name { ENV, fqdn, hostname, start, stop }
-
 	String key;
 	String value;
 
@@ -42,7 +40,7 @@ public class Tag extends ApiObject {
 		Tag tag = (Tag) o;
 
 		if (!key.equals(tag.key)) return false;
-		return value.equals(tag.value);
+		return value != null ? value.equals(tag.value) : tag.value == null;
 
 	}
 

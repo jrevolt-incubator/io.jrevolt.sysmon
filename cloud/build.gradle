@@ -7,6 +7,8 @@ dependencies {
 	compile("javax.ws.rs:javax.ws.rs-api:${jaxrsVersion}")
 	compile("commons-codec:commons-codec:1.10")
 	compile("com.google.code.gson:gson:2.4")
+	compile("org.springframework:spring-context-support:${springVersion}")
+	compile("net.sf.ehcache:ehcache:2.10.1")
 
 	runtime("org.glassfish.jersey.core:jersey-client:2.22.1")
 }

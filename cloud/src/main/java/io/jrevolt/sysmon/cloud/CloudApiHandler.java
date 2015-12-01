@@ -7,6 +7,7 @@ import io.jrevolt.sysmon.cloud.model.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +17,8 @@ import com.google.gson.JsonParser;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -25,15 +26,18 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -65,40 +69,87 @@ public class CloudApiHandler implements InvocationHandler {
 
 	ApiObject doRequest(Method method, Object[] args) {
 		UriBuilder uri = UriBuilder.fromUri(cfg.getBaseUrl());
-		uri.queryParam("command", method.getName());
-		doArgs(uri, method, args);
-		uri = sign(uri);
-		WebTarget target = ClientBuilder.newClient().target(uri.build());
-		Invocation inv = target.request().accept(MediaType.APPLICATION_JSON_TYPE).buildGet();
+		MultivaluedMap<String,String> params = new MultivaluedHashMap<>();
+		doArgs(params, method, args);
+		String data = sign(params);
 
-		long started = System.currentTimeMillis();
-		Response response = inv.invoke();
-		String s = response.readEntity(String.class);
-		Duration duration = Duration.between(Instant.ofEpochMilli(started), Instant.now());
-		LOG.debug("Response: {} {} {}", response.getStatus(), duration, target.getUri());
+		boolean cacheable = method.getName().startsWith("list"); // QDH FIXME
+		File cache = new File(urlencode(params.getFirst("signature") + ".json"));
+		String s = null;
+		if (cache.exists()) {
+			try {
+				s = new String(Files.readAllBytes(cache.toPath()), StandardCharsets.UTF_8);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			WebTarget target = ClientBuilder.newClient().target(uri.build());
+			Invocation inv = target.request()
+					.accept(MediaType.APPLICATION_JSON_TYPE)
+					.buildPost(Entity.entity(data, "application/x-www-form-urlencoded"));
 
-		String responsename = method.getReturnType().getSimpleName().toLowerCase();
-		JsonObject json = new JsonParser().parse(s).getAsJsonObject();
-		JsonObject jresp = json.getAsJsonObject(responsename);
-		JsonObject jerr = json.getAsJsonObject("errorresponse");
-		if (jresp == null && jerr != null) {
-			ErrorResponse error = new Gson().fromJson(jerr, ErrorResponse.class);
-			throw new ApiException(error);
+			LOG.debug("Calling: {} {}", method.getName(), params);
+			long started = System.currentTimeMillis();
+			Response response = inv.invoke();
+			s = response.readEntity(String.class);
+			Duration duration = Duration.between(Instant.ofEpochMilli(started), Instant.now());
+			LOG.debug("Response: {} {} {} : {}", method.getName(), response.getStatus(), duration,
+						 StringUtils.abbreviate(s, 1000));
+
+			if (cacheable) {
+				try {
+					Files.write(cache.toPath(), s.getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		Object result = new Gson().fromJson(jresp, method.getReturnType());
-		return (ApiObject) result;
+
+		try {
+			String responsename = method.getReturnType().getSimpleName().toLowerCase();
+			JsonObject json = new JsonParser().parse(s).getAsJsonObject();
+			JsonObject jresp = json.getAsJsonObject(responsename);
+			JsonObject jerr = json.getAsJsonObject("errorresponse");
+			if (jresp == null && jerr != null) {
+				ErrorResponse error = new Gson().fromJson(jerr, ErrorResponse.class);
+				throw new ApiException(error);
+			}
+			Object result = new Gson().fromJson(jresp, method.getReturnType());
+			return (ApiObject) result;
+		} catch (Exception e) {
+			throw new UnsupportedOperationException(s, e);
+		}
 	}
 
-	UriBuilder doArgs(UriBuilder uri, Method m, Object[] args) {
+	UriBuilder doArgs(UriBuilder uri, MultivaluedMap<String, String> params, Method m, Object[] args) {
+		uri.queryParam("command", m.getName());
 		if (args == null || args.length==0) { return uri; }
-		Parameter[] params = m.getParameters();
+		Parameter[] methodParams = m.getParameters();
 		for (int i=0; i<args.length; i++) {
-			Parameter p = params[i];
+			Parameter p = methodParams[i];
 			Object value = args[i];
 			if (value == null) { continue; }
-			uri.queryParam(p.getName(), value);
+//			uri.queryParam(p.getName(), value);
+			params.add(p.getName(), value.toString());
 		}
 		return uri;
+	}
+
+
+	void doArgs(MultivaluedMap<String, String> params, Method m, Object[] args) {
+		params.putSingle("command", m.getName());
+		if (args == null) { return; }
+		Parameter[] methodParams = m.getParameters();
+		for (int i=0; i<args.length; i++) {
+			Parameter p = methodParams[i];
+			Object value = args[i];
+			if (value == null) { continue; }
+			if (value instanceof Collection) {
+				((Collection<?>) value).stream().forEach(v->params.add(p.getName(), v.toString()));
+			} else {
+				params.add(p.getName(), value.toString());
+			}
+		}
 	}
 
 
@@ -116,6 +167,21 @@ public class CloudApiHandler implements InvocationHandler {
 		uri = uri.queryParam("signature", signature);
 
 		return uri;
+	}
+
+	String sign(MultivaluedMap<String, String> params) {
+		params.putSingle("apikey", cfg.getApiKey());
+		params.putSingle("response", "json");
+		StringBuilder unsigned = new StringBuilder();
+		params.keySet().stream().sorted().forEach(pname->{
+			List<String> list = params.get(pname);
+			String value = list.size() == 1 ? list.get(0) : null /*FIXME*/;
+			if (unsigned.length()>0) { unsigned.append("&"); }
+			unsigned.append(pname).append("=").append(urlencode(value));
+		});
+		String signature = sign(cfg.getSecretKey(), unsigned.toString().toLowerCase());
+		params.putSingle("signature", signature);
+		return String.format("%s&signature=%s", unsigned, signature);
 	}
 
 	String sign(String key, String data) {
@@ -148,6 +214,14 @@ public class CloudApiHandler implements InvocationHandler {
 				params.add(key, value);
 			}
 			return params;
+		} catch (UnsupportedEncodingException e) {
+			throw new UnsupportedOperationException(e);
+		}
+	}
+
+	String urlencode(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8").replaceAll("\\+", "%20");
 		} catch (UnsupportedEncodingException e) {
 			throw new UnsupportedOperationException(e);
 		}

@@ -1,10 +1,10 @@
 package io.jrevolt.sysmon.cloud;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
@@ -12,6 +12,9 @@ import java.lang.reflect.Proxy;
  */
 @Configuration
 public class CloudApp {
+
+	@Autowired
+	ConfigurableApplicationContext ctx;
 
 	@Bean
 	public CloudApi cloudApi(CloudApiHandler handler) {

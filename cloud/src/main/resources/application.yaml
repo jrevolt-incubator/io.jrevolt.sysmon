@@ -5,6 +5,9 @@ io.jrevolt.sysmon.cloud:
    baseUrl:
    apiKey:
    secretKey:
+   tagFilter:
+      ENV:  "DEV"
+      fqdn: "si1intm.*"
 
 ---
 
@@ -18,4 +21,5 @@ logging:
    level:
       root: WARN
       io.jrevolt.sysmon: DEBUG
+      io.jrevolt.sysmon.cloud.CloudApiHandler: INFO
 

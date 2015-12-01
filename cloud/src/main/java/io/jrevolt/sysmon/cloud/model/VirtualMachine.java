@@ -2,6 +2,8 @@ package io.jrevolt.sysmon.cloud.model;
 
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +23,8 @@ public class VirtualMachine extends ApiObject {
 	int cpuspeed;
 	int memory;
 	String ipaddress;
-	Set<Tag> tags;
+	Set<Tag> tags = new LinkedHashSet<>();
+	List<NIC> nic = new LinkedList<>();
 
 	public String getId() {
 		return id;
@@ -109,5 +112,30 @@ public class VirtualMachine extends ApiObject {
 
 	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
+	}
+
+	public List<NIC> getNic() {
+		return nic;
+	}
+
+	public void setNic(List<NIC> nic) {
+		this.nic = nic;
+	}
+
+	///
+
+	public boolean containsTag(String name) {
+		return tags.stream().map(Tag::getKey).filter(s->s.equals(name)).count() > 0;
+	}
+
+	public String getTag(String name) {
+		return getTag(name, null);
+	}
+
+	public String getTag(String name, String dflt) {
+		return tags.stream()
+				.filter(t -> t.getKey().equals(name))
+				.map(t->t.getValue())
+				.findFirst().orElse(dflt);
 	}
 }

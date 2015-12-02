@@ -19,6 +19,7 @@ public class CloudCfg {
 	private String apiKey;
 	private String secretKey;
 	private Map<String,String> tagFilter = new LinkedHashMap<>();
+	private boolean useCache;
 
 	public URI getBaseUrl() {
 		return baseUrl;
@@ -50,5 +51,13 @@ public class CloudCfg {
 
 	public void setTagFilter(Map<String, String> tagFilter) {
 		this.tagFilter = tagFilter;
+	}
+
+	public boolean isUseCache() {
+		return useCache;
+	}
+
+	public void setUseCache(boolean useCache) {
+		this.useCache = useCache;
 	}
 }

@@ -73,10 +73,10 @@ public class CloudApiHandler implements InvocationHandler {
 		doArgs(params, method, args);
 		String data = sign(params);
 
-		boolean cacheable = method.getName().startsWith("list"); // QDH FIXME
+		boolean cacheable = cfg.isUseCache() && method.getName().startsWith("list"); // QDH FIXME
 		File cache = new File(urlencode(params.getFirst("signature") + ".json"));
 		String s = null;
-		if (cache.exists()) {
+		if (cacheable && cache.exists()) {
 			try {
 				s = new String(Files.readAllBytes(cache.toPath()), StandardCharsets.UTF_8);
 			} catch (IOException e) {
@@ -181,7 +181,7 @@ public class CloudApiHandler implements InvocationHandler {
 		});
 		String signature = sign(cfg.getSecretKey(), unsigned.toString().toLowerCase());
 		params.putSingle("signature", signature);
-		return String.format("%s&signature=%s", unsigned, signature);
+		return String.format("%s&signature=%s", unsigned, urlencode(signature));
 	}
 
 	String sign(String key, String data) {

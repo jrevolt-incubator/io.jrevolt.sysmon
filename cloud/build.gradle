@@ -10,5 +10,5 @@ dependencies {
 	compile("org.springframework:spring-context-support:${springVersion}")
 	compile("net.sf.ehcache:ehcache:2.10.1")
 
-	runtime("org.glassfish.jersey.core:jersey-client:2.22.1")
+	runtime("org.glassfish.jersey.core:jersey-client:${jerseyVersion}")
 }

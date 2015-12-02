@@ -36,8 +36,9 @@ subprojects {
 
 	apply plugin: 'java'
 	apply plugin: 'maven'
-	apply plugin: 'distribution'
 	apply plugin: 'jrevolt'
+	apply plugin: 'maven-publish'
+	
 
 	project.group = rootProject.name
 	project.version = Boolean.valueOf("${release}") ? "${releaseVersion}" : "${snapshotVersion}"
@@ -108,29 +109,36 @@ subprojects {
 		}
 	}
 
-	// FIXME QDH don't know yet how to get rid of distZip and distTar artifacts
-	configurations.archives.artifacts.with { archives ->
-		new ArrayList(archives).each {
-			if (it.file.name.matches('.*(zip|tar)$')) {
-				remove(it)
-			}
-		}
-	}
-
 //	jar.doLast { task ->
 //		["jarsigner", "-keystore", "${keyStoreFile}", "-storepass", "${keyStorePassword}", "-keypass", "${keyPassword}",
 //		 task.archivePath, "${keyAlias}"].execute()
 //	}
 
-	uploadArchives {
+
+	task sourceJar(type: Jar) {
+		from sourceSets.main.allJava
+	}
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+				artifact sourceJar {
+					classifier "sources"
+				}
+			}
+		}
 		repositories {
-			mavenDeployer {
-				repository(url: releaseVersion ? "$cfg.releases" : "$cfg.snapshots") {
-					authentication(userName: "$cfg.deploymentUserName", password: "$cfg.deploymentPassword")
+			maven {
+				url Boolean.valueOf("${release}") ? "$cfg.releases" : "$cfg.snapshots"
+				credentials {
+					username "$cfg.deploymentUserName"
+					password "$cfg.deploymentPassword"
 				}
 			}
 		}
 	}
+
 }
 
 

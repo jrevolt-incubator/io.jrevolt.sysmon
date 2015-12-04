@@ -29,10 +29,11 @@ import static java.util.Objects.requireNonNull;
  * @version $Id$
  */
 @ConfigurationProperties("domain")
-public class DomainDef {
+public class DomainDef extends DomainObject {
 
 	private String name;
 	private List<ClusterDef> clusters = new LinkedList<>();
+	private List<ProxyDef> proxies = new LinkedList<>();
 	private Monitoring monitoring;
 
 	@Autowired
@@ -54,6 +55,14 @@ public class DomainDef {
 
 	public void setClusters(List<ClusterDef> clusters) {
 		this.clusters = clusters;
+	}
+
+	public List<ProxyDef> getProxies() {
+		return proxies;
+	}
+
+	public void setProxies(List<ProxyDef> proxies) {
+		this.proxies = proxies;
 	}
 
 	public Monitoring getMonitoring() {
@@ -88,6 +97,7 @@ public class DomainDef {
 
 		try {
 			new Yaml().dump(this, new FileWriter("c:/users/patrik/var/test.yaml"));
+			System.out.println();
 		} catch (IOException ignore) {
 		}
 	}

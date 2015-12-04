@@ -32,6 +32,8 @@ dependencies {
 
 	compile("io.jrevolt.launcher:io.jrevolt.launcher:0.1.0.RELEASE")
 
+	compile("com.google.code.gson:gson:2.4")
+
 	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 
 	runtime("org.yaml:snakeyaml:${snakeyamlVersion}")

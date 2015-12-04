@@ -12,7 +12,7 @@ import static java.util.Objects.nonNull;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class MonitoringItem {
+public class MonitoringItem extends DomainObject {
 
 	public enum Type {
 		AGENT, SNMP1, TRAPPER, SIMPLE, SNMP2, INTERNAL, SNMP3, AGENT_ACTIVE, AGGREGATE, WEB, EXTERNAL, DB, IPMI,

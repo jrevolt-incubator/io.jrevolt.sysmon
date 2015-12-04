@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class ProxyDef {
+public class ProxyDef extends DomainObject {
 
 	static public enum Type { INTERNAL, ADMIN, INTRANET, PUBLIC }
 
@@ -15,6 +15,7 @@ public class ProxyDef {
 	private Type type;
 	private URI endpoint;
 	private List<RoutingDef> routing;
+	private Monitoring monitoring;
 
 	///
 
@@ -50,6 +51,13 @@ public class ProxyDef {
 		this.routing = routing;
 	}
 
+	public Monitoring getMonitoring() {
+		return monitoring;
+	}
+
+	public void setMonitoring(Monitoring monitoring) {
+		this.monitoring = monitoring;
+	}
 
 	///
 

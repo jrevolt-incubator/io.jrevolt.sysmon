@@ -17,11 +17,12 @@ import static java.lang.String.format;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class Monitoring {
+public class Monitoring extends DomainObject {
 
 	private List<String> groups = new LinkedList<>();
 	private List<MonitoringItem> items = new LinkedList<>();
 	private List<MonitoringTemplate> templates = new LinkedList<>();
+	private String proxy;
 
 	public List<String> getGroups() {
 		return groups;
@@ -45,6 +46,14 @@ public class Monitoring {
 
 	public void setTemplates(List<MonitoringTemplate> templates) {
 		this.templates = templates;
+	}
+
+	public String getProxy() {
+		return proxy;
+	}
+
+	public void setProxy(String proxy) {
+		this.proxy = proxy;
 	}
 
 	///

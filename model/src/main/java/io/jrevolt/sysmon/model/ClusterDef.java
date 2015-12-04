@@ -18,7 +18,7 @@ import static org.springframework.util.Assert.isTrue;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class ClusterDef {
+public class ClusterDef extends DomainObject {
 
 	private String clusterName;
 	private List<ServerDef> servers = new LinkedList<>();

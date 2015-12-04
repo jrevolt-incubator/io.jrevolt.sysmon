@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class MonitoringTemplate {
+public class MonitoringTemplate extends DomainObject {
 
 	private String name;
 	private Set<String> groups = new LinkedHashSet<>();

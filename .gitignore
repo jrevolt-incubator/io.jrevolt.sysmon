@@ -15,5 +15,7 @@ rebel.xml
 /.keystore
 /.soapui
 
-# DCOM
-/*-dcom.sk.yaml
+# SpringBoot and apps
+/application.yaml
+/application-*.yaml
+/*.json

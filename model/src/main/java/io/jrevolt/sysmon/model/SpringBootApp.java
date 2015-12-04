@@ -12,14 +12,22 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  * @version $Id$
  */
 public class SpringBootApp extends SpringApplication {
+
+	static {
+		loadSystemProperties("system.properties");
+	}
 
 	static private SpringBootApp INSTANCE;
 
@@ -35,6 +43,19 @@ public class SpringBootApp extends SpringApplication {
 	static public SpringBootApp instance() {
 		return INSTANCE;
 	}
+
+	static private void loadSystemProperties(String name) {
+		File f = new File(name);
+		if (!f.exists()) { return; }
+		try (InputStream in = new FileInputStream(f)) {
+			Properties props = new Properties();
+			props.load(in);
+			System.getProperties().putAll(props);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	//
 

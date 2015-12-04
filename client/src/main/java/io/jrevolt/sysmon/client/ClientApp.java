@@ -3,7 +3,6 @@ package io.jrevolt.sysmon.client;
 import io.jrevolt.sysmon.rest.ApiService;
 
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
-import org.glassfish.jersey.message.internal.HeaderUtils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

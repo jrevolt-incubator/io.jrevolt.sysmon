@@ -9,10 +9,13 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -23,6 +26,8 @@ public class Monitoring extends DomainObject {
 	private List<MonitoringItem> items = new LinkedList<>();
 	private List<MonitoringTemplate> templates = new LinkedList<>();
 	private String proxy;
+
+	private transient HostDef hostDef;
 
 	public List<String> getGroups() {
 		return groups;
@@ -56,9 +61,30 @@ public class Monitoring extends DomainObject {
 		this.proxy = proxy;
 	}
 
+	public HostDef getHostDef() {
+		return hostDef;
+	}
+
+	public void setHostDef(HostDef hostDef) {
+		this.hostDef = hostDef;
+	}
+
 	///
 
-	void init() {
+	List<String> getTemplateNames() {
+		return getTemplates().stream().map(MonitoringTemplate::getName).collect(Collectors.toList());
+	}
+
+
+	///
+
+	void init(HostDef hostDef) {
+		setHostDef(hostDef);
 		templates.forEach(MonitoringTemplate::init);
+
+		// unnamed items are silently removed (they were used as YAML templates, and are not needed anymore)
+		getItems().removeIf(i -> isNull(i.getName()));
+
+		getItems().forEach(i->i.init(null, hostDef));
 	}
 }

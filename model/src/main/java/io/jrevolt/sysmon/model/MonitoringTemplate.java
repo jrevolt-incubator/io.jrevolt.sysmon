@@ -51,7 +51,7 @@ public class MonitoringTemplate extends DomainObject {
 	}
 
 	void init() {
-		items.forEach(i->i.init(this));
+		items.forEach(i->i.init(this, null));
 	}
 
 	@Override

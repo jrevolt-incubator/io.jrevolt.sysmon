@@ -83,7 +83,7 @@ public class DomainDef extends DomainObject {
 
 		// replicate template hierarchy into host groups (a template is also a group)
 		Utils.with(monitoring, m->{
-			m.init();
+			m.init(null);
 			m.getTemplates().forEach(t -> {
 				Set<String> deps = getAllTemplateDeps(t);
 				t.getGroups().addAll(deps);
@@ -93,6 +93,7 @@ public class DomainDef extends DomainObject {
 			});
 		});
 
+		proxies.forEach(ProxyDef::init);
 		clusters.forEach(c -> c.init(this));
 
 		try {

@@ -36,7 +36,8 @@ public class MonitoringItem extends DomainObject {
 	private String application;
 	private MonitoringTrigger trigger;
 
-	private MonitoringTemplate template;
+	private transient MonitoringTemplate template;
+	private transient HostDef hostDef;
 
 	public MonitoringItem() {
 	}
@@ -147,10 +148,28 @@ public class MonitoringItem extends DomainObject {
 		this.template = template;
 	}
 
+	public HostDef getHostDef() {
+		return hostDef;
+	}
+
+	public void setHostDef(HostDef hostDef) {
+		this.hostDef = hostDef;
+	}
+
 	///
 
-	void init(MonitoringTemplate template) {
+	public String getTemplateName() {
+		return getTemplate() != null ? getTemplate().getName()
+				: getHostDef() != null ? getHostDef().getName()
+				: null;
+	}
+
+	///
+
+	void init(MonitoringTemplate template, HostDef hostDef) {
 		setTemplate(template);
+		setHostDef(hostDef);
+
 		if (trigger != null) { trigger.init(this); }
 
 		if ("%".equals(units) && isNull(formula) && valueType.equals(ValueType.FLOAT)) {

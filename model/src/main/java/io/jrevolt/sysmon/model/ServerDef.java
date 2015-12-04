@@ -9,9 +9,8 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class ServerDef {
+public class ServerDef extends HostDef {
 
-	private String name;
 	private String cluster;
 	private List<EndpointDef> provides = new LinkedList<>();
 	private List<EndpointDef> dependencies = new LinkedList<>();
@@ -25,14 +24,6 @@ public class ServerDef {
 	}
 
 	public ServerDef(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -94,6 +85,14 @@ public class ServerDef {
 
 	///
 
+	@Override
+	public Monitoring getMonitoring() {
+		return clusterDef.getMonitoring();
+	}
+
+
+	///
+
 	void init(ClusterDef clusterDef) {
 		this.clusterDef = clusterDef;
 		network.clear();
@@ -117,32 +116,5 @@ public class ServerDef {
 	///
 
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
 
-		ServerDef serverDef = (ServerDef) o;
-
-		if (!cluster.equals(serverDef.cluster)) return false;
-		if (!name.equals(serverDef.name)) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = name.hashCode();
-		result = 31 * result + cluster.hashCode();
-		return result;
-	}
-
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("ServerDef{");
-		sb.append("name='").append(name).append('\'');
-		sb.append(", cluster='").append(cluster).append('\'');
-		sb.append('}');
-		return sb.toString();
-	}
 }

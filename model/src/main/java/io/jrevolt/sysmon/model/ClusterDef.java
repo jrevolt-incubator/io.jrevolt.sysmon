@@ -27,7 +27,7 @@ public class ClusterDef extends DomainObject {
 	private List<ArtifactDef> artifacts = new LinkedList<>();
 	private boolean isAccessAllowed;
 
-	private MonitoringDef monitoring = new MonitoringDef();
+	private Monitoring monitoring = new Monitoring();
 
 	///
 
@@ -79,11 +79,11 @@ public class ClusterDef extends DomainObject {
 		this.isAccessAllowed = isAccessAllowed;
 	}
 
-	public MonitoringDef getMonitoring() {
+	public Monitoring getMonitoring() {
 		return monitoring;
 	}
 
-	public void setMonitoring(MonitoringDef monitoring) {
+	public void setMonitoring(Monitoring monitoring) {
 		this.monitoring = monitoring;
 	}
 
@@ -128,7 +128,7 @@ public class ClusterDef extends DomainObject {
 		// define cluster template
 		domain.getMonitoring().getTemplates().add(with(new MonitoringTemplate(), t->{
 			t.setName(format("cluster-%s", getClusterName()));
-			t.getTemplates().addAll(getMonitoring().getTemplates());
+			t.getTemplates().addAll(getMonitoring().getTemplateNames());
 			t.getGroups().addAll(domain.getAllTemplateDeps(t));
 			t.getGroups().addAll(getMonitoring().getGroups());
 			t.getGroups().add("Templates");
@@ -138,7 +138,7 @@ public class ClusterDef extends DomainObject {
 
 			// reset cluster templates, replace all with this one
 			getMonitoring().getTemplates().clear();
-			getMonitoring().getTemplates().add(t.getName());
+			getMonitoring().getTemplates().add(t);
 
 
 			// if "deployment" domain monitoring template is defined,
@@ -156,35 +156,6 @@ public class ClusterDef extends DomainObject {
 				getArtifacts().forEach(a-> a.getProvides().forEach(e-> copyItem(e.getUri().toString(), t, i)));
 			});
 		}));
-
-		// define cluster template
-		if (false) domain.getMonitoring().getTemplates().add(with(new MonitoringTemplate(), t->{
-			t.setName(format("cluster-%s", getClusterName()));
-			t.getGroups().add("Templates");
-			t.getGroups().add(t.getName());
-//			t.getGroups().addAll(domain.getAllTemplateDeps(t));
-			t.getTemplates().addAll(getMonitoring().getTemplates());
-			with(getMonitoring(), m -> {
-				t.getTemplates().addAll(m.getTemplates());
-				t.getGroups().addAll(m.getTemplates());
-			});
-
-			// if "deployment" domain monitoring template is defined,
-			// configure cluster monitoring item for every artifact in cluster artifact list
-			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("deployment")).distinct().forEach(i->{
-				getArtifacts().stream().forEach(a->{
-					String artifactId = Artifact.parse(a.getUri().getSchemeSpecificPart()).getArtifactId();
-					t.getItems().add(with(new MonitoringItem(i), m->{
-						m.setName(m.getName().replace("$name", artifactId));
-						m.setCommand(m.getCommand().replace("$name", artifactId));
-						m.init(t);
-					}));
-				});
-			});
-
-			getMonitoring().getGroups().addAll(domain.getAllTemplateDeps(t));
-		}));
-
 
 		// populate server provided endpoints based on cluster configured template
 		// replace the server hostname template with actual server host name
@@ -215,7 +186,7 @@ public class ClusterDef extends DomainObject {
 		dst.getItems().add(with(new MonitoringItem(src), m->{
 			m.setName(m.getName().replace("$name", name));
 			m.setCommand(m.getCommand().replace("$name", name));
-			m.init(dst);
+			m.init(dst, src.getHostDef());
 		}));
 	}
 

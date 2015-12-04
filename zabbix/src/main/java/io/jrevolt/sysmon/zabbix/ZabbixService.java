@@ -1,9 +1,10 @@
 package io.jrevolt.sysmon.zabbix;
 
+import io.jrevolt.sysmon.model.HostDef;
 import io.jrevolt.sysmon.model.MonitoringItem;
 import io.jrevolt.sysmon.model.MonitoringTemplate;
 import io.jrevolt.sysmon.model.MonitoringTrigger;
-import io.jrevolt.sysmon.model.ServerDef;
+import io.jrevolt.sysmon.model.ProxyDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,17 +25,21 @@ import com.zabbix4j.configuration.ConfigurationExportResponse;
 import com.zabbix4j.configuration.Option;
 import com.zabbix4j.host.HostCreateRequest;
 import com.zabbix4j.host.HostGetRequest;
-import com.zabbix4j.host.HostGetResponse;
 import com.zabbix4j.host.HostObject;
 import com.zabbix4j.hostgroup.HostgroupCreateRequest;
 import com.zabbix4j.hostgroup.HostgroupGetRequest;
 import com.zabbix4j.hostgroup.HostgroupGetResponse;
 import com.zabbix4j.hostgroup.HostgroupObject;
+import com.zabbix4j.hostinteface.HostInterfaceGetRequest;
 import com.zabbix4j.hostinteface.HostInterfaceObject;
 import com.zabbix4j.item.ItemCreateRequest;
 import com.zabbix4j.item.ItemGetRequest;
 import com.zabbix4j.item.ItemGetResponse;
 import com.zabbix4j.item.ItemObject;
+import com.zabbix4j.proxy.ProxyCreateRequest;
+import com.zabbix4j.proxy.ProxyGetRequest;
+import com.zabbix4j.proxy.ProxyGetResponse;
+import com.zabbix4j.proxy.ProxyObject;
 import com.zabbix4j.template.TemplateCreateRequest;
 import com.zabbix4j.template.TemplateCreateResponse;
 import com.zabbix4j.template.TemplateGetRequest;
@@ -103,7 +108,7 @@ public class ZabbixService {
 	}
 
 	public TemplateObject getTemplate(MonitoringTemplate template) {
-		return getTemplate(template.getName());
+		return template != null ? getTemplate(template.getName()) : null;
 	}
 
 	public TemplateObject getTemplate(String name) {
@@ -128,43 +133,82 @@ public class ZabbixService {
 		return getTemplate(name);
 	}
 
+	/// proxies ///
+
+	public ProxyObject getProxy(String name) {
+		List<ProxyGetResponse.Result> result = api.proxy().get(with(new ProxyGetRequest(), r -> {
+			r.getParams().setOutput("extend");
+		})).getResult();
+		return result.stream()
+				.filter(p -> p.getHost().equals(name))
+				.findFirst().orElse(null);
+	}
+
+	public ProxyObject getProxy(String name, boolean create) {
+		ProxyObject proxy = getProxy(name);
+
+		if (proxy != null) { return proxy; }
+		if (!create) { return null; }
+
+		api.proxy().create(with(new ProxyCreateRequest(), r -> {
+			r.getParams().setHost(name);
+			r.getParams().setStatus(5); // FIXME hardcoded proxy type (active)
+		}));
+
+		return getProxy(name);
+	}
+
 	/// hosts ///
 
-	public HostObject getHost(ServerDef server, boolean create) {
-		HostObject host = getHost(server.getName());
+	public HostObject getHost(HostDef hostdef, boolean create) {
+		HostObject host = getHost(hostdef.getName());
 		if (nonNull(host)) { return host; }
 		if (!create) { return null; }
 
-		LOG.info("Create host {}", server.getName());
+		LOG.info("Create host {}", hostdef.getName());
 		api.host().create(with(new HostCreateRequest(), r->{
 			r.setId(1);
-			r.getParams().setHost(server.getName());
-			server.getClusterDef().getMonitoring().getGroups().forEach(g->{
-				r.getParams().addGroupId(getHostGroup(g).getGroupid());
-			});
-			server.getClusterDef().getMonitoring().getTemplates().forEach(t->{
-				r.getParams().addTemplateId(getTemplate(t).getTemplateid());
+			r.getParams().setHost(hostdef.getName());
+			with(hostdef.getMonitoring(), m->{
+				m.getGroups().forEach(g->{
+					r.getParams().addGroupId(getHostGroup(g).getGroupid());
+				});
+				m.getTemplates().forEach(t->{
+					r.getParams().addTemplateId(getTemplate(t).getTemplateid());
+				});
 			});
 			r.getParams().addHostInterfaceObject(with(new HostInterfaceObject(), i->{
 				i.setType(1);
 				i.setMain(1);
-				i.setDns(server.getName());
-				i.setIp(getIp(server.getName()));
+				i.setDns(hostdef.getName());
+				i.setIp(getIp(hostdef.getName()));
 				i.setUseip(i.getIp() != null ? 1 : 0);
 				i.setPort(10050);
 			}));
+			if (hostdef instanceof ProxyDef) {
+				configure(r, ((ProxyDef) hostdef));
+			}
 			r.getParams().setStatus(null);
+			if (r.getParams().getGroups() == null) {
+				r.getParams().addGroupId(getHostGroup(cfg.getDefaultMonitoringGroup(), true).getGroupid());
+			}
 		}));
 
-		return getHost(server.getName());
+		return getHost(hostdef.getName());
+	}
+
+	private void configure(HostCreateRequest r, ProxyDef proxy) {
+		String zproxyname = proxy.getMonitoring() != null ? proxy.getMonitoring().getProxy() : null;
+		if (zproxyname == null) { return; }
+
+		r.getParams().setProxy_hostid(getProxy(zproxyname).getProxyid());
 	}
 
 	public HostObject getHost(String name) {
-		HostGetRequest req = new HostGetRequest();
-		req.getParams().setFilter(new HostGetRequest.Filter());
-		req.getParams().getFilter().addHost(name);
-		HostGetResponse res = api.host().get(req);
-		return res.getResult().stream().findFirst().orElse(null);
+		return api.host().get(with(new HostGetRequest(), r->{
+			r.getParams().setFilter(new HostGetRequest.Filter());
+			r.getParams().getFilter().addHost(name);
+		})).getResult().stream().findFirst().orElse(null);
 	}
 
 
@@ -175,23 +219,31 @@ public class ZabbixService {
 		if (nonNull(item)) { return item; }
 		if (!create) { return null; }
 
-		LOG.info("Creating item \"{}\" for template {}", mi.getName(), mi.getTemplate().getName());
-		Integer applicationId = getApplication(mi.getTemplate().getName(), "appserver", true).getApplicationid();
-		api.item().create(with(new ItemCreateRequest(), t -> {
-			t.getParams().setName(mi.getName());
-			t.getParams().setKey_(mi.getCommand());
-			t.getParams().setHostid(getTemplate(mi.getTemplate()).getTemplateid());
-			t.getParams().setType(mi.getType().ordinal());
-			t.getParams().setValue_type(mi.getValueType().ordinal());
-			t.getParams().setData_type(mi.getDataType().ordinal());
-			t.getParams().setParams(mi.getParams());
-			t.getParams().setUnits(mi.getUnits());
+		LOG.info("Creating item \"{}\" for template {}",
+					mi.getName(),
+					nonNull(mi.getTemplate()) ? mi.getTemplate().getName() : "<none>"
+		);
+		Integer applicationId = getApplication(mi, "appserver", true).getApplicationid();
+		api.item().create(with(new ItemCreateRequest(), i -> {
+			i.getParams().setName(mi.getName());
+			i.getParams().setKey_(mi.getCommand());
+			i.getParams().setHostid(resolveHostId(mi));
+			i.getParams().setInterfaceid(0);
+			i.getParams().setType(mi.getType().ordinal());
+			i.getParams().setValue_type(mi.getValueType().ordinal());
+			i.getParams().setData_type(mi.getDataType().ordinal());
+			i.getParams().setParams(mi.getParams());
+			i.getParams().setUnits(mi.getUnits());
 			if (nonNull(mi.getFormula())) {
-				t.getParams().setFormula(mi.getFormula().floatValue());
-				t.getParams().setMultiplier(1);
+				i.getParams().setFormula(mi.getFormula().floatValue());
+				i.getParams().setMultiplier(1);
 			}
-			t.getParams().setApplications(singletonList(applicationId));
-			t.getParams().setDelay(60);
+			if (mi.getType().equals(MonitoringItem.Type.EXTERNAL)) {
+				HostInterfaceObject iface = getHostInterface(getHost(mi.getHostDef().getName()));
+				i.getParams().setInterfaceid(iface.getInterfaceid());
+			}
+			i.getParams().setApplications(singletonList(applicationId));
+			i.getParams().setDelay(60);
 		}));
 		return getItem(mi);
 	}
@@ -201,7 +253,9 @@ public class ZabbixService {
 			r.getParams().setOutput("extend");
 			r.getParams().setSearch(new GetRequestCommonParams.Search());
 			r.getParams().getSearch().setName(mi.getName());
-			r.getParams().setHostids(singletonList(getTemplate(mi.getTemplate()).getTemplateid()));
+			if (nonNull(mi.getTemplate())) {
+				r.getParams().setHostids(singletonList(getTemplate(mi.getTemplate()).getTemplateid()));
+			}
 		}));
 		return res.getResult().stream().filter(r->r.getName().equals(mi.getName())).findFirst().orElse(null);
 	}
@@ -213,19 +267,28 @@ public class ZabbixService {
 		if (nonNull(trigger)) { return trigger; }
 		if (!create) { return null; }
 
-		LOG.info("Creating trigger \"{}\" for item \"{}\" in template {}",
-					mt.getName(), mt.getItem().getName(), mt.getItem().getTemplate().getName());
+		MonitoringItem i = mt.getItem();
+		LOG.info("Creating trigger \"{}\" for item \"{}\" in {} {}",
+					mt.getName(), i.getName(),
+					nonNull(i.getTemplate()) ? "template" : "host",
+					i.getTemplateName());
 		api.trigger().create(with(new TriggerCreateRequest(), r->{
 			r.getParams().setDescription(mt.getName());
 			r.getParams().setExpression(mt.getExpression().replace(
-					"$item", format("%s:%s", mt.getItem().getTemplate().getName(), mt.getItem().getCommand())));
+					"$item", format("%s:%s", i.getTemplateName(), i.getCommand())));
 			r.getParams().setPriority(mt.getSeverity().ordinal());
 		}));
 		return getTrigger(mt);
 	}
 
 	public TriggerObject getTrigger(MonitoringTrigger trigger) {
-		return getTrigger(trigger.getName(), getTemplate(trigger.getItem().getTemplate()));
+		return api.trigger().get(with(new TriggerGetRequest(), r -> {
+			r.getParams().setSearch(new GetRequestCommonParams.Search());
+			r.getParams().getSearch().setName(trigger.getName());
+			r.getParams().setHostids(singletonList(resolveHostId(trigger.getItem())));
+		})).getResult().stream()
+				.filter(r -> r.getDescription().equals(trigger.getName()))
+				.findFirst().orElse(null);
 	}
 
 	public TriggerObject getTrigger(String name, TemplateObject template) {
@@ -270,24 +333,37 @@ public class ZabbixService {
 
 	/// applications
 
-	public synchronized ApplicationObject getApplication(String template, String name, boolean create) {
-		Integer templateId = getTemplate(template).getTemplateid();
+	public synchronized ApplicationObject getApplication(MonitoringItem item, String name, boolean create) {
+		Integer hostId = resolveHostId(item);
+
 		ApplicationObject app = api.application().get(with(new ApplicationGetRequest(), r -> {
 			r.getParams().setOutput("extend");
 			r.getParams().setSearch(with(new ItemGetRequest.Search(), s -> {
 				s.setName(name);
 			}));
-			r.getParams().setHostids(singletonList(templateId));
+			r.getParams().setHostids(singletonList(hostId));
 		})).getResult().stream().filter(o->o.getName().equals(name)).findFirst().orElse(null);
 		if (nonNull(app)) { return app; }
 		if (!create) { return null; }
 
 		api.application().create(with(new ApplicationCreateRequest(), r -> {
 			r.getParams().setName(name);
-			r.getParams().setHostid(templateId);
+			r.getParams().setHostid(hostId);
 		}));
 
-		return getApplication(template, name, false);
+		return getApplication(item, name, false);
+	}
+
+	private Integer resolveHostId(MonitoringItem item) {
+		return nonNull(item.getTemplate()) ? getTemplate(item.getTemplate()).getTemplateid()
+		: nonNull(item.getHostDef()) ? getHost(item.getHostDef().getName()).getHostid()
+		: null;
+	}
+
+	HostInterfaceObject getHostInterface(HostObject host) {
+		return api.hostInterface().get(with(new HostInterfaceGetRequest(), r -> {
+			r.getParams().setHostids(singletonList(host.getHostid()));
+		})).getResult().stream().findFirst().orElse(null);
 	}
 
 	///

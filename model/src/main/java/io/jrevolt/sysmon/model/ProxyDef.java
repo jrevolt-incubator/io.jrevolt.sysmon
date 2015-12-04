@@ -3,29 +3,23 @@ package io.jrevolt.sysmon.model;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class ProxyDef extends DomainObject {
+public class ProxyDef extends HostDef {
 
 	static public enum Type { INTERNAL, ADMIN, INTRANET, PUBLIC }
 
-	private String name;
 	private Type type;
 	private URI endpoint;
 	private List<RoutingDef> routing;
 	private Monitoring monitoring;
 
 	///
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public Type getType() {
 		return type;
@@ -51,6 +45,7 @@ public class ProxyDef extends DomainObject {
 		this.routing = routing;
 	}
 
+	@Override
 	public Monitoring getMonitoring() {
 		return monitoring;
 	}
@@ -64,5 +59,11 @@ public class ProxyDef extends DomainObject {
 	// used by YAML
 	public void setProxyName(String name) {
 		this.name = name;
+	}
+
+	///
+
+	void init() {
+		if (nonNull(monitoring)) { monitoring.init(this); }
 	}
 }

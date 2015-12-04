@@ -27,9 +27,12 @@ public class ZabbixCfg {
 	private Pattern clusterInclude;
 	private Pattern clusterExclude;
 
+	private boolean skipUpdate;
 	private boolean skipHosts;
 	private boolean skipItems;
 	private boolean skipTriggers;
+
+	private String defaultMonitoringGroup;
 
 	public URL getUrl() {
 		return url;
@@ -103,6 +106,14 @@ public class ZabbixCfg {
 		this.clusterExclude = clusterExclude;
 	}
 
+	public boolean isSkipUpdate() {
+		return skipUpdate;
+	}
+
+	public void setSkipUpdate(boolean skipUpdate) {
+		this.skipUpdate = skipUpdate;
+	}
+
 	public boolean isSkipHosts() {
 		return skipHosts;
 	}
@@ -125,5 +136,13 @@ public class ZabbixCfg {
 
 	public void setSkipTriggers(boolean skipTriggers) {
 		this.skipTriggers = skipTriggers;
+	}
+
+	public String getDefaultMonitoringGroup() {
+		return defaultMonitoringGroup;
+	}
+
+	public void setDefaultMonitoringGroup(String defaultMonitoringGroup) {
+		this.defaultMonitoringGroup = defaultMonitoringGroup;
 	}
 }

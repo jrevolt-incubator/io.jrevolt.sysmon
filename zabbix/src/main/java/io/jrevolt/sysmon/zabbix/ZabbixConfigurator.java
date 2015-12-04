@@ -2,8 +2,10 @@ package io.jrevolt.sysmon.zabbix;
 
 import io.jrevolt.launcher.mvn.Artifact;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.Monitoring;
 import io.jrevolt.sysmon.model.MonitoringItem;
 import io.jrevolt.sysmon.model.MonitoringTrigger;
+import io.jrevolt.sysmon.model.ProxyDef;
 import io.jrevolt.sysmon.model.ServerDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.zabbix4j.host.HostDeleteRequest;
 import com.zabbix4j.host.HostGetRequest;
 import com.zabbix4j.host.HostGetResponse;
+import com.zabbix4j.host.HostObject;
 import com.zabbix4j.hostgroup.HostgroupDeleteRequest;
 import com.zabbix4j.hostgroup.HostgroupGetRequest;
 import com.zabbix4j.hostgroup.HostgroupGetResponse;
@@ -27,9 +30,13 @@ import com.zabbix4j.template.TemplateObject;
 import com.zabbix4j.template.TemplateUpdateRequest;
 import com.zabbix4j.trigger.TriggerCreateRequest;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
+import static io.jrevolt.sysmon.common.Utils.address;
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
 import static java.util.Objects.*;
@@ -67,6 +74,7 @@ public class ZabbixConfigurator {
 				reset();
 			}
 			if (cfg.isConfigure()) {
+				configureProxies();
 				configureHostGroups();
 				configureTemplates();
 				configureHosts();
@@ -132,6 +140,15 @@ public class ZabbixConfigurator {
 
 	}
 
+	public void configureProxies() {
+		Set<String> names = new HashSet<>();
+		domain.getProxies().stream()
+				.map(ProxyDef::getMonitoring).filter(Objects::nonNull)
+				.map(Monitoring::getProxy).filter(Objects::nonNull)
+				.forEach(names::add);
+		names.parallelStream().forEach(s->zbx.getProxy(s, true));
+	}
+
 	public void configureHostGroups() {
 		domain.getMonitoring().getGroups().forEach(g->zbx.getHostGroup(g, true));
 	}
@@ -180,6 +197,9 @@ public class ZabbixConfigurator {
 		domain.getClusters().parallelStream().flatMap(c->c.getServers().stream()).forEach(s->{
 			zbx.getHost(s, true);
 		});
+		domain.getProxies().parallelStream().forEach(p->{
+			zbx.getHost(p, true);
+		});
 	}
 
 	public void configureApplications() {
@@ -194,6 +214,9 @@ public class ZabbixConfigurator {
 
 		domain.getMonitoring().getTemplates().parallelStream().forEach(t->{
 			t.getItems().parallelStream().forEach(i-> zbx.getItem(i, true));
+		});
+		domain.getProxies().stream().filter(p->nonNull(p.getMonitoring())).forEach(p -> {
+			p.getMonitoring().getItems().parallelStream().forEach(i -> zbx.getItem(i, true));
 		});
 
 		if (false) domain.getClusters().parallelStream().filter(c->nonNull(c.getMonitoring())).forEach(c-> {
@@ -252,11 +275,17 @@ public class ZabbixConfigurator {
 			return;
 		}
 
-		domain.getMonitoring().getTemplates().parallelStream().forEach(t->{
-			t.getItems().stream().map(MonitoringItem::getTrigger).filter(Objects::nonNull).forEach(tr-> {
-				zbx.getTrigger(tr, true);
-			});
-		});
+		domain.getMonitoring().getTemplates().stream()
+				.flatMap(t->t.getItems().stream())
+				.map(MonitoringItem::getTrigger).filter(Objects::nonNull)
+				.parallel().forEach(t -> zbx.getTrigger(t, true));
+
+		domain.getProxies().stream()
+				.map(ProxyDef::getMonitoring).filter(Objects::nonNull)
+				.flatMap(m -> m.getItems().stream())
+				.map(MonitoringItem::getTrigger).filter(Objects::nonNull)
+				.parallel().forEach(t -> zbx.getTrigger(t, true));
+
 
 		if (false) domain.getClusters().parallelStream().forEach(c->{
 			c.getArtifacts().parallelStream().forEach(a->{

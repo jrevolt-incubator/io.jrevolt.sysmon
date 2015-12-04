@@ -1,10 +1,12 @@
 package io.jrevolt.sysmon.model;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.annotation.PostConstruct;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -80,7 +82,8 @@ public class MonitoringTrigger {
 	void init(MonitoringItem item) {
 		setItem(item);
 		setName(getName().replace("$item", getItem().getName()));
-		setExpression(getExpression().replace("$item", format("%s:%s", getItem().getTemplate().getName(), getItem().getCommand())));
+		setExpression(getExpression().replace("$item", format(
+				"%s:%s", getItem().getTemplateName(), getItem().getCommand())));
 	}
 
 

@@ -1,23 +1,15 @@
-# command line shortcuts
-reset: true
-configure: true
-threads: 24
-clusterInclude: .*
-clusterExclude: UNDEFINED
 
-skipHosts: false
-skipItems: false
-skipTriggers: false
+spring.profiles.include: customlog
 
 io.jrevolt.sysmon.zabbix:
-   reset: ${reset}
-   configure: ${configure}
-   threads: ${threads}
-   clusterInclude: ${clusterInclude}
-   clusterExclude: ${clusterExclude}
-   skipHosts: ${skipHosts}
-   skipItems: ${skipItems}
-   skipTriggers: ${skipTriggers}
+   reset: ${reset:false}
+   configure: ${configure:true}
+   threads: ${threads:24}
+   clusterInclude: ${clusterInclude:.*}
+   clusterExclude: ${clusterExclude:UNDEFINED}
+   skipHosts: ${skipHosts:false}
+   skipItems: ${skipItems:false}
+   skipTriggers: ${skipTriggers:false}
 
 ---
 

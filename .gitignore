@@ -16,6 +16,7 @@ rebel.xml
 /.soapui
 
 # SpringBoot and apps
+/system.properties
 /application.yaml
 /application-*.yaml
 /*.json

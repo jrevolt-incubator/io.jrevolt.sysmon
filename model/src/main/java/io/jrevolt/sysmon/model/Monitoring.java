@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -85,6 +86,6 @@ public class Monitoring extends DomainObject {
 		// unnamed items are silently removed (they were used as YAML templates, and are not needed anymore)
 		getItems().removeIf(i -> isNull(i.getName()));
 
-		getItems().forEach(i->i.init(null, hostDef));
+		if (nonNull(hostDef)) getItems().forEach(i->i.init(null, hostDef));
 	}
 }

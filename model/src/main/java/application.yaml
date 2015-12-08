@@ -1,9 +1,7 @@
-# command line shortcuts
-clusterFilter: .*
-
 spring.application:
    pid: ${PID}
 
 
 io.jrevolt.sysmon.model:
-   clusterFilter: ${clusterFilter}
+   proxyFilter: .*
+   clusterFilter: .*

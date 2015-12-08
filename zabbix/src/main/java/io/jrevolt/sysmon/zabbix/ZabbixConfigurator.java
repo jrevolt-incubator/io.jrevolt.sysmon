@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.zabbix;
 
 import io.jrevolt.launcher.mvn.Artifact;
+import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
 import io.jrevolt.sysmon.model.Monitoring;
 import io.jrevolt.sysmon.model.MonitoringItem;
@@ -215,6 +216,12 @@ public class ZabbixConfigurator {
 		domain.getMonitoring().getTemplates().parallelStream().forEach(t->{
 			t.getItems().parallelStream().forEach(i-> zbx.getItem(i, true));
 		});
+
+		domain.getClusters().stream()
+				.map(ClusterDef::getMonitoring).filter(Objects::nonNull)
+				.flatMap(m->m.getItems().stream())
+				.parallel().forEach(i-> zbx.getItem(i, true));
+
 		domain.getProxies().stream().filter(p->nonNull(p.getMonitoring())).forEach(p -> {
 			p.getMonitoring().getItems().parallelStream().forEach(i -> zbx.getItem(i, true));
 		});
@@ -277,6 +284,13 @@ public class ZabbixConfigurator {
 
 		domain.getMonitoring().getTemplates().stream()
 				.flatMap(t->t.getItems().stream())
+				.map(MonitoringItem::getTrigger).filter(Objects::nonNull)
+				.parallel().forEach(t -> zbx.getTrigger(t, true));
+
+		domain.getClusters().stream()
+				.flatMap(c -> c.getServers().stream())
+				.map(ServerDef::getMonitoring).filter(Objects::nonNull)
+				.flatMap(m -> m.getItems().stream())
 				.map(MonitoringItem::getTrigger).filter(Objects::nonNull)
 				.parallel().forEach(t -> zbx.getTrigger(t, true));
 

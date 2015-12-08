@@ -79,6 +79,7 @@ public class DomainDef extends DomainObject {
 	void init() {
 
 		// QDH filter
+		proxies.removeIf(p -> !cfg.getProxyFilter().matcher(p.getName()).matches());
 		clusters.removeIf(c -> !cfg.getClusterFilter().matcher(c.getClusterName()).matches());
 
 		// replicate template hierarchy into host groups (a template is also a group)
@@ -95,6 +96,9 @@ public class DomainDef extends DomainObject {
 
 		proxies.forEach(ProxyDef::init);
 		clusters.forEach(c -> c.init(this));
+
+		// finally, drop all the template objects
+		with(getMonitoring(), m -> m.getItems().clear());
 
 		try {
 			new Yaml().dump(this, new FileWriter("c:/users/patrik/var/test.yaml"));

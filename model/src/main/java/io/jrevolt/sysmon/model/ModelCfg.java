@@ -14,7 +14,16 @@ import java.util.regex.Pattern;
 @ConfigurationProperties("io.jrevolt.sysmon.model")
 public class ModelCfg {
 
+	private Pattern proxyFilter;
 	private Pattern clusterFilter;
+
+	public Pattern getProxyFilter() {
+		return proxyFilter;
+	}
+
+	public void setProxyFilter(Pattern proxyFilter) {
+		this.proxyFilter = proxyFilter;
+	}
 
 	public Pattern getClusterFilter() {
 		return clusterFilter;

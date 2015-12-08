@@ -100,6 +100,7 @@ public class ServerDef extends HostDef {
 				.map(d -> new NetworkInfo(d.getCluster(), d.getServer(), Utils.resolveHost(d.getUri()), Utils.resolvePort(d.getUri())))
 				.distinct()
 				.collect(Collectors.toList()));
+		//Utils.with(getMonitoring(), m -> m.init(this));
 	}
 
 	public void update(ServerDef server) {

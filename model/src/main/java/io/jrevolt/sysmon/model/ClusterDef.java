@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -154,6 +155,14 @@ public class ClusterDef extends DomainObject {
 			// configure cluster monitoring item for every provided endpoint
 			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("endpoint")).distinct().forEach(i->{
 				getArtifacts().forEach(a-> a.getProvides().forEach(e-> copyItem(e.getUri().toString(), t, i)));
+			});
+
+			// copy rest of the monitoring items into cluster template
+			with(getMonitoring(), m->{
+				m.getItems().stream()
+						.filter(i -> Objects.nonNull(i.getName()))
+						.forEach(i -> copyItem(i.getName(), t, i));
+				m.getItems().clear();
 			});
 		}));
 

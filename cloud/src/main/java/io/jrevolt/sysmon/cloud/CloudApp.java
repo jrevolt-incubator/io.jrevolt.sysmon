@@ -77,6 +77,14 @@ public class CloudApp {
 		};
 	}
 
+	@Bean @ConditionalOnProperty(name="command", havingValue="listTags")
+	public CloudCommand listTags(CloudService cloud) {
+		return () -> {
+			LOG.info("listTags()");
+			cloud.listTags();
+		};
+	}
+
 	@Bean @ConditionalOnMissingBean
 	public CloudCommand help() {
 		return () -> {

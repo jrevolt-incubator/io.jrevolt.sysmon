@@ -12,14 +12,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static io.jrevolt.sysmon.cloud.Utils.interruptible;
 import static java.lang.Math.negateExact;
 
 /**
@@ -36,31 +37,39 @@ public class CloudService {
 	@Autowired
 	CloudApi api;
 
+	///
 
-	public List<VirtualMachine> listVMs(String env) {
-		return api.listVirtualMachines().getVirtualmachine().stream()
-				.filter(vm -> env == null || env.equals(vm.getTag("ENV")))
-				.collect(Collectors.toList());
-	}
+	Predicate<VirtualMachine> vmfilter = vm -> {
+		Map<String, String> tagfilter = cfg.getTagFilter();
+		return tagfilter.keySet().stream()
+				.map(tag -> vm.containsTag(tag) && vm.getTag(tag, "").matches(tagfilter.get(tag)))
+				.filter(match->!match)
+				.distinct().findFirst().orElse(true);
+	};
 
-	public List<VirtualMachine> listTaggedVMs() {
-		return api.listVirtualMachines().getVirtualmachine().stream()
-				.filter(vm -> vm.containsTag("fqdn"))
-				.collect(Collectors.toList());
-	}
+	Comparator<CloudVM> vmsorter = (vm1,vm2) ->
+			cfg.isSortByHostName() ? Optional.ofNullable(vm1.getHostname()).orElse(vm1.getName()).toLowerCase().compareTo(
+					Optional.ofNullable(vm1.getHostname()).orElse(vm2.getName()).toLowerCase())
+			: cfg.isSortByStartLevel() ? Optional.ofNullable(vm1.getStartLevel()).orElse(Integer.MAX_VALUE).compareTo(
+					Optional.ofNullable(vm2.getStartLevel()).orElse(Integer.MAX_VALUE))
+			: 0;
 
 	Comparator<Integer> startSorting = Integer::compareTo;
-	Comparator<Integer> stopSorting = (l1,l2)-> negateExact(startSorting.compare(l2,l1));
+	Comparator<Integer> stopSorting = (l1,l2)-> negateExact(startSorting.compare(l1,l2));
+
+	///
 
 	interface Action {
 		void run(List<CloudVM> vms);
 	}
 
+	///
+
 	public void startAll(int level) {
 		doAll(
 				startSorting,
 				(vm) -> vm.getStartLevel() <= level,
-				(vms) -> doLevel(vms, vm -> api.startVirtualMachine(vm.getId()).getJobid())
+				(vms) -> doLevel(vms, vm -> api.startVirtualMachine(vm.getId()).getJobid(), !cfg.isSkipStartWait())
 		);
 	}
 
@@ -68,23 +77,41 @@ public class CloudService {
 		doAll(
 				stopSorting,
 				(vm) -> vm.getStartLevel() >= level,
-				(vms) -> doLevel(vms, vm->api.stopVirtualMachine(vm.getId()).getJobid())
+				(vms) -> doLevel(vms, vm->api.stopVirtualMachine(vm.getId()).getJobid(), false)
 		);
 	}
 
 	public void rebootVM(String vmid) {
 		Set<String> jobs = new CopyOnWriteArraySet<>();
-		api.listVirtualMachines().getVirtualmachine().stream()
+		api.listVirtualMachines(true).getVirtualmachine().stream()
 				.map(CloudVM::new)
 				.filter(vm-> vmid.equals(vm.getId()) || vmid.equals(vm.getHostname()))
 				.forEach(vm-> jobs.add(api.rebootVirtualMachine(vm.getId()).getJobid()));
-		waitForJobs(jobs);
+		interruptible(()->waitForJobs(jobs));
 	}
 
 	public void listVMs() {
-		api.listVirtualMachines().getVirtualmachine().stream()
+		List<VirtualMachine> vms = api.listVirtualMachines(true).getVirtualmachine();
+		List<CloudVM> filtered = vms.stream()
+				.filter(vmfilter)
 				.map(CloudVM::new)
-				.forEach(vm->LOG.info("{} ip:{} mac:{}", vm.getHostname(), vm.getIpAddress(), vm.getMacAddress()));
+				.sorted(vmsorter)
+				.collect(Collectors.toList());
+		filtered.forEach(vm->{
+					System.out.printf(
+							"id:%-40s name:%-20s hostname:%24s environment:%-8s startLevel:%4d startWait:%4d state:%-8s ip:%s mac:%s%n",
+							vm.getId(), vm.getName(),
+							vm.getHostname(), vm.getEnvironment(), vm.getStartLevel(), vm.getStartWait(),
+							vm.getVirtualMachine().getState(), vm.getIpAddress(), vm.getMacAddress()
+					);
+				});
+		LOG.info("Listed {} of {} VMs", filtered.size(), vms.size());
+	}
+
+	public void listTags() {
+		api.listVirtualMachines(true).getVirtualmachine().forEach(vm->{
+			System.out.printf("%-20s %s%n", vm.getDisplayname(), vm.getTags());
+		});
 	}
 
 	///
@@ -92,15 +119,12 @@ public class CloudService {
 	protected void doAll(Comparator<Integer> levelSorter,
 							Predicate<CloudVM> levelFilter,
 							Action action) {
-		Map<String, String> tagfilter = cfg.getTagFilter();
-		List<CloudVM> vms = api.listVirtualMachines().getVirtualmachine().stream()
-				.filter(vm -> tagfilter.keySet().stream()
-						.map(tag -> vm.containsTag(tag) && vm.getTag(tag, "").matches(tagfilter.get(tag)))
-						.filter(b -> b.equals(false))
-						.distinct().findFirst().orElse(true))
+		List<CloudVM> vms = api.listVirtualMachines(true).getVirtualmachine().stream()
+				.filter(vmfilter)
 				.map(CloudVM::new)
 				.filter(levelFilter::test)
 				.collect(Collectors.toList());
+		LOG.debug("Processing {} VMs", vms.size());
 
 		// get unique levels
 		List<Integer> levels = vms.stream()
@@ -113,26 +137,39 @@ public class CloudService {
 
 		levels.stream().forEach(level -> {
 			List<CloudVM> filtered = vms.stream()
-					.filter(vm->vm.getStartLevel() == level)
+					.filter(vm -> vm.getStartLevel().equals(level))
 					.collect(Collectors.toList());
 			action.run(filtered);
 		});
 	}
 
-	protected void doLevel(List<CloudVM> vms, Function<CloudVM, String> action) {
-		Integer level = vms.stream().map(CloudVM::getStartLevel).findFirst().orElse(null);
+	protected void doLevel(List<CloudVM> vms, Function<CloudVM, String> action, boolean applyStartWait) {
+		Integer level = vms.stream().findFirst().map(CloudVM::getStartLevel).get();
+		Integer startWait = applyStartWait
+				? vms.stream().map(CloudVM::getStartWait).max(Integer::compareTo).orElse(30)
+				: null;
 		Set<String> jobs = new CopyOnWriteArraySet<>();
 		vms.stream()
 				.parallel()
 				.forEach(vm -> jobs.add(action.apply(vm)));
-		LOG.info("Processing {} VMs: {}",
-					jobs.size(),
-					vms.stream().map(CloudVM::getHostname).collect(Collectors.toList()));
-		int total = jobs.size();
-		waitForJobs(jobs);
+		jobs.remove(null);
+
+		interruptible(()->{
+			LOG.info("Level {}: Processing {} VMs: {}",
+						level,
+						vms.size(),
+						vms.stream().map(CloudVM::getHostname).collect(Collectors.toList()));
+			waitForJobs(jobs);
+
+			if (applyStartWait) {
+				LOG.info("Level {}: All {} jobs completed. Waiting {} seconds to allow level services to fully initialize",
+							level, jobs.size(), startWait);
+				Thread.sleep(TimeUnit.SECONDS.toMillis(startWait));
+			}
+		});
 	}
 
-	private void waitForJobs(Set<String> jobs) {
+	private void waitForJobs(Set<String> jobs) throws InterruptedException {
 		while (!jobs.isEmpty()) {
 			LOG.debug("Waiting for {} jobs", jobs.size());
 			jobs.parallelStream().forEach(id->{
@@ -143,14 +180,10 @@ public class CloudService {
 					LOG.info("Completed: {} {}", vm.getHostname(), vm.getVirtualMachine().getNic());
 				}
 			});
-			if (!jobs.isEmpty()) try {
-				Thread.sleep(2500);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				break;
-			}
+			if (!jobs.isEmpty()) { Thread.sleep(2500); }
 		}
 	}
+
 
 
 }

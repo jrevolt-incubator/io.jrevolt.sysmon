@@ -13,8 +13,10 @@ import java.util.Set;
  */
 public class VirtualMachine extends ApiObject {
 
+	//enum State { Running, Stopped, Present, Destroyed, Expunged }
+
 	String id;
-	String name;
+	String displayname;
 	String domainid;
 	String state;
 	String zoneid;
@@ -34,12 +36,12 @@ public class VirtualMachine extends ApiObject {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getDisplayname() {
+		return displayname;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setDisplayname(String displayname) {
+		this.displayname = displayname;
 	}
 
 	public String getDomainid() {
@@ -122,10 +124,11 @@ public class VirtualMachine extends ApiObject {
 		this.nic = nic;
 	}
 
+
 	///
 
 	public boolean containsTag(String name) {
-		return tags.stream().map(Tag::getKey).filter(s->s.equals(name)).count() > 0;
+		return tags.stream().map(Tag::getKey).distinct().anyMatch(s->s.equals(name));
 	}
 
 	public String getTag(String name) {
@@ -138,4 +141,5 @@ public class VirtualMachine extends ApiObject {
 				.map(t->t.getValue())
 				.findFirst().orElse(dflt);
 	}
+
 }

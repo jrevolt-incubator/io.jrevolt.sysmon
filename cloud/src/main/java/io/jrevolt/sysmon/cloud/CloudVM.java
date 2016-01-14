@@ -5,6 +5,8 @@ import io.jrevolt.sysmon.cloud.model.VirtualMachine;
 
 import com.google.gson.Gson;
 
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -13,22 +15,33 @@ import java.util.stream.Collectors;
 public class CloudVM {
 
 	private String id;
+	private String name;
+
+	// tags
 	private String hostname;
 	private String environment;
-	private int startLevel;
+	private Integer startLevel;
+	private Integer startWait;
 
+	// src
 	private VirtualMachine virtualMachine;
 
 	public CloudVM(VirtualMachine virtualMachine) {
 		this.virtualMachine = virtualMachine;
 		this.id = virtualMachine.getId();
-		this.environment = virtualMachine.getTag("ENV");
-		this.hostname = virtualMachine.getTag("fqdn");
-		this.startLevel = Integer.parseInt(virtualMachine.getTag("start", "0"));
+		this.name = virtualMachine.getDisplayname();
+		this.environment = virtualMachine.getTag("environment");
+		this.hostname = virtualMachine.getTag("hostname");
+		this.startLevel = Optional.ofNullable(virtualMachine.getTag("startLevel")).map(Integer::parseInt).orElse(null);
+		this.startWait = Optional.ofNullable(virtualMachine.getTag("startWait")).map(Integer::parseInt).orElse(null);
 	}
 
 	public String getId() {
 		return id;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public String getHostname() {
@@ -39,8 +52,12 @@ public class CloudVM {
 		return environment;
 	}
 
-	public int getStartLevel() {
+	public Integer getStartLevel() {
 		return startLevel;
+	}
+
+	public Integer getStartWait() {
+		return startWait;
 	}
 
 	public VirtualMachine getVirtualMachine() {
@@ -56,6 +73,8 @@ public class CloudVM {
 	public String getMacAddress() {
 		return getVirtualMachine().getNic().stream().map(NIC::getMacaddress).collect(Collectors.toList()).toString();
 	}
+
+	///
 
 	public String toString() {
 		return new Gson().toJsonTree(this).toString();

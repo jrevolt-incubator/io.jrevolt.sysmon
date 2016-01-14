@@ -5,6 +5,7 @@ import io.jrevolt.sysmon.cloud.model.ApiObject;
 import io.jrevolt.sysmon.cloud.model.ErrorResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import org.apache.commons.lang3.StringUtils;
@@ -73,15 +74,27 @@ public class CloudApiHandler implements InvocationHandler {
 		doArgs(params, method, args);
 		String data = sign(params);
 
-		boolean cacheable = cfg.isUseCache() && method.getName().startsWith("list"); // QDH FIXME
+		boolean isCacheable = cfg.isUseCache() && method.getAnnotation(Cached.class) != null;
+		boolean isDryRun = cfg.isDryRun() && method.getAnnotation(DryRun.class) != null;
+
 		File cache = new File(urlencode(params.getFirst("signature") + ".json"));
 		String s = null;
-		if (cacheable && cache.exists()) {
+		if (isCacheable && cache.exists()) {
 			try {
 				s = new String(Files.readAllBytes(cache.toPath()), StandardCharsets.UTF_8);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
+		} else if(isDryRun) {
+			try {
+				LOG.debug("Dry-Run: {} {}", method.getName(), params);
+				return (ApiObject) method.getReturnType().newInstance();
+			} catch (Throwable /* InstantiationException | IllegalAccessException*/ e) {
+				LOG.error("Error creating dry-run response", e);
+				return null;
+			}
+
 		} else {
 			WebTarget target = ClientBuilder.newClient().target(uri.build());
 			Invocation inv = target.request()
@@ -94,9 +107,9 @@ public class CloudApiHandler implements InvocationHandler {
 			s = response.readEntity(String.class);
 			Duration duration = Duration.between(Instant.ofEpochMilli(started), Instant.now());
 			LOG.debug("Response: {} {} {} : {}", method.getName(), response.getStatus(), duration,
-						 StringUtils.abbreviate(s, 1000));
+						 StringUtils.abbreviate(s, cfg.getLogMaxResponseLength()));
 
-			if (cacheable) {
+			if (isCacheable) {
 				try {
 					Files.write(cache.toPath(), s.getBytes(StandardCharsets.UTF_8));
 				} catch (IOException e) {

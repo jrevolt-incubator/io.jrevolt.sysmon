@@ -6,8 +6,7 @@ io.jrevolt.sysmon.cloud:
    apiKey:
    secretKey:
    tagFilter:
-      ENV:
-      fqdn:
+   logMaxResponseLength: 1000
 
 ---
 
@@ -20,7 +19,7 @@ logging:
    file:             "${logging.path}/cloud.log"
    level:
       root: WARN
-      io.jrevolt.sysmon: INFO
-      io.jrevolt.sysmon.cloud: DEBUG
-      io.jrevolt.sysmon.cloud.CloudApiHandler: DEBUG
+      #io.jrevolt.sysmon: INFO
+      #io.jrevolt.sysmon.cloud: INFO
+      #io.jrevolt.sysmon.cloud.CloudApiHandler: INFO
 

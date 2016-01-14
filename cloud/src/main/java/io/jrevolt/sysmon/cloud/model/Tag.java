@@ -1,5 +1,8 @@
 package io.jrevolt.sysmon.cloud.model;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
@@ -47,5 +50,10 @@ public class Tag extends ApiObject {
 	@Override
 	public int hashCode() {
 		return key.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("\"%s\"=\"%s\"", key, value);
 	}
 }

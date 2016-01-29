@@ -18,6 +18,19 @@ public class MonitoringTemplate extends DomainObject {
 	private List<String> templates = new LinkedList<>();
 	private List<MonitoringItem> items = new LinkedList<>();
 
+	///
+
+
+	public MonitoringTemplate() {
+	}
+
+	public MonitoringTemplate(String name) {
+		this.name = name;
+	}
+
+
+	///
+
 	public String getName() {
 		return name;
 	}

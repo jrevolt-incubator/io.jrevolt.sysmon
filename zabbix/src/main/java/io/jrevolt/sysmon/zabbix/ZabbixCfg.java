@@ -1,10 +1,6 @@
 package io.jrevolt.sysmon.zabbix;
 
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -26,6 +22,7 @@ public class ZabbixCfg {
 	private int threads;
 	private Pattern clusterInclude;
 	private Pattern clusterExclude;
+	private Pattern resetFilter;
 
 	private boolean skipUpdate;
 	private boolean skipHosts;
@@ -144,5 +141,13 @@ public class ZabbixCfg {
 
 	public void setDefaultMonitoringGroup(String defaultMonitoringGroup) {
 		this.defaultMonitoringGroup = defaultMonitoringGroup;
+	}
+
+	public Pattern getResetFilter() {
+		return resetFilter;
+	}
+
+	public void setResetFilter(Pattern resetFilter) {
+		this.resetFilter = resetFilter;
 	}
 }

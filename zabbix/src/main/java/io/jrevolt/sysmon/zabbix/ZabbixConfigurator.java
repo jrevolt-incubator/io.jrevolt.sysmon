@@ -18,26 +18,20 @@ import org.slf4j.LoggerFactory;
 
 import com.zabbix4j.host.HostDeleteRequest;
 import com.zabbix4j.host.HostGetRequest;
-import com.zabbix4j.host.HostGetResponse;
-import com.zabbix4j.host.HostObject;
 import com.zabbix4j.hostgroup.HostgroupDeleteRequest;
 import com.zabbix4j.hostgroup.HostgroupGetRequest;
-import com.zabbix4j.hostgroup.HostgroupGetResponse;
 import com.zabbix4j.item.ItemCreateRequest;
 import com.zabbix4j.template.TemplateDeleteRequest;
 import com.zabbix4j.template.TemplateGetRequest;
-import com.zabbix4j.template.TemplateGetResponse;
 import com.zabbix4j.template.TemplateObject;
 import com.zabbix4j.template.TemplateUpdateRequest;
 import com.zabbix4j.trigger.TriggerCreateRequest;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
-import static io.jrevolt.sysmon.common.Utils.address;
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
 import static java.util.Objects.*;
@@ -93,52 +87,31 @@ public class ZabbixConfigurator {
 	void reset() {
 		if (!cfg.isReset()) { return; }
 
-		HostGetResponse hosts = zbx.api.host().get(with(new HostGetRequest(), r -> {
-			r.getParams().setOutput("extend");
-			r.getParams().setFilter(new HostGetRequest.Filter());
-			domain.getClusters().stream().flatMap(c -> c.getServers().stream()).map(ServerDef::getName).forEach(h -> {
-				r.getParams().getFilter().addHost(h);
-			});
-		}));
-		if (!hosts.getResult().isEmpty()) zbx.api.host().delete(with(new HostDeleteRequest(), r->{
-			hosts.getResult().stream().forEach(h->{
-				LOG.info("Deleting host {}", h.getName());
-				r.getParams().add(h.getHostid());
-			});
-		}));
+		if (isNull(cfg.getResetFilter())) {
+			LOG.error("No resetFilter specified. Skipping reset.");
+			return;
+		}
 
-		TemplateGetResponse templates = zbx.api.template().get(with(new TemplateGetRequest(), r -> {
-			r.getParams().setOutput("extend");
-			r.getParams().setFilter(new TemplateGetRequest.Filter());
-			domain.getMonitoring().getTemplates().forEach(t->{
-				r.getParams().getFilter().addHost(t.getName());
-			});
-		}));
-		if (!templates.getResult().isEmpty()) zbx.api.template().delete(with(new TemplateDeleteRequest(), r->{
-			templates.getResult().stream().forEach(t->{
-				LOG.info("Deleting cluster template {}", t.getName());
-				r.addTemplateId(t.getTemplateid());
-			});
-		}));
-		domain.getMonitoring().getTemplates().parallelStream().forEach(t->{
-			TemplateObject found = zbx.getTemplate(t.getName());
-			if (isNull(found)) { return; }
-			LOG.info("Deleting template {}", t.getName());
-			zbx.api.template().delete(with(new TemplateDeleteRequest(), r -> r.addTemplateId(found.getTemplateid())));
-		});
+		zbx.api.host().get(new HostGetRequest()).getResult().stream()
+				.filter(h->cfg.getResetFilter().matcher(h.getName()).matches())
+				.forEach(h->{
+					LOG.info("Deleting host {}", h.getName());
+					zbx.api.host().delete(with(new HostDeleteRequest(), r -> r.getParams().add(h.getHostid())));
+				});
 
-		HostgroupGetResponse groups = zbx.api.hostgroup().get(with(new HostgroupGetRequest(), r -> {
-			r.getParams().setOutput("extend");
-			r.getParams().setFilter(new HostgroupGetRequest.Filter());
-			domain.getMonitoring().getGroups().forEach(g-> r.getParams().getFilter().addName(g));
-		}));
-		if (!groups.getResult().isEmpty()) zbx.api.hostgroup().delete(with(new HostgroupDeleteRequest(), r->{
-			groups.getResult().stream().forEach(g->{
-				LOG.info("Deleting cluster host group {}", g.getName());
-				r.getParams().add(g.getGroupid());
-			});
-		}));
+		zbx.api.template().get(new TemplateGetRequest()).getResult().stream()
+				.filter(h->cfg.getResetFilter().matcher(h.getName()).matches())
+				.forEach(h->{
+					LOG.info("Deleting template {}", h.getName());
+					zbx.api.template().delete(with(new TemplateDeleteRequest(), r->r.getParams().add(h.getTemplateid())));
+				});
 
+		zbx.api.hostgroup().get(new HostgroupGetRequest()).getResult().stream()
+				.filter(h->cfg.getResetFilter().matcher(h.getName()).matches())
+				.forEach(h->{
+					LOG.info("Deleting host group {}", h.getName());
+					zbx.api.hostgroup().delete(with(new HostgroupDeleteRequest(), r->r.getParams().add(h.getGroupid())));
+				});
 	}
 
 	public void configureProxies() {

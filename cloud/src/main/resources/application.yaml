@@ -7,6 +7,7 @@ io.jrevolt.sysmon.cloud:
    secretKey:
    tagFilter:
    logMaxResponseLength: 1000
+   showFilteredOnly: true
 
 ---
 

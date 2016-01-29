@@ -34,6 +34,7 @@ public class CloudCfg {
 	private int logMaxResponseLength = 1000;
 	private boolean sortByHostName;
 	private boolean sortByStartLevel;
+	private boolean showFilteredOnly = true;
 
 	public URI getBaseUrl() {
 		return baseUrl;
@@ -113,6 +114,14 @@ public class CloudCfg {
 
 	public void setSortByStartLevel(boolean sortByStartLevel) {
 		this.sortByStartLevel = sortByStartLevel;
+	}
+
+	public boolean isShowFilteredOnly() {
+		return showFilteredOnly;
+	}
+
+	public void setShowFilteredOnly(boolean showFilteredOnly) {
+		this.showFilteredOnly = showFilteredOnly;
 	}
 
 	@PostConstruct

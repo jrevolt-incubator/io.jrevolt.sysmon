@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.jrevolt.sysmon.cloud.Utils.interruptible;
+import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.Math.negateExact;
 
 /**
@@ -38,6 +43,8 @@ public class CloudService {
 	CloudApi api;
 
 	///
+
+	Predicate<VirtualMachine> nofilter = vm -> true;
 
 	Predicate<VirtualMachine> vmfilter = vm -> {
 		Map<String, String> tagfilter = cfg.getTagFilter();
@@ -87,22 +94,22 @@ public class CloudService {
 				.map(CloudVM::new)
 				.filter(vm-> vmid.equals(vm.getId()) || vmid.equals(vm.getHostname()))
 				.forEach(vm-> jobs.add(api.rebootVirtualMachine(vm.getId()).getJobid()));
-		interruptible(()->waitForJobs(jobs));
+		interruptible(()->waitForJobs(jobs, null/*FIXME*/));
 	}
 
 	public void listVMs() {
 		List<VirtualMachine> vms = api.listVirtualMachines(true).getVirtualmachine();
 		List<CloudVM> filtered = vms.stream()
-				.filter(vmfilter)
+				.filter(cfg.isShowFilteredOnly() ? vmfilter : nofilter)
 				.map(CloudVM::new)
 				.sorted(vmsorter)
 				.collect(Collectors.toList());
 		filtered.forEach(vm->{
 					System.out.printf(
-							"id:%-40s name:%-20s hostname:%24s environment:%-8s startLevel:%4d startWait:%4d state:%-8s ip:%s mac:%s%n",
+							"id:%-40s name:%-20s hostname:%24s environment:%-8s startLevel:%4d startWait:%4d state:%-8s mac:%s%n",
 							vm.getId(), vm.getName(),
 							vm.getHostname(), vm.getEnvironment(), vm.getStartLevel(), vm.getStartWait(),
-							vm.getVirtualMachine().getState(), vm.getIpAddress(), vm.getMacAddress()
+							vm.getVirtualMachine().getState(), vm.getMacAddress()
 					);
 				});
 		LOG.info("Listed {} of {} VMs", filtered.size(), vms.size());
@@ -159,7 +166,7 @@ public class CloudService {
 						level,
 						vms.size(),
 						vms.stream().map(CloudVM::getHostname).collect(Collectors.toList()));
-			waitForJobs(jobs);
+			waitForJobs(jobs, vms);
 
 			if (applyStartWait) {
 				LOG.info("Level {}: All {} jobs completed. Waiting {} seconds to allow level services to fully initialize",
@@ -169,19 +176,28 @@ public class CloudService {
 		});
 	}
 
-	private void waitForJobs(Set<String> jobs) throws InterruptedException {
+	private void waitForJobs(Set<String> jobs, List<CloudVM> vms) throws InterruptedException {
+		LOG.debug("Waiting for {} jobs", jobs.size());
+		Set<String> inprogress = vms.stream().map(CloudVM::getHostname).collect(Collectors.toSet());
+		Set<String> completed = new CopyOnWriteArraySet<>();
 		while (!jobs.isEmpty()) {
-			LOG.debug("Waiting for {} jobs", jobs.size());
 			jobs.parallelStream().forEach(id->{
 				QueryAsyncJobResultResponse result = api.queryAsyncJobResult(id);
 				if (result.getJobstatus() == 1) {
-					jobs.remove(id);
 					CloudVM vm = new CloudVM(result.getJobresult().getVirtualmachine());
-					LOG.info("Completed: {} {}", vm.getHostname(), vm.getVirtualMachine().getNic());
+					jobs.remove(id);
+					inprogress.remove(vm.getHostname());
+					completed.add(vm.getHostname());
+					with(System.console(), console -> console.printf("\r\033[K"));
+					LOG.info("Completed: {}", vm.getHostname());
 				}
+			});
+			with(System.console(), console -> {
+				console.printf("\rWaiting for %s jobs %s. Completed: %s", inprogress.size(), inprogress, completed);
 			});
 			if (!jobs.isEmpty()) { Thread.sleep(2500); }
 		}
+		with(System.console(), console -> console.printf("\r\033[K"));
 	}
 
 

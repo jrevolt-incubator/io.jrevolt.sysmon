@@ -82,7 +82,10 @@ subprojects {
 	}
 
 	repositories {
-		maven { url "$cfg.repository"; }
+		maven {
+			url "$cfg.repository"
+			credentials { username "$cfg.repositoryUserName"; password "$cfg.repositoryPassword" }
+		}
 	}
 
 	compileJava.doLast { task ->

@@ -11,7 +11,10 @@ buildscript {
 	}
 	ext.cfg = project.properties
 	repositories {
-		maven { url "$cfg.repository"; }
+		maven {
+			url "$cfg.repository";
+			credentials { username "$cfg.repositoryUserName"; password "$cfg.repositoryPassword" }
+		}
 	}
 	dependencies {
 		classpath("io.jrevolt.plugins:io.jrevolt.plugins.gradle:develop-SNAPSHOT")

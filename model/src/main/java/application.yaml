@@ -5,3 +5,4 @@ spring.application:
 io.jrevolt.sysmon.model:
    proxyFilter: .*
    clusterFilter: .*
+   serverFilter: .*

@@ -4,7 +4,7 @@ dependencies {
 	compile project(":io.jrevolt.sysmon.common")
 
 	compile("org.springframework:spring-context:${springVersion}")
-	compile("io.jrevolt.launcher:io.jrevolt.launcher:0.1.0-SNAPSHOT")
+	compile("io.jrevolt.launcher:io.jrevolt.launcher:${jrevoltLauncherVersion}")
 	compile("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
 	compile("commons-io:commons-io:2.4")
 	compile("org.apache.commons:commons-lang3:3.2")

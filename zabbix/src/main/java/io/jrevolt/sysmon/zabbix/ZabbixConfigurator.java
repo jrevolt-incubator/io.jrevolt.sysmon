@@ -16,6 +16,7 @@ import org.springframework.util.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zabbix4j.ZabbixApiException;
 import com.zabbix4j.host.HostDeleteRequest;
 import com.zabbix4j.host.HostGetRequest;
 import com.zabbix4j.hostgroup.HostgroupDeleteRequest;
@@ -92,7 +93,7 @@ public class ZabbixConfigurator {
 			return;
 		}
 
-		zbx.api.host().get(new HostGetRequest()).getResult().stream()
+		zbx.api.host().get(new HostGetRequest()).getResult().parallelStream()
 				.filter(h->cfg.getResetFilter().matcher(h.getName()).matches())
 				.forEach(h->{
 					LOG.info("Deleting host {}", h.getName());

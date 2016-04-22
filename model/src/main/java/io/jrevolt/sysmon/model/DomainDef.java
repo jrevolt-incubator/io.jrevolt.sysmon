@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.util.Objects.nonNull;
@@ -32,6 +33,8 @@ import static java.util.Objects.requireNonNull;
 public class DomainDef extends DomainObject {
 
 	private String name;
+	private Pattern serverFilter;
+
 	private List<ClusterDef> clusters = new LinkedList<>();
 	private List<ProxyDef> proxies = new LinkedList<>();
 	private Monitoring monitoring;
@@ -47,6 +50,14 @@ public class DomainDef extends DomainObject {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Pattern getServerFilter() {
+		return serverFilter;
+	}
+
+	public void setServerFilter(Pattern serverFilter) {
+		this.serverFilter = serverFilter;
 	}
 
 	public List<ClusterDef> getClusters() {
@@ -103,7 +114,7 @@ public class DomainDef extends DomainObject {
 		try {
 			new Yaml().dump(this, new FileWriter("c:/users/patrik/var/test.yaml"));
 			System.out.println();
-		} catch (IOException ignore) {
+		} catch (Exception ignore) {
 		}
 	}
 

@@ -35,6 +35,20 @@ io.jrevolt.sysmon.zabbix:
 
 ---
 
+spring.profiles: edu.dcom.sk
+io.jrevolt.sysmon.zabbix:
+   dnsServer: 10.231.77.10
+
+---
+
+spring.profiles: eduzabbix
+io.jrevolt.sysmon.zabbix:
+   url: https://se1mons11.test.dcom.sk/zabbix/api_jsonrpc.php
+   user: beno_a
+   password: ${beno_a@st1mons11.password}
+
+---
+
 spring.profiles: test.dcom.sk
 io.jrevolt.sysmon.zabbix:
    dnsServer: 10.231.118.10

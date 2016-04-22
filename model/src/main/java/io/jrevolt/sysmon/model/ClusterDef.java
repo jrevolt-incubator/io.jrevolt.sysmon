@@ -113,7 +113,7 @@ public class ClusterDef extends DomainObject {
 		getDependencies().forEach(e -> e.setType(EndpointType.DEPENDENCY));
 
 		// filter the server list: only domain members are accepted
-		Pattern p = Pattern.compile(".*\\."+domain.getName());
+		Pattern p = domain.getServerFilter();
 		List<ServerDef> servers = getServers().stream()
 				.filter(s -> p.matcher(s.getName()).matches())
 				.distinct()
@@ -146,7 +146,9 @@ public class ClusterDef extends DomainObject {
 			// configure cluster monitoring item for every artifact in cluster artifact list
 			domain.getMonitoring().getItems().stream().filter(i->i.getTag().equals("deployment")).distinct().forEach(i->{
 				getArtifacts().forEach(a->{
-					String artifactId = Artifact.parse(a.getUri().getSchemeSpecificPart()).getArtifactId();
+					String artifactId = "mvn".equals(a.getUri().getScheme())
+							? Artifact.parse(a.getUri().getSchemeSpecificPart()).getArtifactId()
+							: a.getUri().toString();
 					copyItem(artifactId, t, i);
 				});
 			});

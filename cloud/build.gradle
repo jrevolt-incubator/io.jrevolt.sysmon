@@ -9,6 +9,7 @@ dependencies {
 	compile("com.google.code.gson:gson:2.4")
 	compile("org.springframework:spring-context-support:${springVersion}")
 	compile("net.sf.ehcache:ehcache:2.10.1")
+	compile("com.toastcoders:yavijava:6.0.03")
 
 	runtime("org.glassfish.jersey.core:jersey-client:${jerseyVersion}")
 }

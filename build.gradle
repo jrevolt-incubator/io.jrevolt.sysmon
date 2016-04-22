@@ -19,15 +19,24 @@ buildscript {
 }
 
 ext {
+	isRelease = Boolean.valueOf("${release}")
 	branch = "$git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
 	branchShort = branch.replaceFirst(".*/", "")
+	basetag = basetag ?: branch.matches("(release|hotfix)/.*") ? "${branchShort}.BUILD" : null
 	commit = "$git rev-parse HEAD".execute().in.text.trim()
 	commitShort = commit.substring(0, 7)
-	gitDescribe = "$git describe --match=${basetag} --tags --dirty".execute().in.text.trim()
+	gitDescribe = "$git describe --match=${basetag} --always --dirty".execute().in.text.trim()
 	snapshotVersion = "${branchShort}-SNAPSHOT"
 	releaseVersion = "${gitDescribe}"
-	buildTimestamp = new Date()
+	scmRevision = "${gitDescribe}"
+	buildNumber = buildNumber ?: System.currentTimeMillis()
+	buildTimestamp = buildTimestamp ?: new Date().format("${buildTimestampFormat}")
 }
+
+project.group = 'io.jrevolt.sysmon'
+project.version = isRelease ? releaseVersion : snapshotVersion
+
+println "Building ${project.version} (${gitDescribe}, build: ${buildNumber}, timestamp:${buildTimestamp})"
 
 allprojects {
 }
@@ -38,10 +47,8 @@ subprojects {
 	apply plugin: 'maven'
 	apply plugin: 'jrevolt'
 	apply plugin: 'maven-publish'
-	
 
-	project.group = rootProject.name
-	project.version = Boolean.valueOf("${release}") ? "${releaseVersion}" : "${snapshotVersion}"
+	project.version = isRelease ? releaseVersion : snapshotVersion
 
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8

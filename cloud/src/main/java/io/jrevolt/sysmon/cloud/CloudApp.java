@@ -14,7 +14,13 @@ import org.springframework.context.annotation.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vmware.vim.rest.RestClient;
+import com.vmware.vim.rest.sample.RestAppDemo;
+import com.vmware.vim25.mo.Datacenter;
+import com.vmware.vim25.mo.ServiceInstance;
+
 import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 
@@ -82,6 +88,25 @@ public class CloudApp {
 		return () -> {
 			LOG.info("listTags()");
 			cloud.listTags();
+		};
+	}
+
+	@Bean @ConditionalOnProperty(name="command", havingValue="vsphere")
+	public CloudCommand vsphere() {
+		return () -> {
+			LOG.info("vpshere()");
+
+			try {
+				String url = "https://wserver.greenhorn.sk";
+				String username = "patrik@vsphere.local";
+				String password = "ga6Rope";
+				RestClient rc = new RestClient(url, username, password);
+				RestAppDemo.runRestLevel(rc);
+				System.out.println();
+			} catch (Exception e) {
+				throw new UnsupportedOperationException(e);
+			}
+
 		};
 	}
 

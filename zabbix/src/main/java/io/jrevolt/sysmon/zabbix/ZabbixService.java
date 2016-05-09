@@ -17,6 +17,14 @@ import org.xbill.DNS.TextParseException;
 
 import com.zabbix4j.GetRequestCommonParams;
 import com.zabbix4j.ZabbixApi;
+import com.zabbix4j.action.ActionCondition;
+import com.zabbix4j.action.ActionCreateRequest;
+import com.zabbix4j.action.ActionGetRequest;
+import com.zabbix4j.action.ActionObject;
+import com.zabbix4j.action.ActionOperation;
+import com.zabbix4j.action.OperationCondition;
+import com.zabbix4j.action.OperationMessage;
+import com.zabbix4j.action.OperationMessageGroup;
 import com.zabbix4j.application.ApplicationCreateRequest;
 import com.zabbix4j.application.ApplicationGetRequest;
 import com.zabbix4j.application.ApplicationObject;
@@ -49,13 +57,20 @@ import com.zabbix4j.trigger.TriggerCreateRequest;
 import com.zabbix4j.trigger.TriggerGetRequest;
 import com.zabbix4j.trigger.TriggerGetResponse;
 import com.zabbix4j.trigger.TriggerObject;
+import com.zabbix4j.usergroup.PermissionObject;
+import com.zabbix4j.usergroup.UserGroupCreateRequest;
+import com.zabbix4j.usergroup.UserGroupGetRequest;
+import com.zabbix4j.usergroup.UserGroupGetResponse;
+import com.zabbix4j.usergroup.UserGroupObject;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.Assert.isTrue;
 
@@ -72,6 +87,10 @@ public class ZabbixService {
 
 	@Autowired
 	ZabbixApi api;
+
+	public void getUser(String id, String fullName, String email) {
+		throw new AssertionError("Not Yet implemented!");
+	}
 
 	public List<HostgroupGetResponse.Result> getHostGroups() {
 		HostgroupGetRequest req = new HostgroupGetRequest();
@@ -96,6 +115,90 @@ public class ZabbixService {
 		HostgroupGetResponse res = api.hostgroup().get(req);
 		isTrue(res.getResult().size()<=1, "Expected single result");
 		return res.getResult().stream().findFirst().orElse(null);
+	}
+
+	/// user groups ///
+
+	UserGroupObject getUserGroup(String name) {
+		return api.usergroup().get(new UserGroupGetRequest()).getResult().stream()
+				.filter(g -> g.getName().equals(name))
+				.findAny().orElse(null);
+	}
+
+	UserGroupObject getUserGroup(String name, boolean create) {
+		UserGroupObject ug = getUserGroup(name);
+
+		if (ug != null) { return ug; }
+		if (!create) { return null; }
+
+		LOG.info("Creating user group: {}", name);
+		HostgroupObject hg = getHostGroup(name);
+		PermissionObject permission = new PermissionObject(hg.getGroupid(), 2); // todo user group permissions: fixed read-only access to host group
+		UserGroupCreateRequest req = with(new UserGroupCreateRequest(), r->{
+			r.getParams().setName(name);
+			r.getParams().setRights(singletonList(permission));
+		});
+		api.usergroup().create(req);
+
+		return getUserGroup(name);
+	}
+
+	/// actions ///
+
+	ActionObject getAction(String name) {
+		return api.action().get(new ActionGetRequest()).getResult().stream()
+				.filter(r->r.getName().equals(name))
+				.findAny().orElse(null);
+	}
+
+	ActionObject getAction(String name, boolean create) {
+		ActionObject a = getAction(name);
+
+		if (a != null) { return a; }
+		if (!create) { return null; }
+
+		LOG.info("Creating action: {}", name);
+		HostgroupObject hg = getHostGroup(name);
+		UserGroupObject ug = getUserGroup(name);
+		ActionCreateRequest req = with(new ActionCreateRequest(), r->{
+			with(r.createParam(), p -> {
+				p.setName(name);
+				p.setEventsource(0); // trigger; todo hardoded event source
+				p.setEsc_period(3600); // todo hardcoded esc period
+				p.setEvaltype(0); // and/or
+				p.setRecovery_msg(1);
+				p.setDef_shortdata("{TRIGGER.NAME}: {TRIGGER.STATUS}");
+				p.setDef_longdata("{TRIGGER.NAME}: {TRIGGER.STATUS}\nLast value: {ITEM.LASTVALUE}\n{TRIGGER.URL}");
+				p.addActionConditon(with(new ActionCondition(), ac-> {
+					ac.setConditiontype(ActionCondition.CONDITION_TYPE_TRIGGER.MAINTENANCE_STATUS.value);
+					ac.setOperator(ActionCondition.CONDITION_OPERATOR.NOT_IT.value);
+					ac.setValue("");
+				}));
+				p.addActionConditon(with(new ActionCondition(), ac-> {
+					ac.setConditiontype(ActionCondition.CONDITION_TYPE_TRIGGER.TRIGGER_VALUE.value);
+					ac.setValue("1"); // problem
+				}));
+				p.addActionConditon(with(new ActionCondition(), ac-> {
+					ac.setConditiontype(ActionCondition.CONDITION_TYPE_TRIGGER.HOST_GROUP.value);
+					ac.setValue(hg.getGroupid().toString());
+				}));
+				p.addActionOperation(with(new ActionOperation(), o->{
+					o.setOperationtype(0); // send message
+					o.addOpmessageGrp(with(new OperationMessageGroup(), g -> g.setUsrgrpid(ug.getUsrgrpid())));
+					o.addOpConditons(with(new OperationCondition(), oc -> {
+						oc.setConditiontype(14); // event ack
+						oc.setValue("0"); // not ack
+					}));
+					o.setOpmessage(with(new OperationMessage(), m->{
+						m.setMediatypeid(0);
+						m.setDefault_msg(1);
+					}));
+				}));
+			});
+		});
+		api.action().create(req);
+
+		return getAction(name);
 	}
 
 	/// templates ///
@@ -255,6 +358,9 @@ public class ZabbixService {
 			r.getParams().getSearch().setName(mi.getName());
 			if (nonNull(mi.getTemplate())) {
 				r.getParams().setHostids(singletonList(getTemplate(mi.getTemplate()).getTemplateid()));
+			} else {
+				HostObject h = getHost(mi.getHostDef().getName());
+				r.getParams().setHostids(singletonList(h.getHostid()));
 			}
 		}));
 		return res.getResult().stream().filter(r->r.getName().equals(mi.getName())).findFirst().orElse(null);

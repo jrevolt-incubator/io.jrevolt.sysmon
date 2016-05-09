@@ -4,6 +4,7 @@ import io.jrevolt.launcher.mvn.Artifact;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ClusterDef extends DomainObject {
 	private boolean isAccessAllowed;
 
 	private Monitoring monitoring = new Monitoring();
+	private List<UserDef> admins = new LinkedList<>();
 
 	///
 
@@ -86,6 +88,14 @@ public class ClusterDef extends DomainObject {
 
 	public void setMonitoring(Monitoring monitoring) {
 		this.monitoring = monitoring;
+	}
+
+	public List<UserDef> getAdmins() {
+		return admins;
+	}
+
+	public void setAdmins(List<UserDef> admins) {
+		this.admins = admins;
 	}
 
 	///
@@ -202,6 +212,16 @@ public class ClusterDef extends DomainObject {
 	}
 
 	List<String> expand(String s) {
+		if (s.contains("[")) {
+			return expand1(s);
+		}
+		if (s.contains("{")) {
+			return expand2(s);
+		}
+		return Arrays.asList(s);
+	}
+
+	List<String> expand1(String s) {
 		List<String> result = new LinkedList<>();
 		Pattern p = Pattern.compile("(.*)\\[(\\p{Digit}+)\\](.*)");
 		Matcher m = p.matcher(s);
@@ -216,6 +236,28 @@ public class ClusterDef extends DomainObject {
 
 		for (char c : sequence) {
 			result.add(format("%s%s%s", prefix, c, suffix));
+		}
+
+		return result;
+	}
+
+	List<String> expand2(String s) {
+		List<String> result = new LinkedList<>();
+
+		int start = s.indexOf("{");
+		boolean matches = start != -1;
+
+		if (!matches) {
+			result.add(s);
+			return result;
+		}
+
+		int end = s.indexOf("}", start);
+		String[] items = s.substring(start+1, end).split("\\|");
+
+		for (String item : items) {
+			String expanded = s.substring(0, start) + item + s.substring(end + 1);
+			result.add(expanded);
 		}
 
 		return result;

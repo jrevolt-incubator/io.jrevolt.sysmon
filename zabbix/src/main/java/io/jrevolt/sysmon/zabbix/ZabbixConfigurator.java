@@ -16,7 +16,6 @@ import org.springframework.util.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zabbix4j.ZabbixApiException;
 import com.zabbix4j.host.HostDeleteRequest;
 import com.zabbix4j.host.HostGetRequest;
 import com.zabbix4j.hostgroup.HostgroupDeleteRequest;
@@ -65,6 +64,7 @@ public class ZabbixConfigurator {
 		domain.getClusters().removeIf(c -> cfg.getClusterExclude().matcher(c.getClusterName()).matches());
 
 		ForkJoinPool pool = new ForkJoinPool(cfg.getThreads());
+
 		pool.submit(()->{
 			if (cfg.isReset()) {
 				reset();
@@ -77,6 +77,8 @@ public class ZabbixConfigurator {
 				configureApplications();
 				configureItems();
 				configureTriggers();
+				configureUserGroups();
+				configureActions();
 			}
 		}).join();
 
@@ -113,6 +115,14 @@ public class ZabbixConfigurator {
 					LOG.info("Deleting host group {}", h.getName());
 					zbx.api.hostgroup().delete(with(new HostgroupDeleteRequest(), r->r.getParams().add(h.getGroupid())));
 				});
+	}
+
+	public void configureUserGroups() {
+		domain.getMonitoring().getGroups().forEach(g-> zbx.getUserGroup(g, true));
+	}
+
+	public void configureActions() {
+		domain.getMonitoring().getGroups().forEach(g-> zbx.getAction(g, true));
 	}
 
 	public void configureProxies() {
@@ -298,6 +308,10 @@ public class ZabbixConfigurator {
 				}
 			});
 		});
+	}
+
+	void uncaught(Thread thread, Throwable thrown) {
+		LOG.error("Uncaught exception", thrown);
 	}
 
 }

@@ -38,6 +38,7 @@ public class DomainDef extends DomainObject {
 	private List<ClusterDef> clusters = new LinkedList<>();
 	private List<ProxyDef> proxies = new LinkedList<>();
 	private Monitoring monitoring;
+	private List<UserDef> users;
 
 	@Autowired
 	transient ModelCfg cfg;
@@ -84,6 +85,14 @@ public class DomainDef extends DomainObject {
 		this.monitoring = monitoring;
 	}
 
+	public List<UserDef> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<UserDef> users) {
+		this.users = users;
+	}
+
 	///
 
 	@PostConstruct
@@ -128,7 +137,7 @@ public class DomainDef extends DomainObject {
 	private Set<String> getAllTemplateDeps(MonitoringTemplate root, Map<String, MonitoringTemplate> all, Map<String, MonitoringTemplate> deps) {
 		deps.put(root.getName(), root);
 		root.getTemplates().stream()
-				.map(s->requireNonNull(all.get(s)))
+				.map(s->requireNonNull(all.get(s), "No such template: "+s))
 				.filter(candidate->!deps.containsKey(candidate.getName()))
 				.forEach(d ->{
 			deps.put(d.getName(), d);

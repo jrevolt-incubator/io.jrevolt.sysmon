@@ -1,9 +1,13 @@
 package io.jrevolt.sysmon.zabbix;
 
+import io.jrevolt.sysmon.model.ProxyDef;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -30,6 +34,10 @@ public class ZabbixCfg {
 	private boolean skipTriggers;
 
 	private String defaultMonitoringGroup;
+
+	private Map<ProxyDef.Type, String> proxies = new HashMap<>();
+
+	private String proxy;
 
 	public URL getUrl() {
 		return url;
@@ -149,5 +157,21 @@ public class ZabbixCfg {
 
 	public void setResetFilter(Pattern resetFilter) {
 		this.resetFilter = resetFilter;
+	}
+
+	public Map<ProxyDef.Type, String> getProxies() {
+		return proxies;
+	}
+
+	public void setProxies(Map<ProxyDef.Type, String> proxies) {
+		this.proxies = proxies;
+	}
+
+	public String getProxy() {
+		return proxy;
+	}
+
+	public void setProxy(String proxy) {
+		this.proxy = proxy;
 	}
 }

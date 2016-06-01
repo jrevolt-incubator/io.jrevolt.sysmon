@@ -87,4 +87,4 @@ logging:
    level:
       root: WARN
       io.jrevolt.sysmon: DEBUG
-      com.zabbix4j: DEBUG
+      com.zabbix4j: INFO

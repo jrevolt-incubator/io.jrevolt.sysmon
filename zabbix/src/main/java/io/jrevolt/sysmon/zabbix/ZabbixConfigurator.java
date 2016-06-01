@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
@@ -65,7 +66,7 @@ public class ZabbixConfigurator {
 
 		ForkJoinPool pool = new ForkJoinPool(cfg.getThreads());
 
-		pool.submit(()->{
+		pool.submit(() -> {
 			if (cfg.isReset()) {
 				reset();
 			}
@@ -142,7 +143,9 @@ public class ZabbixConfigurator {
 		// preinitialize instances
 		domain.getMonitoring().getTemplates().parallelStream().forEach(t-> zbx.getTemplate(t.getName(), true));
 		// do update
-		domain.getMonitoring().getTemplates().parallelStream().forEach(t-> {
+		domain.getMonitoring().getTemplates().parallelStream()
+				.filter(t->!t.getName().matches("template-.*")) // filter out specific templates
+				.forEach(t-> {
 			zbx.api.template().update(with(new TemplateUpdateRequest(), r -> {
 				LOG.info("Updating template {}", t.getName());
 				TemplateObject current = zbx.getTemplate(t.getName());
@@ -180,10 +183,10 @@ public class ZabbixConfigurator {
 		}
 
 		domain.getClusters().parallelStream().flatMap(c->c.getServers().stream()).forEach(s->{
-			zbx.getHost(s, true);
+			zbx.getHost(s, GetMode.UPDATE);
 		});
 		domain.getProxies().parallelStream().forEach(p->{
-			zbx.getHost(p, true);
+			zbx.getHost(p, GetMode.UPDATE);
 		});
 	}
 

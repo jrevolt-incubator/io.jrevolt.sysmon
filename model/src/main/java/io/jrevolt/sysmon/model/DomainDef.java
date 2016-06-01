@@ -114,7 +114,7 @@ public class DomainDef extends DomainObject {
 			});
 		});
 
-		proxies.forEach(ProxyDef::init);
+		proxies.forEach(p -> p.init(this));
 		clusters.forEach(c -> c.init(this));
 
 		// finally, drop all the template objects

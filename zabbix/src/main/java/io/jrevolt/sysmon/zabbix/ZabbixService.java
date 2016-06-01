@@ -34,6 +34,8 @@ import com.zabbix4j.configuration.Option;
 import com.zabbix4j.host.HostCreateRequest;
 import com.zabbix4j.host.HostGetRequest;
 import com.zabbix4j.host.HostObject;
+import com.zabbix4j.host.HostUpdateObject;
+import com.zabbix4j.host.HostUpdateRequest;
 import com.zabbix4j.hostgroup.HostgroupCreateRequest;
 import com.zabbix4j.hostgroup.HostgroupGetRequest;
 import com.zabbix4j.hostgroup.HostgroupGetResponse;
@@ -60,17 +62,18 @@ import com.zabbix4j.trigger.TriggerObject;
 import com.zabbix4j.usergroup.PermissionObject;
 import com.zabbix4j.usergroup.UserGroupCreateRequest;
 import com.zabbix4j.usergroup.UserGroupGetRequest;
-import com.zabbix4j.usergroup.UserGroupGetResponse;
 import com.zabbix4j.usergroup.UserGroupObject;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
 import static java.util.Collections.*;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.Assert.isTrue;
 
@@ -166,9 +169,33 @@ public class ZabbixService {
 				p.setEventsource(0); // trigger; todo hardoded event source
 				p.setEsc_period(3600); // todo hardcoded esc period
 				p.setEvaltype(0); // and/or
-				p.setRecovery_msg(1);
 				p.setDef_shortdata("{TRIGGER.NAME}: {TRIGGER.STATUS}");
-				p.setDef_longdata("{TRIGGER.NAME}: {TRIGGER.STATUS}\nLast value: {ITEM.LASTVALUE}\n{TRIGGER.URL}");
+				p.setDef_longdata("Trigger: {TRIGGER.NAME}\n" +
+												"Trigger status: {TRIGGER.STATUS}\n" +
+												"Trigger severity: {TRIGGER.SEVERITY}\n" +
+												"Trigger URL: {TRIGGER.URL}\n" +
+												"\n" +
+												"Item values:\n" +
+												"\n" +
+												"1. {ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}\n" +
+												"2. {ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}\n" +
+												"3. {ITEM.NAME3} ({HOST.NAME3}:{ITEM.KEY3}): {ITEM.VALUE3}\n" +
+												"\n" +
+												"Original event ID: {EVENT.ID}");
+				p.setRecovery_msg(1);
+				p.setR_shortdata("{TRIGGER.STATUS}: {TRIGGER.NAME}");
+				p.setR_longdata("Trigger: {TRIGGER.NAME}\n" +
+											 "Trigger status: {TRIGGER.STATUS}\n" +
+											 "Trigger severity: {TRIGGER.SEVERITY}\n" +
+											 "Trigger URL: {TRIGGER.URL}\n" +
+											 "\n" +
+											 "Item values:\n" +
+											 "\n" +
+											 "1. {ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}\n" +
+											 "2. {ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}\n" +
+											 "3. {ITEM.NAME3} ({HOST.NAME3}:{ITEM.KEY3}): {ITEM.VALUE3}\n" +
+											 "\n" +
+											 "Original event ID: {EVENT.ID}");
 				p.addActionConditon(with(new ActionCondition(), ac-> {
 					ac.setConditiontype(ActionCondition.CONDITION_TYPE_TRIGGER.MAINTENANCE_STATUS.value);
 					ac.setOperator(ActionCondition.CONDITION_OPERATOR.NOT_IT.value);
@@ -263,55 +290,68 @@ public class ZabbixService {
 
 	/// hosts ///
 
-	public HostObject getHost(HostDef hostdef, boolean create) {
-		HostObject host = getHost(hostdef.getName());
-		if (nonNull(host)) { return host; }
-		if (!create) { return null; }
-
-		LOG.info("Create host {}", hostdef.getName());
-		api.host().create(with(new HostCreateRequest(), r->{
-			r.setId(1);
-			r.getParams().setHost(hostdef.getName());
-			with(hostdef.getMonitoring(), m->{
-				m.getGroups().forEach(g->{
-					r.getParams().addGroupId(getHostGroup(g).getGroupid());
-				});
-				m.getTemplates().forEach(t->{
-					r.getParams().addTemplateId(getTemplate(t).getTemplateid());
-				});
-			});
-			r.getParams().addHostInterfaceObject(with(new HostInterfaceObject(), i->{
-				i.setType(1);
-				i.setMain(1);
-				i.setDns(hostdef.getName());
-				i.setIp(getIp(hostdef.getName()));
-				i.setUseip(i.getIp() != null ? 1 : 0);
-				i.setPort(10050);
-			}));
-			if (hostdef instanceof ProxyDef) {
-				configure(r, ((ProxyDef) hostdef));
-			}
-			r.getParams().setStatus(null);
-			if (r.getParams().getGroups() == null) {
-				r.getParams().addGroupId(getHostGroup(cfg.getDefaultMonitoringGroup(), true).getGroupid());
-			}
-		}));
-
-		return getHost(hostdef.getName());
-	}
-
-	private void configure(HostCreateRequest r, ProxyDef proxy) {
-		String zproxyname = proxy.getMonitoring() != null ? proxy.getMonitoring().getProxy() : null;
-		if (zproxyname == null) { return; }
-
-		r.getParams().setProxy_hostid(getProxy(zproxyname).getProxyid());
-	}
-
 	public HostObject getHost(String name) {
 		return api.host().get(with(new HostGetRequest(), r->{
 			r.getParams().setFilter(new HostGetRequest.Filter());
 			r.getParams().getFilter().addHost(name);
 		})).getResult().stream().findFirst().orElse(null);
+	}
+
+	public HostObject getHost(HostDef hostdef, GetMode mode) {
+		HostObject host = getHost(hostdef.getName());
+		if (mode.isGet()) { return host; }
+
+		if (host == null && mode.isCreate()) {
+			LOG.info("Create host {}", hostdef.getName());
+			api.host().create(with(new HostCreateRequest(), r -> updateHost(hostdef, null, r.getParams())));
+		} else if (host != null && mode.isUpdate()) {
+			LOG.info("Updating host {}", hostdef.getName());
+			api.host().update(with(new HostUpdateRequest(), r -> updateHost(hostdef, host, r.getParams())));
+		}
+
+		return getHost(hostdef.getName());
+	}
+
+	void updateHost(HostDef def, HostObject host, HostUpdateObject update) {
+		boolean isCreate = isNull(host);
+		boolean isUpdate = !isCreate;
+
+		if (isUpdate) { update.setHostid(host.getHostid()); }
+		update.setHost(def.getName());
+		with(def.getMonitoring(), m->{
+			m.getGroups().forEach(g->{
+				update.addGroupId(getHostGroup(g).getGroupid());
+			});
+			m.getTemplates().forEach(t->{
+				update.addTemplateId(getTemplate(t).getTemplateid());
+			});
+		});
+		if (isCreate) {
+			// interfaces are created with host but updated via dedicated API
+			update.addHostInterfaceObject(with(new HostInterfaceObject(), i -> {
+				i.setType(1);
+				i.setMain(1);
+				i.setDns(def.getName());
+				i.setIp(getIp(def.getName()));
+				i.setUseip(i.getIp() != null ? 1 : 0);
+				i.setPort(10050);
+			}));
+		}
+		if (def instanceof ProxyDef) {
+			configure(update, ((ProxyDef) def));
+		}
+		update.setStatus(null);
+		if (update.getGroups() == null) {
+			update.addGroupId(getHostGroup(cfg.getDefaultMonitoringGroup(), true).getGroupid());
+		}
+	}
+
+
+	private void configure(HostUpdateObject r, ProxyDef proxy) {
+		ProxyDef.Type dflt = ProxyDef.Type.INTERNAL;
+		ProxyDef.Type type = Optional.ofNullable(proxy.getType()).orElse(dflt);
+		String zabbixProxyName = Optional.ofNullable(cfg.getProxies().get(type)).orElse(dflt.name().toLowerCase());
+		r.setProxy_hostid(getProxy(zabbixProxyName).getProxyid());
 	}
 
 
@@ -476,7 +516,11 @@ public class ZabbixService {
 
 	String getIp(String host) {
 		try {
-			SimpleResolver resolver = new SimpleResolver(cfg.getDnsServer());
+			URI uri = URI.create(cfg.getDnsServer());
+			SimpleResolver resolver = new SimpleResolver(uri.getHost());
+			resolver.setTCP(uri.getScheme().equals("tcp"));
+			resolver.setPort(uri.getPort() > 0 ? uri.getPort() : 53);
+
 			Lookup l = new Lookup(host);
 			l.setResolver(resolver);
 			l.run();

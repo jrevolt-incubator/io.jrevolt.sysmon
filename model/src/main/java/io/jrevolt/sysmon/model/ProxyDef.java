@@ -12,7 +12,11 @@ import static java.util.Objects.nonNull;
  */
 public class ProxyDef extends HostDef {
 
-	static public enum Type { INTERNAL, ADMIN, INTRANET, PUBLIC }
+	public enum Type {
+		INTERNAL,  	// not visible from outside of system
+		EXTERNAL,	// exposed to users/clients
+		PUBLIC,		// exposed to internet
+	}
 
 	private Type type;
 	private URI endpoint;
@@ -63,7 +67,7 @@ public class ProxyDef extends HostDef {
 
 	///
 
-	void init() {
+	void init(DomainDef domain) {
 		if (nonNull(monitoring)) { monitoring.init(this); }
 	}
 }

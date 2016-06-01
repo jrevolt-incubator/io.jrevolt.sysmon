@@ -39,6 +39,13 @@ public class ZabbixMain {
 
 	@Bean
 	ZabbixApi zabbixApi(ZabbixCfg cfg) {
+		if (cfg.getProxy() != null) {
+			String[] proxy = cfg.getProxy().split(":");
+			System.setProperty("http.proxyHost", proxy[0]);
+			System.setProperty("http.proxyPort", proxy[1]);
+			System.setProperty("https.proxyHost", proxy[0]);
+			System.setProperty("https.proxyPort", proxy[1]);
+		}
 		ZabbixApi api = new ZabbixApi(cfg.getUrl().toString());
 		try {
 			api.login(cfg.getUser(), cfg.getPassword());

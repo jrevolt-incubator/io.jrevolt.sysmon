@@ -35,6 +35,7 @@ public class CloudCfg {
 	private boolean sortByHostName;
 	private boolean sortByStartLevel;
 	private boolean showFilteredOnly = true;
+	private boolean singleLevel;
 
 	public URI getBaseUrl() {
 		return baseUrl;
@@ -122,6 +123,14 @@ public class CloudCfg {
 
 	public void setShowFilteredOnly(boolean showFilteredOnly) {
 		this.showFilteredOnly = showFilteredOnly;
+	}
+
+	public boolean isSingleLevel() {
+		return singleLevel;
+	}
+
+	public void setSingleLevel(boolean singleLevel) {
+		this.singleLevel = singleLevel;
 	}
 
 	@PostConstruct

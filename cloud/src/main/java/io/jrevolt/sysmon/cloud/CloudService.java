@@ -72,7 +72,7 @@ public class CloudService {
 	public void startAll(int level) {
 		doAll(
 				startSorting,
-				(vm) -> vm.getStartLevel() <= level,
+				(vm) -> cfg.isSingleLevel() ? vm.getStartLevel() == level : vm.getStartLevel() <= level,
 				(vms) -> doLevel(vms, vm -> api.startVirtualMachine(vm.getId()).getJobid(), !cfg.isSkipStartWait())
 		);
 	}
@@ -80,7 +80,7 @@ public class CloudService {
 	public void stopAll(int level) {
 		doAll(
 				stopSorting,
-				(vm) -> vm.getStartLevel() >= level,
+				(vm) -> cfg.isSingleLevel() ? vm.getStartLevel() == level : vm.getStartLevel() >= level,
 				(vms) -> doLevel(vms, vm->api.stopVirtualMachine(vm.getId()).getJobid(), false)
 		);
 	}

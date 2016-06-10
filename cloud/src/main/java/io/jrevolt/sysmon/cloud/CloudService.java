@@ -9,11 +9,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,8 +57,9 @@ public class CloudService {
 					Optional.ofNullable(vm2.getStartLevel()).orElse(Integer.MAX_VALUE))
 			: 0;
 
-	Comparator<Integer> startSorting = Integer::compareTo;
-	Comparator<Integer> stopSorting = (l1,l2)-> negateExact(startSorting.compare(l1,l2));
+	// FIXME QDH: reversed sorting due to invalid metadata in cloud tags
+	Comparator<Integer> stopSorting = Integer::compareTo;
+	Comparator<Integer> startSorting = (l1, l2)-> negateExact(stopSorting.compare(l1, l2));
 
 	///
 

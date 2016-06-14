@@ -3,11 +3,13 @@ package io.jrevolt.sysmon.zabbix;
 import io.jrevolt.launcher.mvn.Artifact;
 import io.jrevolt.sysmon.model.ClusterDef;
 import io.jrevolt.sysmon.model.DomainDef;
+import io.jrevolt.sysmon.model.ModelCfg;
 import io.jrevolt.sysmon.model.Monitoring;
 import io.jrevolt.sysmon.model.MonitoringItem;
 import io.jrevolt.sysmon.model.MonitoringTrigger;
 import io.jrevolt.sysmon.model.ProxyDef;
 import io.jrevolt.sysmon.model.ServerDef;
+import io.jrevolt.sysmon.model.UserDef;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,20 +23,29 @@ import com.zabbix4j.host.HostGetRequest;
 import com.zabbix4j.hostgroup.HostgroupDeleteRequest;
 import com.zabbix4j.hostgroup.HostgroupGetRequest;
 import com.zabbix4j.item.ItemCreateRequest;
+import com.zabbix4j.media.MediaObject;
 import com.zabbix4j.template.TemplateDeleteRequest;
 import com.zabbix4j.template.TemplateGetRequest;
 import com.zabbix4j.template.TemplateObject;
 import com.zabbix4j.template.TemplateUpdateRequest;
 import com.zabbix4j.trigger.TriggerCreateRequest;
+import com.zabbix4j.user.UserCreateRequest;
+import com.zabbix4j.user.UserGetRequest;
+import com.zabbix4j.user.UserObject;
+import com.zabbix4j.user.UserUpdateRequest;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.function.Predicate;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.*;
 
 /**
@@ -53,6 +64,9 @@ public class ZabbixConfigurator {
 
 	@Autowired
 	ZabbixCfg cfg;
+
+	@Autowired
+	ModelCfg mcfg;
 
 	public void configure() {
 
@@ -79,6 +93,7 @@ public class ZabbixConfigurator {
 				configureItems();
 				configureTriggers();
 				configureUserGroups();
+				configureUsers();
 				configureActions();
 			}
 		}).join();
@@ -122,8 +137,54 @@ public class ZabbixConfigurator {
 		domain.getMonitoring().getGroups().forEach(g-> zbx.getUserGroup(g, true));
 	}
 
+	public void configureUsers() {
+		List<UserObject> users = zbx.api.user()
+				.get(with(new UserGetRequest(), r->r.getParams().setOutput("extend")))
+				.getResult();
+		LOG.info("Configuring users. Loaded {}/{} model/zabbix users. Using filter: '{}'",
+					domain.getUsers().size(), users.size(), mcfg.getUserFilter());
+		domain.getUsers().parallelStream()
+				.filter(u->mcfg.getUserFilter().matcher(u.getUserId()).matches())
+				.forEach(u->{
+			Optional<UserObject> found = users.stream()
+					.filter(uo -> uo.getAlias().equals(u.getUserId()))
+					.findFirst();
+			if (!found.isPresent()) {
+				LOG.info("Creating user {}", u.getUserId());
+				zbx.api.user().create(with(new UserCreateRequest(), r -> {
+					r.getParams().setAlias(u.getUserId());
+					r.getParams().setPasswd("");
+					r.getParams().setName(u.getName());
+					r.getParams().setSurname(u.getSurname());
+					r.getParams().setUsrgrps(buildUserGroups(u.getUserId()));
+					r.getParams().setUser_medias(singletonList(with(new MediaObject(), mo -> {
+						// fixme qdh configuration of user media
+						mo.setActive(0);
+						mo.setMediatypeid(1);
+						mo.setPeriod("1-7,00:00-24:00");
+						mo.setSendto(u.getEmail().getAddress());
+						mo.setSeverity(0b111100);
+					})));
+				}));
+			} else if(cfg.isSkipUpdate()) {
+				LOG.debug("User {} exists. Skipping update.", u.getUserId());
+			} else {
+				LOG.info("Updating user {}", u.getUserId());
+				zbx.api.user().update(with(new UserUpdateRequest(), r -> {
+					r.getParams().add(with(r.createUser(), update->{
+						update.setUserid(found.get().getUserid());
+						update.setUsrgrps(buildUserGroups(u.getUserId()));
+					}));
+				}));
+			}
+		});
+	}
+
 	public void configureActions() {
-		domain.getMonitoring().getGroups().forEach(g-> zbx.getAction(g, true));
+		domain.getMonitoring().getGroups().stream()
+				.filter(g->g.matches("cluster-.*"))
+				.parallel()
+				.forEach(g-> zbx.getAction(g, true));
 	}
 
 	public void configureProxies() {
@@ -142,8 +203,9 @@ public class ZabbixConfigurator {
 	public void configureTemplates() {
 		// preinitialize instances
 		domain.getMonitoring().getTemplates().parallelStream().forEach(t-> zbx.getTemplate(t.getName(), true));
+
 		// do update
-		domain.getMonitoring().getTemplates().parallelStream()
+		if (!cfg.isSkipUpdate()) domain.getMonitoring().getTemplates().parallelStream()
 				.filter(t->!t.getName().matches("template-.*")) // filter out specific templates
 				.forEach(t-> {
 			zbx.api.template().update(with(new TemplateUpdateRequest(), r -> {
@@ -312,6 +374,27 @@ public class ZabbixConfigurator {
 			});
 		});
 	}
+
+	List<Integer> buildUserGroups(String username) {
+		List<Integer> groups = new ArrayList<>();
+		groups.add(zbx.getUserGroup("Zabbix users").getUsrgrpid());
+		groups.add(zbx.getUserGroup("DCOM").getUsrgrpid()); // fixme hardcoded user group
+		domain.getClusters().stream()
+				.filter(c->isAdministeredByUser(c, username))
+				// fixme hardcoded group filter
+				.flatMap(c->c.getMonitoring().getGroups().stream().filter(g->g.matches("(DCOM-|cluster-).*")))
+				.distinct()
+				.parallel().map(g->zbx.getUserGroup(g).getUsrgrpid())
+				.forEach(groups::add);
+		return groups;
+	}
+
+	private boolean isAdministeredByUser(ClusterDef c, String username) {
+		return c.getAdmins().stream()
+				.map(UserDef::getUserId)
+				.anyMatch(username::equals);
+	}
+
 
 	void uncaught(Thread thread, Throwable thrown) {
 		LOG.error("Uncaught exception", thrown);

@@ -39,6 +39,8 @@ public class ZabbixCfg {
 
 	private String proxy;
 
+	private ActionMessage actionMessage;
+
 	public URL getUrl() {
 		return url;
 	}
@@ -173,5 +175,52 @@ public class ZabbixCfg {
 
 	public void setProxy(String proxy) {
 		this.proxy = proxy;
+	}
+
+	public ActionMessage getActionMessage() {
+		return actionMessage;
+	}
+
+	public void setActionMessage(ActionMessage actionMessage) {
+		this.actionMessage = actionMessage;
+	}
+
+	static public class ActionMessage {
+		private String subject;
+		private String message;
+		private String recoverySubject;
+		private String recoveryMessage;
+
+		public String getSubject() {
+			return subject;
+		}
+
+		public void setSubject(String subject) {
+			this.subject = subject;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public String getRecoverySubject() {
+			return recoverySubject;
+		}
+
+		public void setRecoverySubject(String recoverySubject) {
+			this.recoverySubject = recoverySubject;
+		}
+
+		public String getRecoveryMessage() {
+			return recoveryMessage;
+		}
+
+		public void setRecoveryMessage(String recoveryMessage) {
+			this.recoveryMessage = recoveryMessage;
+		}
 	}
 }

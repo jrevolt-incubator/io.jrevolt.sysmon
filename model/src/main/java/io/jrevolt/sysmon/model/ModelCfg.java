@@ -16,6 +16,7 @@ public class ModelCfg {
 
 	private Pattern proxyFilter;
 	private Pattern clusterFilter;
+	private Pattern userFilter;
 
 	public Pattern getProxyFilter() {
 		return proxyFilter;
@@ -31,5 +32,13 @@ public class ModelCfg {
 
 	public void setClusterFilter(Pattern clusterFilter) {
 		this.clusterFilter = clusterFilter;
+	}
+
+	public Pattern getUserFilter() {
+		return userFilter;
+	}
+
+	public void setUserFilter(Pattern userFilter) {
+		this.userFilter = userFilter;
 	}
 }

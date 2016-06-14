@@ -10,6 +10,10 @@ import java.util.function.Consumer;
  */
 public class Utils {
 
+	static public <T> T get(T[] array, int index) {
+		return array != null && array.length > index ? array[index] : null;
+	}
+
 	static public InetAddress getLocalHost() {
 		try {
 			return InetAddress.getLocalHost();

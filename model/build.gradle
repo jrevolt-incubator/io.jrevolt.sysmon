@@ -12,4 +12,5 @@ dependencies {
 	compile("javax.ws.rs:javax.ws.rs-api:2.0")
 	compile("com.thoughtworks.xstream:xstream:1.4.7")
 	compile("com.google.code.gson:gson:2.4")
+	compile("javax.mail:mail:1.5.0-b01")
 }

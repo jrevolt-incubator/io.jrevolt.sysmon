@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.model;
 
 import io.jrevolt.launcher.mvn.Artifact;
+import io.jrevolt.sysmon.common.SysmonException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -130,6 +131,16 @@ public class ClusterDef extends DomainObject {
 				.collect(Collectors.toList());
 		getServers().clear();
 		getServers().addAll(servers);
+
+		// resolve admins against the domain's master user list
+		admins = admins.stream()
+				.map(uid->domain.getUsers().stream()
+						.filter(u->u.getUserId().equals(uid.getUserId()))
+						.findFirst()
+						.orElseThrow(()->new SysmonException(
+								null, "User '%s' in cluster '%s' does not exist in domain's user list",
+								uid.getUserId(), clusterName)))
+				.collect(Collectors.toList());
 
 		String groupName = format("cluster-%s", getClusterName());
 

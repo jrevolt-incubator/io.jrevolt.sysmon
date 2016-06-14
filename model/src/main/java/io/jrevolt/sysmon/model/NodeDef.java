@@ -4,7 +4,6 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import javax.annotation.PostConstruct;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;

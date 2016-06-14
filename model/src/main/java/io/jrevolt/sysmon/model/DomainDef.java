@@ -98,6 +98,9 @@ public class DomainDef extends DomainObject {
 	@PostConstruct
 	void init() {
 
+		// QDH UserDef.init() not called by Spring, dunno why, yet
+		getUsers().forEach(UserDef::init);
+
 		// QDH filter
 		proxies.removeIf(p -> !cfg.getProxyFilter().matcher(p.getName()).matches());
 		clusters.removeIf(c -> !cfg.getClusterFilter().matcher(c.getClusterName()).matches());
@@ -146,8 +149,6 @@ public class DomainDef extends DomainObject {
 		return new HashSet<>(deps.keySet());
 	}
 
-
-
 	///
 
 	@Override
@@ -156,4 +157,5 @@ public class DomainDef extends DomainObject {
 				.append("name", name)
 				.toString();
 	}
+
 }

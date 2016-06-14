@@ -69,6 +69,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
@@ -135,11 +136,13 @@ public class ZabbixService {
 		if (!create) { return null; }
 
 		LOG.info("Creating user group: {}", name);
-		HostgroupObject hg = getHostGroup(name);
-		PermissionObject permission = new PermissionObject(hg.getGroupid(), 2); // todo user group permissions: fixed read-only access to host group
 		UserGroupCreateRequest req = with(new UserGroupCreateRequest(), r->{
 			r.getParams().setName(name);
-			r.getParams().setRights(singletonList(permission));
+			r.getParams().setRights(getHostGroups().stream()
+					// fixme hardcoded permission calculation
+					.filter(g -> g.getName().matches("(DCOM|cluster).*"))
+					.map(g -> new PermissionObject(g.getGroupid(), 2))
+					.collect(Collectors.toList()));
 		});
 		api.usergroup().create(req);
 
@@ -169,33 +172,11 @@ public class ZabbixService {
 				p.setEventsource(0); // trigger; todo hardoded event source
 				p.setEsc_period(3600); // todo hardcoded esc period
 				p.setEvaltype(0); // and/or
-				p.setDef_shortdata("{TRIGGER.NAME}: {TRIGGER.STATUS}");
-				p.setDef_longdata("Trigger: {TRIGGER.NAME}\n" +
-												"Trigger status: {TRIGGER.STATUS}\n" +
-												"Trigger severity: {TRIGGER.SEVERITY}\n" +
-												"Trigger URL: {TRIGGER.URL}\n" +
-												"\n" +
-												"Item values:\n" +
-												"\n" +
-												"1. {ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}\n" +
-												"2. {ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}\n" +
-												"3. {ITEM.NAME3} ({HOST.NAME3}:{ITEM.KEY3}): {ITEM.VALUE3}\n" +
-												"\n" +
-												"Original event ID: {EVENT.ID}");
+				p.setDef_shortdata(cfg.getActionMessage().getSubject());
+				p.setDef_longdata(cfg.getActionMessage().getMessage());
 				p.setRecovery_msg(1);
-				p.setR_shortdata("{TRIGGER.STATUS}: {TRIGGER.NAME}");
-				p.setR_longdata("Trigger: {TRIGGER.NAME}\n" +
-											 "Trigger status: {TRIGGER.STATUS}\n" +
-											 "Trigger severity: {TRIGGER.SEVERITY}\n" +
-											 "Trigger URL: {TRIGGER.URL}\n" +
-											 "\n" +
-											 "Item values:\n" +
-											 "\n" +
-											 "1. {ITEM.NAME1} ({HOST.NAME1}:{ITEM.KEY1}): {ITEM.VALUE1}\n" +
-											 "2. {ITEM.NAME2} ({HOST.NAME2}:{ITEM.KEY2}): {ITEM.VALUE2}\n" +
-											 "3. {ITEM.NAME3} ({HOST.NAME3}:{ITEM.KEY3}): {ITEM.VALUE3}\n" +
-											 "\n" +
-											 "Original event ID: {EVENT.ID}");
+				p.setR_shortdata(cfg.getActionMessage().getRecoverySubject());
+				p.setR_longdata(cfg.getActionMessage().getRecoveryMessage());
 				p.addActionConditon(with(new ActionCondition(), ac-> {
 					ac.setConditiontype(ActionCondition.CONDITION_TYPE_TRIGGER.MAINTENANCE_STATUS.value);
 					ac.setOperator(ActionCondition.CONDITION_OPERATOR.NOT_IT.value);

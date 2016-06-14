@@ -10,6 +10,29 @@ io.jrevolt.sysmon.zabbix:
    skipHosts: ${skipHosts:false}
    skipItems: ${skipItems:false}
    skipTriggers: ${skipTriggers:false}
+   actionMessage:
+      subject: >
+         {TRIGGER.STATUS}: {TRIGGER.NAME}
+      message: |
+         Trigger : {TRIGGER.NAME}
+         Status  : {TRIGGER.STATUS}
+         Severity: {TRIGGER.SEVERITY}
+         Host    : {HOST.NAME1}
+         Item    : {ITEM.NAME1}
+         Key     : {ITEM.KEY1}
+         Value   : {ITEM.VALUE1}
+         Event   : {EVENT.ID}
+      recoverySubject: >
+         {TRIGGER.STATUS}: {TRIGGER.NAME}
+      recoveryMessage: |
+         Trigger : {TRIGGER.NAME}
+         Status  : {TRIGGER.STATUS}
+         Severity: {TRIGGER.SEVERITY}
+         Host    : {HOST.NAME1}
+         Item    : {ITEM.NAME1}
+         Key     : {ITEM.KEY1}
+         Value   : {ITEM.VALUE1}
+         Event   : {EVENT.ID}
 
 ---
 

@@ -9,6 +9,7 @@ dependencies {
 
 	compile("com.zabbix4j:com.zabbix4j:${zabbix4jVersion}") {
 		exclude group: 'ch.qos.logback'
+		changing = true
 	}
 
 	compile("org.dnsjava:dnsjava:${dnsjavaVersion}")

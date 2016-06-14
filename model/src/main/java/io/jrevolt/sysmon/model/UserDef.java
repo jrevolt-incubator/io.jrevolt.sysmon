@@ -1,27 +1,37 @@
 package io.jrevolt.sysmon.model;
 
+import io.jrevolt.sysmon.common.Utils;
+
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.mail.internet.InternetAddress;
+
+import static java.util.Objects.isNull;
+
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
  */
-public class UserDef {
+public class UserDef extends DomainObject {
 
-	private String id;
+	private String userId;
 	private String name;
-	private String email;
+	private String surname;
+	private InternetAddress email;
 
 	public UserDef() {
 	}
 
-	public UserDef(String id) {
-		this.id = id;
+	public UserDef(String userId) {
+		this.userId = userId;
 	}
 
-	public String getId() {
-		return id;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getName() {
@@ -32,12 +42,36 @@ public class UserDef {
 		this.name = name;
 	}
 
-	public String getEmail() {
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public InternetAddress getEmail() {
 		return email;
 	}
 
-	public void setEmail(String email) {
+	public void setEmail(InternetAddress email) {
 		this.email = email;
 	}
+
+	///
+
+
+	@PostConstruct
+	void init() {
+		// if name/surname is not provided but RFC email address contains usable personal part, extract it:
+		if (isNull(name) && isNull(surname) && !isNull(email.getPersonal())) {
+			String[] items = email.getPersonal().split(" ");
+			name = Utils.get(items, 0);
+			surname = Utils.get(items, 1);
+		}
+	}
+
+	///
+
 
 }

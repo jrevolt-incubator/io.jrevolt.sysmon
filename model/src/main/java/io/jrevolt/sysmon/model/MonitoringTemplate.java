@@ -2,7 +2,6 @@ package io.jrevolt.sysmon.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

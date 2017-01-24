@@ -74,8 +74,7 @@ import java.util.stream.Collectors;
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
 import static java.util.Collections.*;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.*;
 import static org.springframework.util.Assert.isTrue;
 
 /**
@@ -497,14 +496,18 @@ public class ZabbixService {
 
 	String getIp(String host) {
 		try {
-			URI uri = URI.create(cfg.getDnsServer());
-			SimpleResolver resolver = new SimpleResolver(uri.getHost());
-			resolver.setTCP(uri.getScheme().equals("tcp"));
-			resolver.setPort(uri.getPort() > 0 ? uri.getPort() : 53);
-
 			Lookup l = new Lookup(host);
-			l.setResolver(resolver);
+
+			if (nonNull(cfg.getDnsServer())) {
+				URI uri = URI.create(cfg.getDnsServer());
+				SimpleResolver resolver = new SimpleResolver(uri.getHost());
+				resolver.setTCP(uri.getScheme().equals("tcp"));
+				resolver.setPort(uri.getPort() > 0 ? uri.getPort() : 53);
+				l.setResolver(resolver);
+			}
+
 			l.run();
+
 			if (l.getResult() == Lookup.SUCCESSFUL) {
 				String resolved = l.getAnswers()[0].rdataToString();
 				return resolved;

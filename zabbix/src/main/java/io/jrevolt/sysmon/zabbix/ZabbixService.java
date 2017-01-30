@@ -361,7 +361,7 @@ public class ZabbixService {
 				i.getParams().setFormula(mi.getFormula().floatValue());
 				i.getParams().setMultiplier(1);
 			}
-			if (mi.getType().equals(MonitoringItem.Type.EXTERNAL)) {
+			if (mi.getType().equals(MonitoringItem.Type.EXTERNAL) && nonNull(mi.getHostDef())) {
 				HostInterfaceObject iface = getHostInterface(getHost(mi.getHostDef().getName()));
 				i.getParams().setInterfaceid(iface.getInterfaceid());
 			}

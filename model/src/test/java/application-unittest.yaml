@@ -11,6 +11,7 @@ domain:
                   command: MyUserParameter[check item1]
                -  name: item2
                   command: MyUserParameter[check item2]
+                  flexibleIntervals: "22/1-5,09:00-17:00"
                   trigger:
                      name: $item.name is unavailable
                      expression: last()<>1

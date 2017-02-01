@@ -367,6 +367,9 @@ public class ZabbixService {
 			}
 			i.getParams().setApplications(singletonList(applicationId));
 			i.getParams().setDelay(60);
+			i.getParams().setDelay_flex(mi.getFlexibleIntervals());
+			i.getParams().setHistory(mi.getHistory());
+			i.getParams().setTrends(mi.getTrends());
 		}));
 		return getItem(mi);
 	}

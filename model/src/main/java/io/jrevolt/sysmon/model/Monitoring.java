@@ -3,6 +3,7 @@ package io.jrevolt.sysmon.model;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -24,8 +25,10 @@ import static java.util.Objects.nonNull;
 public class Monitoring extends DomainObject {
 
 	private List<String> groups = new LinkedList<>();
+	@Valid
 	private List<MonitoringItem> items = new LinkedList<>();
 	private List<MonitoringTemplate> templates = new LinkedList<>();
+
 	private String proxy;
 
 	private transient HostDef hostDef;

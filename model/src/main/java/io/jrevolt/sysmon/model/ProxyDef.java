@@ -1,9 +1,8 @@
 package io.jrevolt.sysmon.model;
 
-import java.net.InetAddress;
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
@@ -21,6 +20,7 @@ public class ProxyDef extends HostDef {
 	private Type type;
 	private URI endpoint;
 	private List<RoutingDef> routing;
+	@Valid
 	private Monitoring monitoring;
 
 	///

@@ -5,6 +5,7 @@ import io.jrevolt.sysmon.common.SysmonException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ public class ClusterDef extends DomainObject {
 	private List<ArtifactDef> artifacts = new LinkedList<>();
 	private boolean isAccessAllowed;
 
+	@Valid
 	private Monitoring monitoring = new Monitoring();
 	private List<UserDef> admins = new LinkedList<>();
 

@@ -4,11 +4,13 @@ import io.jrevolt.sysmon.common.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,15 +32,20 @@ import static java.util.Objects.requireNonNull;
  * @version $Id$
  */
 @ConfigurationProperties("domain")
+@Validated
 public class DomainDef extends DomainObject {
 
 	private String name;
 	private Pattern serverFilter;
 
+	@Valid
 	private List<ClusterDef> clusters = new LinkedList<>();
+	@Valid
 	private List<ProxyDef> proxies = new LinkedList<>();
-	private Monitoring monitoring;
-	private List<UserDef> users;
+	@Valid
+	private Monitoring monitoring = new Monitoring();
+	@Valid
+	private List<UserDef> users = new LinkedList<>();
 
 	@Autowired
 	transient ModelCfg cfg;
@@ -124,7 +131,7 @@ public class DomainDef extends DomainObject {
 		with(getMonitoring(), m -> m.getItems().clear());
 
 		try {
-			new Yaml().dump(this, new FileWriter("c:/users/patrik/var/test.yaml"));
+			new Yaml().dump(this, new FileWriter("dump.yaml"));
 			System.out.println();
 		} catch (Exception ignore) {
 		}

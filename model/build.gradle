@@ -3,6 +3,8 @@ apply plugin: 'java'
 dependencies {
 	compile project(":io.jrevolt.sysmon.common")
 
+	compile("org.springframework.boot:spring-boot-starter-validation:${springBootVersion}")
+	
 	compile("org.springframework:spring-context:${springVersion}")
 	compile("io.jrevolt.launcher:io.jrevolt.launcher:${jrevoltLauncherVersion}")
 	compile("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")

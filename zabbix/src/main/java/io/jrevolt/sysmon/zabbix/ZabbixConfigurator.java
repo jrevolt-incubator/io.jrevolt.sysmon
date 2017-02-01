@@ -34,6 +34,7 @@ import com.zabbix4j.user.UserGetRequest;
 import com.zabbix4j.user.UserObject;
 import com.zabbix4j.user.UserUpdateRequest;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +42,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.Predicate;
 
 import static io.jrevolt.sysmon.common.Utils.with;
 import static java.lang.String.format;
@@ -57,6 +57,7 @@ public class ZabbixConfigurator {
 	static private Logger LOG = LoggerFactory.getLogger(ZabbixConfigurator.class);
 
 	@Autowired
+	@Valid
 	DomainDef domain;
 
 	@Autowired

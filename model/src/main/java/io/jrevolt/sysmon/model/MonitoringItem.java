@@ -3,11 +3,10 @@ package io.jrevolt.sysmon.model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.*;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -34,6 +33,11 @@ public class MonitoringItem extends DomainObject {
 	private String units;
 	private BigDecimal formula;
 	private String application;
+	@Pattern(regexp="\\d+/\\d+-\\d+,\\d{2}:\\d{2}-\\d{2}:\\d{2}") // interval/weekday-weekday,hh:mm-hh:mm e.g. "22/1-5,09:00-17:00"
+	private String flexibleIntervals;
+	private Integer history;
+	private Integer trends;
+
 	private MonitoringTrigger trigger;
 
 	private transient MonitoringTemplate template;
@@ -49,6 +53,9 @@ public class MonitoringItem extends DomainObject {
 		this.valueType = src.valueType;
 		this.dataType = src.dataType;
 		this.application = src.application;
+		this.history = src.history;
+		this.trends = src.trends;
+		this.flexibleIntervals = src.flexibleIntervals;
 		this.trigger = nonNull(src.trigger) ? new MonitoringTrigger(src.trigger) : null;
 	}
 
@@ -131,6 +138,30 @@ public class MonitoringItem extends DomainObject {
 
 	public void setApplication(String application) {
 		this.application = application;
+	}
+
+	public String getFlexibleIntervals() {
+		return flexibleIntervals;
+	}
+
+	public void setFlexibleIntervals(String flexibleIntervals) {
+		this.flexibleIntervals = flexibleIntervals;
+	}
+
+	public Integer getHistory() {
+		return history;
+	}
+
+	public void setHistory(Integer history) {
+		this.history = history;
+	}
+
+	public Integer getTrends() {
+		return trends;
+	}
+
+	public void setTrends(Integer trends) {
+		this.trends = trends;
 	}
 
 	public MonitoringTrigger getTrigger() {

@@ -46,6 +46,7 @@ public class MonitoringItem extends DomainObject {
 		this.name = src.name;
 		this.type = src.type;
 		this.command = src.command;
+		this.valueType = src.valueType;
 		this.dataType = src.dataType;
 		this.application = src.application;
 		this.trigger = nonNull(src.trigger) ? new MonitoringTrigger(src.trigger) : null;

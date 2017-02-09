@@ -15,6 +15,7 @@ buildscript {
 			url "$cfg.repository";
 			credentials { username "$cfg.repositoryUserName"; password "$cfg.repositoryPassword" }
 		}
+		maven { url "$cfg.snapshots" }
 	}
 	dependencies {
 		classpath("io.jrevolt.plugins:io.jrevolt.plugins.gradle:develop-SNAPSHOT")
@@ -89,6 +90,7 @@ subprojects {
 			url "$cfg.repository"
 			credentials { username "$cfg.repositoryUserName"; password "$cfg.repositoryPassword" }
 		}
+		maven { url "$cfg.snapshots" }
 	}
 
 	compileJava.doLast { task ->

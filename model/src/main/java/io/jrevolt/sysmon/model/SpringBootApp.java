@@ -2,6 +2,7 @@ package io.jrevolt.sysmon.model;
 
 import io.jrevolt.launcher.vault.VaultConfiguration;
 
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.env.EnumerableCompositePropertySource;
@@ -35,6 +36,7 @@ public class SpringBootApp extends SpringApplication {
 		return new SpringApplicationBuilder()
 				.sources(source)
 				.environment(VaultConfiguration.initStandardEnvironment())
+				.bannerMode(Banner.Mode.OFF)
 				.main(SpringBootApp.class)
 				.run(args);
 //		return new SpringBootApp(source).run(args);

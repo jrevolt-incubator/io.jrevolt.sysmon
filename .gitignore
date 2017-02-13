@@ -7,16 +7,16 @@
 /.gradle
 /.build
 /gradle-*.properties
-/gradle-app.setting
-/mybuild.sh
-
-# OTHER
-rebel.xml
-/.keystore
-/.soapui
 
 # SpringBoot and apps
 /system.properties
 /application.yaml
 /application-*.yaml
-/*.json
+
+# OTHER
+/mybuild.sh
+/.keystore
+/build.sh
+/test.sh
+/.soapui
+*~

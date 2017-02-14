@@ -15,6 +15,7 @@ public class ProxyDef extends HostDef {
 		INTERNAL,  	// not visible from outside of system
 		EXTERNAL,	// exposed to users/clients
 		PUBLIC,		// exposed to internet
+		INTRANET, // QDH used by data
 	}
 
 	private Type type;
@@ -22,6 +23,16 @@ public class ProxyDef extends HostDef {
 	private List<RoutingDef> routing;
 	@Valid
 	private Monitoring monitoring;
+
+	///
+
+
+	public ProxyDef() {
+	}
+
+	public ProxyDef(String name) {
+		setProxyName(name);
+	}
 
 	///
 

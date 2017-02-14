@@ -33,9 +33,12 @@ public class ModelMain {
 	DomainDef domain;
 
 	public void run() {
-		System.out.println("Typ vztahu;Source KP;Source Typ KP;Target KP;TENANT_ID;customer_id");
+		System.out.println("Typ vztahu;Source KP;Source Typ KP;Target KP;Target Typ KP;TENANT_ID;customer_id");
 		domain.getClusters().stream().map(ClusterDef::getServers).flatMap(Collection::stream).forEach(s->{
-			System.out.printf("composition;cluster-%s;%s;Server;DEUS;6%n", s.getCluster(), s.getName());
+			System.out.printf("composition;cluster-%s;Cluster;%s;Server;DEUS;6%n", s.getCluster(), s.getName());
+			s.getClusterDef().getProxies().forEach(p->{
+				System.out.printf("composition;%s;LoadBalancer;cluster-%s;Cluster;DEUS;6%n", p.getName(), s.getCluster());
+			});
 		});
 	}
 }

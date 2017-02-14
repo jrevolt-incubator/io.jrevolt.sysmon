@@ -8,8 +8,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +28,7 @@ public class ClusterDef extends DomainObject {
 
 	private String clusterName;
 	private List<ServerDef> servers = new LinkedList<>();
+	private List<ProxyDef> proxies = new LinkedList<>();
 	private List<EndpointDef> provides = new LinkedList<>();
 	private List<EndpointDef> dependencies = new LinkedList<>();
 	private List<ArtifactDef> artifacts = new LinkedList<>();
@@ -51,6 +54,14 @@ public class ClusterDef extends DomainObject {
 
 	public void setServers(List<ServerDef> servers) {
 		this.servers = servers;
+	}
+
+	public List<ProxyDef> getProxies() {
+		return proxies;
+	}
+
+	public void setProxies(List<ProxyDef> proxies) {
+		this.proxies = proxies;
 	}
 
 	public List<EndpointDef> getProvides() {
@@ -115,8 +126,6 @@ public class ClusterDef extends DomainObject {
 	public List<String> toServerNames() {
 		return getServers().stream().map(ServerDef::getName).collect(Collectors.toList());
 	}
-
-
 
 	void init(DomainDef domain) {
 
@@ -207,6 +216,17 @@ public class ClusterDef extends DomainObject {
 					.map(e -> new EndpointDef(e, s))
 					.collect(Collectors.toList()));
 		});
+
+		// resolve proxies (current values are placeholders only)
+		{
+			Map<String,ProxyDef> proxyDefs = new HashMap<>();
+			domain.getProxies().forEach(pd->proxyDefs.put(pd.getName(), pd));
+			List<ProxyDef> resolved = getProxies().stream()
+					.map(pd->proxyDefs.get(pd.getName()))
+					.filter(Objects::nonNull)
+					.collect(Collectors.toList());
+			setProxies(resolved);
+		}
 
 		// and finally, delegate to init()
 		getServers().forEach(s->s.init(this));

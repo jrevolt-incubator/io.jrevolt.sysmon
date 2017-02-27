@@ -19,7 +19,8 @@ public class ProxyDef extends HostDef {
 	}
 
 	private Type type;
-	private URI endpoint;
+	private URI uri;
+	private List<EndpointDef> provides;
 	private List<RoutingDef> routing;
 	@Valid
 	private Monitoring monitoring;
@@ -44,12 +45,20 @@ public class ProxyDef extends HostDef {
 		this.type = type;
 	}
 
-	public URI getEndpoint() {
-		return endpoint;
+	public URI getUri() {
+		return uri;
 	}
 
-	public void setEndpoint(URI endpoint) {
-		this.endpoint = endpoint;
+	public void setUri(URI uri) {
+		this.uri = uri;
+	}
+
+	public List<EndpointDef> getProvides() {
+		return provides;
+	}
+
+	public void setProvides(List<EndpointDef> provides) {
+		this.provides = provides;
 	}
 
 	public List<RoutingDef> getRouting() {

@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
 
-import java.io.File;
+import java.net.URI;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:patrikbeno@gmail.com">Patrik Beno</a>
@@ -40,5 +42,35 @@ public class ModelMain {
 				System.out.printf("composition;%s;LoadBalancer;cluster-%s;Cluster;DEUS;6%n", p.getName(), s.getCluster());
 			});
 		});
+//		domain.getProxies().forEach(proxy ->{
+//			proxy.getProvides().stream()
+//					.map(ep->ep.getUri().getHost()).distinct()
+//					.forEach(cluster -> {
+//				System.out.printf("used by;%s;load balancer;%s;cluster;DEUS;6%n", proxy.getUri().getHost(), cluster);
+//			});
+//		});
+		domain.getClusters().forEach(cl->{
+			cl.getServers().stream().findFirst().ifPresent(sd->{
+				sd.getDependencies().stream()
+						.map(d->getHostFromUri(d.getUri())).distinct()
+						.forEach(h->{
+					Optional<ProxyDef> pd = domain.getProxies().stream()
+							.filter(p -> p.getUri().getHost().matches(h)).findFirst();
+					String kind = pd.isPresent() ? "load balancer" : "external";
+					String name = pd.isPresent() ? pd.get().getName() : h;
+					System.out.printf("%10s;%30s;%20s;%20s;%20s;%n", "used by", name, kind, cl.getClusterName(), "cluster");
+				});
+			});
+		});
+
+	}
+
+	String getHostFromUri(URI uri) {
+		if (uri.getScheme().equals("jdbc")) {
+			uri = URI.create(uri.getSchemeSpecificPart());
+			String h = uri.getAuthority().replaceFirst("[:;].*", "");
+			return h;
+		}
+		return uri.getHost();
 	}
 }

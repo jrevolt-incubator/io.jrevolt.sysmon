@@ -366,7 +366,7 @@ public class ZabbixService {
 				i.getParams().setInterfaceid(iface.getInterfaceid());
 			}
 			i.getParams().setApplications(singletonList(applicationId));
-			i.getParams().setDelay(60);
+			i.getParams().setDelay(Optional.of(mi.getUpdateInterval()).orElse(60));
 			i.getParams().setDelay_flex(mi.getFlexibleIntervals());
 			i.getParams().setHistory(mi.getHistory());
 			i.getParams().setTrends(mi.getTrends());

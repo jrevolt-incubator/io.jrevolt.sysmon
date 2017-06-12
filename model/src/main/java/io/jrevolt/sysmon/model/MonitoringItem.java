@@ -33,6 +33,7 @@ public class MonitoringItem extends DomainObject {
 	private String units;
 	private BigDecimal formula;
 	private String application;
+	private Integer updateInterval;
 	@Pattern(regexp="\\d+/\\d+-\\d+,\\d{2}:\\d{2}-\\d{2}:\\d{2}") // interval/weekday-weekday,hh:mm-hh:mm e.g. "22/1-5,09:00-17:00"
 	private String flexibleIntervals;
 	private Integer history;
@@ -138,6 +139,14 @@ public class MonitoringItem extends DomainObject {
 
 	public void setApplication(String application) {
 		this.application = application;
+	}
+
+	public Integer getUpdateInterval() {
+		return updateInterval;
+	}
+
+	public void setUpdateInterval(Integer updateInterval) {
+		this.updateInterval = updateInterval;
 	}
 
 	public String getFlexibleIntervals() {

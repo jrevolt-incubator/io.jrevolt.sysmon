@@ -1,6 +1,7 @@
 package io.jrevolt.sysmon.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,9 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Objects;
+import java.util.Formatter;
 import java.util.Optional;
 
 /**
@@ -34,21 +37,44 @@ public class ModelMain {
 	@Autowired
 	DomainDef domain;
 
+	@Value("${ModelMain.file:-}")
+	File file;
+
+	@Value("${ModelMain.format:%13s;%30s;%20s;%30s;%20s;%10s;%13s%n}")
+	String format;
+
 	public void run() {
-		System.out.println("Typ vztahu;Source KP;Source Typ KP;Target KP;Target Typ KP;TENANT_ID;customer_id");
+		Formatter out = out();
+		out.format(
+				format,
+				"Typ vztahu", "Source KP", "Source Typ KP", "Target KP", "Target Typ KP", "TENANT_ID", "customer_id");
+		composition(out);
+		usedBy(out);
+	}
+
+	private void composition(Formatter out) {
 		domain.getClusters().stream().map(ClusterDef::getServers).flatMap(Collection::stream).forEach(s->{
-			System.out.printf("composition;cluster-%s;Cluster;%s;Server;DEUS;6%n", s.getCluster(), s.getName());
+			out.format(
+					format,
+					"composition", "cluster-"+s.getCluster(), "Cluster", s.getName(), "Server", "DEUS", "6");
 			s.getClusterDef().getProxies().forEach(p->{
-				System.out.printf("composition;%s;LoadBalancer;cluster-%s;Cluster;DEUS;6%n", p.getName(), s.getCluster());
+				out.format(
+						format,
+						"composition", p.getName(), "LoadBalancer", "cluster-"+s.getCluster(), "Cluster", "DEUS", "6");
 			});
 		});
-//		domain.getProxies().forEach(proxy ->{
-//			proxy.getProvides().stream()
-//					.map(ep->ep.getUri().getHost()).distinct()
-//					.forEach(cluster -> {
-//				System.out.printf("used by;%s;load balancer;%s;cluster;DEUS;6%n", proxy.getUri().getHost(), cluster);
-//			});
-//		});
+	}
+
+	private void usedBy(Formatter out) {
+		domain.getProxies().forEach(proxy ->{
+			proxy.getProvides().stream()
+					.map(ep->ep.getUri().getHost()).distinct()
+					.forEach(cluster -> {
+				out.format(
+						format,
+						"used by", "load balancer", proxy.getUri().getHost(), cluster, "cluster", "DEUS", "6");
+			});
+		});
 		domain.getClusters().forEach(cl->{
 			cl.getServers().stream().findFirst().ifPresent(sd->{
 				sd.getDependencies().stream()
@@ -58,11 +84,12 @@ public class ModelMain {
 							.filter(p -> p.getUri().getHost().matches(h)).findFirst();
 					String kind = pd.isPresent() ? "load balancer" : "external";
 					String name = pd.isPresent() ? pd.get().getName() : h;
-					System.out.printf("%10s;%30s;%20s;%20s;%20s;%n", "used by", name, kind, cl.getClusterName(), "cluster");
+					out.format(
+							format,
+							"used by", name, kind, cl.getClusterName(), "cluster", "DEUS", "6");
 				});
 			});
 		});
-
 	}
 
 	String getHostFromUri(URI uri) {
@@ -72,5 +99,17 @@ public class ModelMain {
 			return h;
 		}
 		return uri.getHost();
+	}
+
+	private Formatter out() {
+		try {
+			if (file == null || file.getName().equals("-")) {
+				return new Formatter(System.out);
+			} else {
+				return new Formatter(file);
+			}
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -1,9 +1,13 @@
 package io.jrevolt.sysmon.model;
 
+import io.jrevolt.sysmon.common.Log;
+
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.LinkedList;
 import java.util.List;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -20,8 +24,8 @@ public class ProxyDef extends HostDef {
 
 	private Type type;
 	private URI uri;
-	private List<EndpointDef> provides;
-	private List<RoutingDef> routing;
+	private List<EndpointDef> provides = new LinkedList<>();
+	private List<RoutingDef> routing = new LinkedList<>();
 	@Valid
 	private Monitoring monitoring;
 
@@ -88,6 +92,11 @@ public class ProxyDef extends HostDef {
 	///
 
 	void init(DomainDef domain) {
+		if (isNull(uri)) {
+			String s = String.format("https://%s", getName());
+			Log.warn(this, "Missing URI. Defaulting to: {}", s);
+			setUri(URI.create(s));
+		}
 		if (nonNull(monitoring)) { monitoring.init(this); }
 	}
 }
